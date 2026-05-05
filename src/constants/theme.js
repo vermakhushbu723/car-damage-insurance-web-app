@@ -9,7 +9,7 @@ export const COLORS = {
     primaryLight: '#93C5FD',  // Light blue
 
     // Background colors
-    bgApp: 'linear-gradient(135deg, #009FFD 0%, #00A2FF 100%)',         // Light sky blue app background
+    bgApp: 'linear-gradient(#DAF0FE, #009FFD 0%, #00A2FF 100%)',         // Light sky blue app background
     bgCard: '#DAF0FE',        // White card background
     bgInput: '#EFF6FF',       // Very light blue input background
     bgHeader: '#3B82F6',      // Blue header background
