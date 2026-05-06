@@ -1,5 +1,6 @@
 import React from 'react';
 import { COLORS } from '../../constants/theme';
+import BottomButton from '../common/BottomButton';
 
 /**
  * Rotate Device Modal
@@ -16,26 +17,27 @@ const RotateDeviceModal = ({ visible, onAllow }) => {
                 {/* Icon */}
                 <div
                     className="w-20 h-20 rounded-full flex items-center justify-center mb-4"
-                    style={{ background: '#EFF6FF' }}
+                    style={{ background: '#EFF6FF', border: '1px solid #00A0FE' }}
                 >
-                    <span style={{ fontSize: 42 }}>🔄</span>
+                    <span className="text-4xl p-3">
+                        <img src="/public/images/icons/rotate.svg" alt="rotate" srcset="" />
+                    </span>
                 </div>
 
-                <h3 className="font-bold text-xl mb-3" style={{ color: COLORS.primary }}>
+                <h3 className="font-bold text-xl mb-3" style={{ color: COLORS.rotateAccent }}>
                     Rotate
                 </h3>
 
-                <p className="text-sm leading-relaxed mb-6" style={{ color: COLORS.textSecondary }}>
+                <p className="text-sm leading-relaxed mb-6" >
                     Please Rotate Your Device &amp; Turn On The Auto Rotation As The Photo Needs To Be Captured In Landscape Mode
                 </p>
 
-                <button
+                <BottomButton
+                    label='Allow'
                     onClick={onAllow}
                     className="w-full py-3 rounded-xl text-white font-semibold"
                     style={{ background: COLORS.btnPrimary }}
-                >
-                    Allow
-                </button>
+                />
             </div>
         </div>
     );

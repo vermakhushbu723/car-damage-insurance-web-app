@@ -1,22 +1,33 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, useLocation } from 'react-router-dom';
 import AppRoutes from './routes/AppRoutes';
+
+const AppContent = () => {
+    const location = useLocation();
+    
+    // Check if current route is a fullscreen landscape page
+    const isFullscreenPage = location.pathname.includes('photo-capture-selection') || 
+                             location.pathname.includes('camera-capture');
+
+    return (
+        <div
+            className="min-h-screen w-full flex justify-center"
+            style={{ background: '#94A3B8' }}
+        >
+            <div
+                className={`w-full ${!isFullscreenPage ? 'max-w-sm' : ''} min-h-screen relative overflow-x-hidden`}
+                style={{ background: 'transparent' }}
+            >
+                <AppRoutes />
+            </div>
+        </div>
+    );
+};
 
 const App = () => {
     return (
         <BrowserRouter>
-            {/* Mobile-first container: centered, max-width mobile, full height */}
-            <div
-                className="min-h-screen w-full flex justify-center"
-                style={{ background: '#94A3B8' }}
-            >
-                <div
-                    className="w-full max-w-sm min-h-screen relative overflow-x-hidden"
-                    style={{ background: 'transparent' }}
-                >
-                    <AppRoutes />
-                </div>
-            </div>
+            <AppContent />
         </BrowserRouter>
     );
 };

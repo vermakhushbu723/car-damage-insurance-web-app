@@ -1,0 +1,21 @@
+.login-card {
+  /* width: 440px; */
+  height: 801px;
+  /* position: absolute;
+  top: 155px;
+  opacity: 1; */
+
+  padding: 16px ;
+
+  background: #DAF0FE;
+  border: 1px solid #000000;
+
+  border-top-left-radius: 25px;
+  border-top-right-radius: 25px;
+
+  overflow: auto;
+}
+
+.main-bg{
+  background: #DAF0FE;
+}

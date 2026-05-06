@@ -14,8 +14,8 @@ const InputField = ({ label, placeholder, value, onChange, type = 'text', prefix
             {label}
         </label>
         <div
-            className="flex items-center gap-2 px-4 py-3 rounded-xl border"
-            style={{ background: COLORS.bgInput, borderColor: COLORS.borderLight }}
+            className="flex items-center gap-2 px-4 py-2 rounded-md border"
+            style={{ background: COLORS.bgInput, borderColor: COLORS.borderInput }}
         >
             {prefix && (
                 <span className="text-sm font-semibold shrink-0" style={{ color: COLORS.textSecondary }}>
@@ -34,31 +34,90 @@ const InputField = ({ label, placeholder, value, onChange, type = 'text', prefix
     </div>
 );
 
-// Reusable Select Field
-const SelectField = ({ label, placeholder, value, onChange, options = [] }) => (
-    <div className="mb-4">
-        <label className="block text-sm font-medium mb-1.5" style={{ color: COLORS.textPrimary }}>
-            {label}
-        </label>
-        <div
-            className="flex items-center gap-2 px-4 py-3 rounded-xl border"
-            style={{ background: COLORS.bgInput, borderColor: COLORS.borderLight }}
-        >
-            <select
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                className="flex-1 outline-none text-sm bg-transparent appearance-none"
-                style={{ color: value ? COLORS.textPrimary : COLORS.textSecondary }}
-            >
-                <option value="" disabled>{placeholder}</option>
-                {options.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
-                ))}
-            </select>
-            <DownOutlined style={{ color: COLORS.textSecondary, fontSize: 12 }} />
+// Reusable Select Field - Custom Dropdown
+const SelectField = ({ label, placeholder, value, onChange, options = [] }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = React.useRef(null);
+
+    React.useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    return (
+        <div className="mb-4">
+            <label className="block text-sm font-medium mb-1.5 " style={{ color: COLORS.textPrimary }}>
+                {label}
+            </label>
+            <div style={{ position: 'relative' }} ref={dropdownRef}>
+                <div
+                    className="flex items-center gap-2 px-4 py-2 rounded-md border cursor-pointer"
+                    style={{ background: COLORS.bgInput, borderColor: COLORS.borderInput }}
+                    onClick={() => setIsOpen(!isOpen)}
+                >
+                    <span className="flex-1 text-sm" style={{ color: value ? COLORS.textPrimary : COLORS.textSecondary }}>
+                        {value || placeholder}
+                    </span>
+                    <DownOutlined style={{ color: COLORS.textSecondary, fontSize: 12, transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
+                </div>
+
+                {isOpen && (
+                    <ul
+                        style={{
+                            position: 'absolute',
+                            top: '100%',
+                            left: 0,
+                            right: 0,
+                            background: COLORS.bgHeader,
+                            border: `1px solid ${COLORS.borderInput}`,
+                            borderRadius: '6px',
+                            marginTop: '4px',
+                            zIndex: 10,
+                            maxHeight: '200px',
+                            overflowY: 'auto',
+                            listStyle: 'none',
+                            padding: 0,
+                            margin: 0,
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                        }}
+                    >
+                        {options.map((opt) => (
+                            <li
+                                key={opt}
+                                onClick={() => {
+                                    onChange(opt);
+                                    setIsOpen(false);
+                                }}
+                                style={{
+                                    padding: '8px 16px',
+                                    cursor: 'pointer',
+                                    color: COLORS.textPrimary,
+                                    fontSize: '14px',
+                                    backgroundColor: opt === value ? COLORS.bgInput : 'transparent',
+                                    borderBottom: `1px solid ${COLORS.borderInput}`
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.target.style.backgroundColor = '#e8f0f8';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.backgroundColor = opt === value ? COLORS.bgInput : 'transparent';
+                                }}
+                            >
+                                {opt}
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 const OwnerVehicleDetailsPage = () => {
     const navigate = useNavigate();
@@ -83,7 +142,7 @@ const OwnerVehicleDetailsPage = () => {
     const handleNext = () => navigate(ROUTES.DOCUMENT_UPLOAD);
 
     return (
-        <div className="min-h-screen flex flex-col" style={{ background: COLORS.bgApp }}>
+        <div className="min-h-screen flex flex-col" >
             {/* Header */}
             <AppHeader />
 
@@ -91,7 +150,7 @@ const OwnerVehicleDetailsPage = () => {
             <PageTitleBar title="Owner & Vehicle Details" />
 
             {/* Form */}
-            <div className="flex-1 px-4 pt-5 pb-6 overflow-y-auto">
+            <div className="flex-1 px-4 pt-5 pb-6 overflow-y-auto main-bg">
                 <InputField
                     label="Owner Name"
                     placeholder="Naman Singh"

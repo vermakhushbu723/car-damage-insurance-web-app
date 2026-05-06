@@ -10,20 +10,20 @@ const PrimaryButton = ({ label = 'Submit', onClick, disabled = false, style = {}
             onClick={onClick}
             disabled={disabled}
             style={{
-                width: '100%',
-                maxWidth: '406px',
-                height: '52px',
+                // width: '181px',
+                // height: '37px',
                 borderRadius: '7px',
-                padding: '10px',
+                // paddingTop: '10px',
+                // paddingBottom: '10px',
                 gap: '10px',
-                background: disabled ? '#9DB4D4' : '#2770CE',
+                background: '#01A0FE',
                 border: 'none',
                 color: 'white',
                 fontSize: '16px',
-                fontWeight: 'bold',
+                fontWeight: '500',
                 cursor: disabled ? 'not-allowed' : 'pointer',
                 transition: 'all 0.3s ease',
-                opacity: disabled ? 0.7 : 1,
+                opacity: 1,
                 ...style,
             }}
         >

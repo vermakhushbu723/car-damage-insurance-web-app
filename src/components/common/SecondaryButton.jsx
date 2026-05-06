@@ -10,20 +10,18 @@ const SecondaryButton = ({ label = 'Cancel', onClick, disabled = false, style = 
             onClick={onClick}
             disabled={disabled}
             style={{
-                width: '181px',
-                height: '37px',
                 borderRadius: '7px',
-                padding: '10px',
+                // paddingTop: '10px',
+                // paddingBottom: '10px',
                 gap: '10px',
-                borderWidth: '2px',
+                background: 'transparent',
                 border: '2px solid #01A0FE',
-                background: 'white',
                 color: '#01A0FE',
-                fontSize: '14px',
-                fontWeight: '600',
+                fontSize: '16px',
+                fontWeight: '500',
                 cursor: disabled ? 'not-allowed' : 'pointer',
                 transition: 'all 0.3s ease',
-                opacity: disabled ? 0.6 : 1,
+                opacity: 1,
                 ...style,
             }}
         >

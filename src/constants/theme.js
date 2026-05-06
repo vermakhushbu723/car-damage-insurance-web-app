@@ -11,14 +11,14 @@ export const COLORS = {
     // Background colors
     bgApp: 'linear-gradient(#DAF0FE, #009FFD 0%, #00A2FF 100%)',         // Light sky blue app background
     bgCard: '#DAF0FE',        // White card background
-    bgInput: '#EFF6FF',       // Very light blue input background
-    bgHeader: '#3B82F6',      // Blue header background
-    bgPageTitle: '#3B82F6',   // Blue page title bar
+    bgInput: '#DEDEDE40',       // Very light blue input background
+    bgHeader: '#00A0FE',      // Blue header background
+    bgPageTitle: '#00A0FE',   // Blue page title bar
 
     // Button colors
     btnClaim: '#E07B39',      // Orange - Claim button
     btnPreInspection: '#4F46E5', // Indigo - Pre-Inspection button
-    btnPrimary: '#3B82F6',    // Blue - primary action button
+    btnPrimary: '#01A0FE',   // Blue - primary action button
     btnCamera: '#3B82F6',     // Blue camera button
     btnGallery: '#3B82F6',    // Blue gallery button
 
@@ -27,10 +27,10 @@ export const COLORS = {
     statusCompleted: '#22C55E', // Green - Completed status
 
     // Stats card colors
-    cardTotalClaims: '#3B82F6',   // Blue
-    cardSurveyCompleted: '#86EFAC', // Light green
-    cardPendingSurvey: '#FCA5A5',   // Light red/salmon
-    cardSearchClaim: '#C4B5FD',     // Light purple
+    cardTotalClaims:  'linear-gradient(103.15deg, #2146B8 1.11%, #1CA6D4 98.89%)',   // Blue
+    cardSurveyCompleted: 'linear-gradient(101.95deg, #A1FF91 0.6%, #8DFF7A 99.4%)', // Light green
+    cardPendingSurvey: '#FF7870',   // Light red/salmon
+    cardSearchClaim: 'linear-gradient(100.88deg, #A588FF 1.24%, #865FFF 98.76%)',     // Light purple
 
     // Text colors
     textPrimary: '#1E293B',    // Dark slate - primary text
@@ -43,7 +43,7 @@ export const COLORS = {
 
     // Border colors
     borderLight: '#000000',    // Light blue border
-    borderInput: '#CBD5E1',    // Gray input border
+    borderInput: '#C5C5C5',    // Gray input border
 
     // Icon accent colors
     iconClaim: '#7C3AED',      // Purple icon
@@ -58,8 +58,8 @@ export const COLORS = {
 
     // Rotate / Location modal
     rotateBg: '#3B82F6',
-    rotateAccent: '#93C5FD',
-    locationAccent: '#F97316',
+    rotateAccent: '#00A0FE',
+    locationAccent: '#FF9609',
 };
 
 // =============================================

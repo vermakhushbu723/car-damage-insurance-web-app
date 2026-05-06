@@ -11,44 +11,49 @@ const DocumentCameraModal = ({ visible, docName, onClose, onCapture }) => {
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-end justify-center"
+            className="fixed inset-0 z-50 flex items-center justify-center"
             style={{ background: COLORS.overlay }}
             onClick={onClose}
         >
             <div
-                className="w-full max-w-sm mx-auto mb-16 rounded-2xl p-6 bg-white"
+                className="w-full max-w-sm rounded-2xl p-6 bg-white"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Title Row */}
-                <div className="flex items-center justify-between mb-5 pb-3 border-b" style={{ borderColor: COLORS.borderLight }}>
+                <div className="flex items-center justify-between pb-3">
                     <span className="font-semibold text-base" style={{ color: COLORS.textPrimary }}>
                         {docName || 'Document Name'}
                     </span>
                     <button
                         onClick={onClose}
                         className="w-7 h-7 rounded-full border flex items-center justify-center"
-                        style={{ borderColor: COLORS.borderInput }}
+                        style={{ borderColor: COLORS.borderLight, }}
                     >
-                        <span style={{ color: COLORS.textSecondary, fontSize: 14 }}>✕</span>
+                        <span style={{ color: COLORS.textPrimary, fontSize: 14 }}>✕</span>
                     </button>
                 </div>
 
                 {/* Front / Back */}
-                <div className="flex gap-6 justify-center">
-                    {['Front Side', 'Back Side'].map((side) => (
-                        <button
-                            key={side}
-                            onClick={() => onCapture && onCapture(side)}
-                            className="flex flex-col items-center gap-2"
-                        >
-                            <div
-                                className="w-20 h-20 rounded-xl border-2 flex items-center justify-center"
-                                style={{ borderColor: COLORS.borderInput }}
+                <div className="flex gap-10 justify-center items-center">
+                    {['Front Side', 'Back Side'].map((side, index) => (
+                        <div key={side} className="flex items-center gap-10">
+                            <button
+                                onClick={() => onCapture && onCapture(side)}
+                                className="flex flex-col items-center gap-2"
                             >
-                                <span style={{ fontSize: 32 }}>📷</span>
-                            </div>
-                            <span className="text-sm" style={{ color: COLORS.textPrimary }}>{side}</span>
-                        </button>
+                                <div
+                                    className="w-20 h-20 rounded-md border-2 flex items-center justify-center"
+                                >
+                                    <span style={{ fontSize: 32 }}>
+                                        <img src="public/images/icons/camera.svg" alt="" className="src" />
+                                    </span>
+                                </div>
+                                <span className="text-md">{side}</span>
+                            </button>
+                            {index === 0 && (
+                                <div style={{ width: '1px', height: '150px', background: COLORS.borderLight }} />
+                            )}
+                        </div>
                     ))}
                 </div>
             </div>

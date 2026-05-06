@@ -9,7 +9,7 @@ const BottomButton = ({ label = 'Next', onClick, disabled = false, style = {} })
         <button
             onClick={onClick}
             disabled={disabled}
-            className="w-full py-4 text-white font-semibold text-base rounded-xl transition-opacity"
+            className="w-full py-3 text-white font-semibold text-base rounded-md transition-opacity"
             style={{
                 background: disabled ? '#93C5FD' : COLORS.btnPrimary,
                 opacity: disabled ? 0.7 : 1,

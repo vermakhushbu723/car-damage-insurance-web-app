@@ -17,32 +17,36 @@ import {
 
 const statsCards = [
     {
-        icon: <FileTextOutlined style={{ fontSize: 28, color: '#fff' }} />,
+        icon: 'public/images/icons/TotalClaims.svg',
         count: '20',
         label: 'Total Claims',
         bg: COLORS.cardTotalClaims,
-        textColor: '#fff',
+        border: `1px solid #004FE5`,
+        textColor: '#FFFFFF',
     },
     {
-        icon: <CheckSquareOutlined style={{ fontSize: 28, color: COLORS.textPrimary }} />,
+        icon: 'public/images/icons/SurveyCompleted.svg',
         count: '12',
         label: 'Survey Completed',
         bg: COLORS.cardSurveyCompleted,
-        textColor: COLORS.textPrimary,
+        border: `1px solid #009348`,
+        textColor: '#009348',
     },
     {
-        icon: <ClockCircleOutlined style={{ fontSize: 28, color: '#fff' }} />,
+        icon: 'public/images/icons/PendingSurvey.svg',
         count: '08',
         label: 'Pending Survey',
         bg: COLORS.cardPendingSurvey,
+        border: `1px solid #FA9D19`,
         textColor: '#fff',
     },
     {
-        icon: <BankOutlined style={{ fontSize: 28, color: '#fff' }} />,
+        icon: 'public/images/icons/SearchClaim.svg',
         count: '03',
         label: 'Search Claim',
         bg: COLORS.cardSearchClaim,
-        textColor: COLORS.textPrimary,
+        border: `1px solid #5E33E1`,
+        textColor: '#FFFFFF',
     },
 ];
 
@@ -72,15 +76,15 @@ const claimsList = [
 
 const ClaimCard = ({ claim, onViewDetails }) => (
     <div
-        className="mx-4 mb-4 rounded-2xl px-5 py-4"
-        style={{ background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+        className="mb-4 rounded-lg px-5 py-4  border border-[#6997B9]"
+        style={{ background: '#fff', }}
     >
         {/* Status Badge */}
-        <div className="flex justify-end mb-3">
+        <div className="flex justify-end mb-3 ">
             <span
-                className="px-4 py-1 rounded-full text-xs font-semibold"
+                className="px-4 py-1 rounded-lg text-xs font-semibold"
                 style={{
-                    background: '#FEE2E2',
+                    background: '#F0000040',
                     color: COLORS.statusPending,
                     border: `1px solid ${COLORS.statusPending}`,
                 }}
@@ -91,20 +95,20 @@ const ClaimCard = ({ claim, onViewDetails }) => (
 
         {/* Fields */}
         {[
-            { icon: <SafetyOutlined style={{ color: '#22C55E', fontSize: 16 }} />, label: 'Insurer Name', value: claim.insurerName },
-            { icon: <FileOutlined style={{ color: '#EA580C', fontSize: 16 }} />, label: 'Claim Number', value: claim.claimNumber },
-            { icon: <CarOutlined style={{ color: '#EF4444', fontSize: 16 }} />, label: 'Registration Number', value: claim.registrationNumber },
-            { icon: <UserOutlined style={{ color: '#7C3AED', fontSize: 16 }} />, label: 'Insured Name', value: claim.insuredName },
+            { icon: 'public/images/icons/insurerName.svg', label: 'Insurer Name', value: claim.insurerName },
+            { icon: 'public/images/icons/claimNumber.svg', label: 'Claim Number', value: claim.claimNumber },
+            { icon: 'public/images/icons/registrationNumber.svg', label: 'Registration Number', value: claim.registrationNumber },
+            { icon: 'public/images/icons/insuredName.svg', label: 'Insured Name', value: claim.insuredName },
         ].map((row, i) => (
-            <div key={i} className="flex items-center gap-3 mb-2">
-                <span className="w-6 flex justify-center">{row.icon}</span>
-                <span className="text-sm w-36" style={{ color: COLORS.textSecondary }}>{row.label}</span>
+            <div key={i} className="flex items-center gap-3 mb-2 ">
+                <span className="w-6 flex justify-center"><img src={row.icon} alt={row.label} className="src" /></span>
+                <span className="text-sm w-36 font-semibold" style={{ color: COLORS.textSecondary }}>{row.label}</span>
                 <span className="text-sm font-semibold flex-1" style={{ color: COLORS.textPrimary }}>{row.value}</span>
             </div>
         ))}
 
         {/* Divider */}
-        <div className="my-3" style={{ borderTop: '1px solid #E2E8F0' }} />
+        <div className="my-3" style={{ borderTop: '1px solid #00000080' }} />
 
         {/* View Details */}
         <div className="flex justify-end">
@@ -123,55 +127,61 @@ const DashboardPage = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="min-h-screen flex flex-col" style={{ background: COLORS.bgApp }}>
+        <div className="min-h-screen flex flex-col" >
             {/* Header */}
             <AppHeader />
 
-            {/* Welcome Text */}
-            <div className="px-4 pt-4 pb-3">
-                <p className="text-base font-semibold" style={{ color: '#fff' }}>
-                    Welcome{' '}
-                    <span className="underline font-bold" style={{ color: '#fff' }}>
-                        XYZ Automobiles
-                    </span>
-                </p>
-            </div>
+            <div class="" style={{ background: COLORS.bgApp }}>
+                {/* Welcome Text */}
+                <div className="px-4 pt-2 pb-2">
+                    <p className="text-base font-semibold" style={{ color: '#fff' }}>
+                        Welcome{' '}
+                        <span className="underline font-bold" style={{ color: '#fff' }}>
+                            XYZ Automobiles
+                        </span>
+                    </p>
+                </div>
 
-            {/* Stats Cards Grid */}
-            <div className="grid grid-cols-2 gap-3 px-4 mb-4">
-                {statsCards.map((card, i) => (
-                    <div
-                        key={i}
-                        className="rounded-2xl px-4 py-4 flex items-center gap-3"
-                        style={{ background: card.bg }}
-                    >
-                        <div
-                            className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-                            style={{ background: 'rgba(255,255,255,0.25)' }}
-                        >
-                            {card.icon}
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold leading-tight" style={{ color: card.textColor }}>
-                                {card.count}
-                            </p>
-                            <p className="text-xs font-medium leading-tight" style={{ color: card.textColor }}>
-                                {card.label}
-                            </p>
-                        </div>
+                <div class="login-card">
+
+                    {/* Stats Cards Grid */}
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                        {statsCards.map((card, i) => (
+                            <div
+                                key={i}
+                                className="rounded-2xl px-4 py-4 flex items-center gap-3"
+                                style={{ background: card.bg, border: card.border }}
+                            >
+                                <div
+                                    className="w-12 h-12 rounded-sm flex items-center justify-center shrink-0"
+                                    style={{ background: 'rgba(255,255,255,0.25)', border: `1px solid ${card.textColor}` }}
+                                >
+                                    <img className='w-4 h-4' src={card.icon} alt={card.label} />
+                                </div>
+                                <div>
+                                    <p className="text-2xl font-bold leading-tight" style={{ color: card.textColor }}>
+                                        {card.count}
+                                    </p>
+                                    <p className="text-xs font-medium leading-tight" style={{ color: card.textColor }}>
+                                        {card.label}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
 
-            {/* Claims List */}
-            <div className="flex-1 pb-6">
-                {claimsList.map((claim, i) => (
-                    <ClaimCard
-                        key={i}
-                        claim={claim}
-                        onViewDetails={() => navigate(ROUTES.CLAIM_START)}
-                    />
-                ))}
+                    {/* Claims List */}
+                    <div className="flex-1 pb-6">
+                        {claimsList.map((claim, i) => (
+                            <ClaimCard
+                                key={i}
+                                claim={claim}
+                                onViewDetails={() => navigate(ROUTES.CLAIM_START)}
+                            />
+                        ))}
+                    </div>
+                </div>
+
             </div>
         </div>
     );

@@ -6,7 +6,7 @@ import { COLORS } from '../../constants/theme';
 /**
  * Page title bar with back arrow (blue bar below header)
  */
-const PageTitleBar = ({ title, onBack }) => {
+const PageTitleBar = ({ title, subtitle='', onBack }) => {
     const navigate = useNavigate();
 
     const handleBack = () => {
@@ -15,15 +15,24 @@ const PageTitleBar = ({ title, onBack }) => {
     };
 
     return (
-        <div
-            className="w-full flex items-center gap-3 px-4 py-3"
-            style={{ background: COLORS.bgPageTitle }}
-        >
-            <button onClick={handleBack} className="text-white">
-                <ArrowLeftOutlined style={{ fontSize: 18 }} />
-            </button>
-            <span className="text-white font-bold text-lg">{title}</span>
-        </div>
+        <>
+            <div
+                className="w-full flex items-center gap-3 px-4 pb-3"
+                style={{ background: COLORS.bgPageTitle }}
+            >
+                <button onClick={handleBack} className="text-white">
+                    <ArrowLeftOutlined style={{ fontSize: 18 }} />
+                </button>
+                <div className="flex flex-col">
+                    <span className="text-white font-semibold text-lg">{title}</span>
+                    {subtitle && (
+                        <p className=" text-sm font-medium py-1" style={{ color: COLORS.textWhite, background: COLORS.bgHeader }}>
+                            {subtitle}
+                        </p>
+                    )}
+                </div>
+            </div>
+        </>
     );
 };
 

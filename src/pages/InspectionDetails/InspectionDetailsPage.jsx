@@ -6,52 +6,53 @@ import BottomButton from '../../components/common/BottomButton';
 import RotateDeviceModal from '../../components/modals/RotateDeviceModal';
 import LocationModal from '../../components/modals/LocationModal';
 import { COLORS } from '../../constants/theme';
+import { ROUTES } from '../../constants/routes';
 
 const inspectionData = [
-    { icon: '🏢', label: 'Insurance Company', value: 'ABC Insurance Pvt. Ltd.', iconBg: '#3B82F6' },
-    { icon: '👤', label: 'Insured Name', value: 'Rahul Sharma', iconBg: '#22C55E' },
-    { icon: '🚗', label: 'Vehicle Number', value: 'MH 01 BS 1234', iconBg: '#EF4444' },
-    { icon: '📋', label: 'Claim Number', value: '1234567898765MAN', iconBg: '#7C3AED' },
-    { icon: '🔒', label: 'Policy Number', value: '1234 5678 9012', iconBg: '#22C55E' },
-    { icon: '✉️', label: 'Email Address', value: 'rahul.sharma@email.com', iconBg: '#F97316' },
-    { icon: '📱', label: 'Phone Number', value: '+91 1234567890', iconBg: '#EC4899' },
+    { icon: 'public/images/icons/InsuranceCompany.svg', label: 'Insurance Company', value: 'ABC Insurance Pvt. Ltd.', iconBg: '#3B82F6' },
+    { icon: 'public/images/icons/GreenInsuredName.svg', label: 'Insured Name', value: 'Rahul Sharma', iconBg: '#22C55E' },
+    { icon: 'public/images/icons/VehicleNumber.svg', label: 'Vehicle Number', value: 'MH 01 BS 1234', iconBg: '#EF4444' },
+    { icon: 'public/images/icons/PurpleClaimNumber.svg', label: 'Claim Number', value: '1234567898765MAN', iconBg: '#7C3AED' },
+    { icon: 'public/images/icons/PolicyNumber.svg', label: 'Policy Number', value: '1234 5678 9012', iconBg: '#22C55E' },
+    { icon: 'public/images/icons/EmailAddress.svg', label: 'Email Address', value: 'rahul.sharma@email.com', iconBg: '#F97316' },
+    { icon: 'public/images/icons/PhoneNumber.svg', label: 'Phone Number', value: '+91 1234567890', iconBg: '#EC4899' },
 ];
 
 const instructions = [
     {
-        emoji: '🔄',
+        emoji: 'public/images/icons/autorate.svg',
         title: 'Enable Auto-Rotate',
         desc: 'Switch on auto-rotate and hold your phone horizontally to capture the full vehicle frame.',
-        color: '#3B82F6',
-        bg: '#EFF6FF',
+        color: '#00E4DF',
+        bg: '#00E4DF40',
     },
     {
-        emoji: '📍',
+        emoji: 'public/images/icons/gpslocation.svg',
         title: 'Turn On GPS Location',
         desc: 'Ensure location services are enabled to verify inspection time and location.',
-        color: '#7C3AED',
-        bg: '#F5F3FF',
+        color: '#7532FC',
+        bg: '#7532FC40',
     },
     {
-        emoji: '📷',
+        emoji: 'public/images/icons/photos360.svg',
         title: 'Capture 360° Photos',
         desc: 'Take clear photos of the front, rear, and both sides of the vehicle.',
-        color: '#3B82F6',
-        bg: '#EFF6FF',
+        color: '#01A0FE',
+        bg: '#00A7F840',
     },
     {
-        emoji: '📄',
+        emoji: 'public/images/icons/documentclarity.svg',
         title: 'Ensure Document Clarity',
         desc: 'Place documents on a flat surface with good lighting. Avoid shadows and glare.',
-        color: '#F97316',
-        bg: '#FFF7ED',
+        color: '#FF8427',
+        bg: '#FF842740',
     },
     {
-        emoji: '🛡',
+        emoji: 'public/images/icons/finalreview.svg',
         title: 'Final Review Before Submission',
         desc: 'Double-check that all images are clear and the vehicle is fully visible.',
-        color: '#7C3AED',
-        bg: '#F5F3FF',
+        color: '#FF1578',
+        bg: '#FF157840',
     },
 ];
 
@@ -71,11 +72,12 @@ const InspectionDetailsPage = () => {
 
     const handleRotateAllow = () => {
         setShowRotate(false);
-        // Navigate to photo capture flow (future screen)
+        // Navigate to photo capture selection page
+        navigate(ROUTES.PHOTO_CAPTURE_SELECTION);
     };
 
     return (
-        <div className="min-h-screen flex flex-col" style={{ background: COLORS.bgApp }}>
+        <div className="min-h-screen flex flex-col" >
             {/* Header */}
             <AppHeader />
 
@@ -83,22 +85,24 @@ const InspectionDetailsPage = () => {
             <PageTitleBar title="Inspection Details" />
 
             {/* Content */}
-            <div className="flex-1 px-4 pt-4 pb-6 overflow-y-auto">
+            <div className="flex-1 px-4 pt-4 pb-6 overflow-y-auto main-bg">
 
                 {/* Inspection Info Card */}
-                <div className="bg-white rounded-2xl overflow-hidden mb-5" style={{ border: `1px solid ${COLORS.borderLight}` }}>
+                <div className="bg-white rounded-md overflow-hidden mb-5 px-4" style={{ border: `1px solid ${COLORS.borderInput}`, boxShadow: '0px 1px 4px 0px #00000040' }}>
                     {inspectionData.map((row, i) => (
                         <div
                             key={i}
-                            className="flex items-center gap-3 px-4 py-3"
-                            style={{ borderBottom: i < inspectionData.length - 1 ? `1px solid ${COLORS.borderLight}` : 'none' }}
+                            className="flex items-center gap-3 py-4"
+                            style={{ borderBottom: i < inspectionData.length - 1 ? `1px solid ${COLORS.borderInput}` : 'none' }}
                         >
                             {/* Icon */}
                             <div
-                                className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                                className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
                                 style={{ background: row.iconBg + '22', border: `1.5px solid ${row.iconBg}` }}
                             >
-                                <span style={{ fontSize: 16 }}>{row.icon}</span>
+                                <span style={{ fontSize: 16 }}>
+                                    <img src={row.icon} alt={row.label} className="src" />
+                                </span>
                             </div>
                             {/* Label */}
                             <span className="text-sm flex-1" style={{ color: COLORS.textSecondary }}>{row.label}</span>
@@ -111,23 +115,25 @@ const InspectionDetailsPage = () => {
                 </div>
 
                 {/* Instructions Heading */}
-                <p className="text-sm font-semibold mb-4" style={{ color: COLORS.textPrimary }}>
+                <p className="text-md font-semibold mb-4" style={{ color: COLORS.textPrimary }}>
                     Please read following important instructions before you start survey
                 </p>
 
                 {/* Instructions List */}
-                <div className="flex flex-col gap-3 mb-6">
+                <div className="flex flex-col gap-4 mb-6">
                     {instructions.map((ins, i) => (
                         <div key={i} className="flex items-start gap-3">
                             <div
-                                className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-                                style={{ background: ins.bg, border: `1.5px solid ${ins.color}22` }}
+                                className="w-9 h-9 rounded-sm flex items-center justify-center shrink-0"
+                                style={{ background: ins.bg, border: `1.5px solid ${ins.color}` }}
                             >
-                                <span style={{ fontSize: 20 }}>{ins.emoji}</span>
+                                <span style={{ fontSize: 20 }}>
+                                    <img src={ins.emoji} alt={ins.title} srcset="" />
+                                </span>
                             </div>
                             <div className="flex-1">
                                 <p className="text-sm font-semibold" style={{ color: ins.color }}>{ins.title}</p>
-                                <p className="text-xs leading-relaxed mt-0.5" style={{ color: COLORS.textSecondary }}>{ins.desc}</p>
+                                <p className="text-xs mt-0.5" style={{ color: COLORS.textSecondary }}>{ins.desc}</p>
                             </div>
                         </div>
                     ))}
