@@ -8,4 +8,9 @@ export const ROUTES = {
     INSPECTION_DETAILS: '/inspection-details',
     PHOTO_CAPTURE_SELECTION: '/photo-capture-selection',
     CAMERA_CAPTURE: '/camera-capture/:angle',
+    ADD_DAMAGE_PHOTOS: '/add-damage-photos',
+    DAMAGE_REVIEW: '/damage-review',
+    SUBMITTED: '/submitted',
+    REINSPECTION_PHOTOS: '/reinspection-photos',
+    REPAIR_SUBMISSION: '/repair-submission',
 };

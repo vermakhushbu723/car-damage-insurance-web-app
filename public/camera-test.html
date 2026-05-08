@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Camera Test</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background: #111;
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
+      h1 {
+        margin-bottom: 10px;
+        font-size: 22px;
+        color: #4fc3f7;
+      }
+      #status {
+        background: #1e1e1e;
+        border-radius: 10px;
+        padding: 16px;
+        width: 100%;
+        max-width: 480px;
+        margin-bottom: 16px;
+        font-size: 14px;
+        line-height: 1.8;
+      }
+      .ok {
+        color: #66bb6a;
+      }
+      .warn {
+        color: #ffa726;
+      }
+      .err {
+        color: #ef5350;
+      }
+      video {
+        width: 100%;
+        max-width: 480px;
+        border-radius: 10px;
+        background: #000;
+        border: 2px solid #4fc3f7;
+      }
+      canvas {
+        display: none;
+      }
+      #snapshot {
+        width: 100%;
+        max-width: 480px;
+        border-radius: 10px;
+        margin-top: 12px;
+        display: none;
+      }
+      .btn {
+        margin-top: 12px;
+        padding: 12px 28px;
+        background: #1565c0;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        width: 100%;
+        max-width: 480px;
+      }
+      .btn:disabled {
+        background: #555;
+        cursor: not-allowed;
+      }
+      .btn.red {
+        background: #c62828;
+      }
+      #result {
+        margin-top: 12px;
+        font-size: 13px;
+        color: #aaa;
+        max-width: 480px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>📷 Camera Test Page</h1>
+
+    <div id="status">Checking environment...</div>
+
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas"></canvas>
+    <img id="snapshot" alt="Snapshot" />
+
+    <button class="btn" id="startBtn" onclick="startCamera()"
+      >Start Camera</button
+    >
+    <button class="btn" id="snapBtn" onclick="takeSnapshot()" disabled
+      >📸 Take Snapshot</button
+    >
+    <button class="btn red" id="stopBtn" onclick="stopCamera()" disabled
+      >Stop Camera</button
+    >
+
+    <div id="result"></div>
+
+    <script>
+      let stream = null;
+      const statusEl = document.getElementById("status");
+      const video = document.getElementById("video");
+      const canvas = document.getElementById("canvas");
+      const snapshot = document.getElementById("snapshot");
+      const startBtn = document.getElementById("startBtn");
+      const snapBtn = document.getElementById("snapBtn");
+      const stopBtn = document.getElementById("stopBtn");
+      const resultEl = document.getElementById("result");
+
+      function log(msg, cls = "") {
+        const span = document.createElement("div");
+        span.className = cls;
+        span.innerHTML = msg;
+        statusEl.appendChild(span);
+      }
+
+      async function checkEnvironment() {
+        statusEl.innerHTML = "";
+
+        // Protocol check
+        const isHTTPS = location.protocol === "https:";
+        const isLocal = ["localhost", "127.0.0.1"].includes(location.hostname);
+        log(
+          `🔒 Protocol: <strong>${location.protocol}//${location.host}</strong>`,
+          isHTTPS || isLocal ? "ok" : "err",
+        );
+        if (!isHTTPS && !isLocal) {
+          log(
+            '⚠️ Camera requires HTTPS! Please open: <a href="' +
+              location.href.replace("http://", "https://") +
+              '" style="color:#ffa726">' +
+              location.href.replace("http://", "https://") +
+              "</a>",
+            "warn",
+          );
+        }
+
+        // mediaDevices check
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          log("✅ navigator.mediaDevices.getUserMedia: Supported", "ok");
+        } else {
+          log("❌ navigator.mediaDevices.getUserMedia: NOT supported", "err");
+        }
+
+        // Camera permission check
+        if (navigator.permissions) {
+          try {
+            const perm = await navigator.permissions.query({ name: "camera" });
+            const cls =
+              perm.state === "granted"
+                ? "ok"
+                : perm.state === "prompt"
+                  ? "warn"
+                  : "err";
+            log(`📷 Camera Permission: <strong>${perm.state}</strong>`, cls);
+          } catch (e) {
+            log("⚠️ Permissions API not supported on this browser", "warn");
+          }
+        }
+
+        // Device list
+        if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+          try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const cameras = devices.filter((d) => d.kind === "videoinput");
+            log(
+              `📹 Cameras found: <strong>${cameras.length}</strong>`,
+              cameras.length > 0 ? "ok" : "err",
+            );
+            cameras.forEach((c, i) =>
+              log(
+                `&nbsp;&nbsp;Camera ${i + 1}: ${c.label || "(label hidden – grant permission first)"}`,
+                "",
+              ),
+            );
+          } catch (e) {
+            log("⚠️ Could not list devices: " + e.message, "warn");
+          }
+        }
+      }
+
+      async function startCamera() {
+        resultEl.textContent = "";
+        try {
+          log("⏳ Requesting camera access...", "warn");
+          stream = await navigator.mediaDevices
+            .getUserMedia({
+              video: {
+                facingMode: { exact: "environment" },
+                width: { ideal: 1920 },
+                height: { ideal: 1080 },
+              },
+              audio: false,
+            })
+            .catch(() =>
+              navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "environment" },
+                audio: false,
+              }),
+            );
+          video.srcObject = stream;
+          await video.play();
+          log("✅ Camera started successfully!", "ok");
+          startBtn.disabled = true;
+          snapBtn.disabled = false;
+          stopBtn.disabled = false;
+        } catch (err) {
+          const msgs = {
+            NotAllowedError:
+              "❌ Permission denied. Enable camera in browser settings.",
+            PermissionDeniedError:
+              "❌ Permission denied. Enable camera in browser settings.",
+            NotFoundError: "❌ No camera found on device.",
+            NotReadableError: "❌ Camera busy – close other apps.",
+            SecurityError: "❌ HTTPS required for camera access.",
+          };
+          log(
+            msgs[err.name] ||
+              "❌ Error: " + err.message + " (" + err.name + ")",
+            "err",
+          );
+        }
+      }
+
+      function takeSnapshot() {
+        if (!video.videoWidth) {
+          resultEl.textContent = "Video not ready yet.";
+          return;
+        }
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext("2d").drawImage(video, 0, 0);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+        snapshot.src = dataUrl;
+        snapshot.style.display = "block";
+        resultEl.textContent =
+          "✅ Snapshot taken! (" + canvas.width + "x" + canvas.height + ")";
+      }
+
+      function stopCamera() {
+        if (stream) {
+          stream.getTracks().forEach((t) => t.stop());
+          stream = null;
+        }
+        video.srcObject = null;
+        snapshot.style.display = "none";
+        startBtn.disabled = false;
+        snapBtn.disabled = true;
+        stopBtn.disabled = true;
+        log("⏹️ Camera stopped.", "warn");
+      }
+
+      checkEnvironment();
+    </script>
+  </body>
+</html>

@@ -9,6 +9,11 @@ import DocumentUploadPage from '../pages/DocumentUpload/DocumentUploadPage';
 import InspectionDetailsPage from '../pages/InspectionDetails/InspectionDetailsPage';
 import PhotoCaptureSelectionPage from '../pages/PhotoCaptureSelection/PhotoCaptureSelectionPage';
 import CameraCapturePage from '../pages/CameraCapture/CameraCapturePage';
+import AddDamagePhotosPage from '../pages/AddDamagePhotos/AddDamagePhotosPage';
+import DamageReviewPage from '../pages/DamageReview/DamageReviewPage';
+import SubmittedPage from '../pages/Submitted/SubmittedPage';
+import ReinspectionPhotosPage from '../pages/ReinspectionPhotos/ReinspectionPhotosPage';
+import RepairSubmissionPage from '../pages/RepairSubmission/RepairSubmissionPage';
 
 const AppRoutes = () => {
     return (
@@ -21,6 +26,11 @@ const AppRoutes = () => {
             <Route path={ROUTES.INSPECTION_DETAILS} element={<InspectionDetailsPage />} />
             <Route path={ROUTES.PHOTO_CAPTURE_SELECTION} element={<PhotoCaptureSelectionPage />} />
             <Route path={ROUTES.CAMERA_CAPTURE} element={<CameraCapturePage />} />
+            <Route path={ROUTES.ADD_DAMAGE_PHOTOS} element={<AddDamagePhotosPage />} />
+            <Route path={ROUTES.DAMAGE_REVIEW} element={<DamageReviewPage />} />
+            <Route path={ROUTES.SUBMITTED} element={<SubmittedPage />} />
+            <Route path={ROUTES.REINSPECTION_PHOTOS} element={<ReinspectionPhotosPage />} />
+            <Route path={ROUTES.REPAIR_SUBMISSION} element={<RepairSubmissionPage />} />
             {/* Fallback */}
             <Route path="*" element={<Navigate to={ROUTES.LOGIN} replace />} />
         </Routes>

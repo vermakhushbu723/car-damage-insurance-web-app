@@ -20,7 +20,7 @@ const AppHeader = () => {
             <img
                 src={rightLogo}
                 alt="IBima Assist"
-                className="h-[113px] w-auto object-contain"
+                className="h-[70px] w-auto object-contain border"
             />
         </div>
     );

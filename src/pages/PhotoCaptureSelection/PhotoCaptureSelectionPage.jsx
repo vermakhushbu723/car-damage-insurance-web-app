@@ -23,16 +23,16 @@ const PhotoCaptureSelectionPage = () => {
 
     // Photo capture points with positioning around the car
     const photoPoints = [
-        { id: 'rear-rh-side', label: 'Rear RH Side', top: '20%', left: '70%' },
-        { id: 'rear-side', label: 'Rear Side', top: '12%', left: '78%' },
-        { id: 'rear-lh-side', label: 'Rear LH Side', top: '20%', left: '86%' },
-        { id: 'rh-side', label: 'RH Side', top: '35%', left: '12%' },
-        { id: 'front-rh-side', label: 'Front RH Side', top: '48%', left: '10%' },
-        { id: 'odometer', label: 'Odometer', top: '62%', left: '18%' },
+        { id: 'rear-rh-side', label: 'Rear RH Side', top: '8%', left: '60%' },
+        { id: 'rear-side', label: 'Rear Side', top: '12%', left: '72%' },
+        { id: 'rear-lh-side', label: 'Rear LH Side', top: '8%', left: '84%' },
+        { id: 'rh-side', label: 'RH Side', top: '28%', left: '12%' },
+        { id: 'front-rh-side', label: 'Front RH Side', top: '44%', left: '10%' },
+        { id: 'odometer', label: 'Odometer', top: '56%', left: '18%' },
         { id: 'front-side', label: 'Front Side', top: '72%', left: '32%' },
-        { id: 'chassis-number', label: 'Chassis Number', top: '78%', left: '50%' },
+        { id: 'chassis-number', label: 'Chassis Number', top: '80%', left: '50%' },
         { id: 'front-lh', label: 'Front LH', top: '72%', left: '68%' },
-        { id: 'lh-side', label: 'LH Side', top: '35%', left: '88%' },
+        { id: 'lh-side', label: 'LH Side', top: '36%', left: '86%' },
         { id: 'video', label: 'Video', top: '50%', left: '92%' },
     ];
 
@@ -61,7 +61,7 @@ const PhotoCaptureSelectionPage = () => {
                     <div className="relative w-full h-full flex items-center justify-center" style={{ overflow: 'visible' }}>
                         {/* Car Image */}
                         <img
-                            src="/public/images/png/car.png"
+                            src="/public/images/png/car/car.png"
                             alt="Vehicle"
                             className="h-5/6 w-auto object-contain"
                         />
