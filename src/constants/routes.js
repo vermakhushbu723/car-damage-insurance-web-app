@@ -1,6 +1,13 @@
 // Route path constants
 export const ROUTES = {
-    LOGIN: '/',
+    LANDING: '/',
+    LOGIN: '/claim-workshop-login',
+    CLAIM_WORKSHOP_LOGIN: '/claim-workshop-login',
+    CLAIM_SURVEYOR_LOGIN: '/claim-surveyor-login',
+    CLAIM_WEBLINK: '/claim-weblink',
+    PREINSPECTION_AGENT_LOGIN: '/preinspection-agent-login',
+    PREINSPECTION_SURVEYOR_LOGIN: '/preinspection-surveyor-login',
+    PREINSPECTION_WEBLINK: '/preinspection-weblink',
     DASHBOARD: '/dashboard',
     CLAIM_START: '/claim-start',
     OWNER_VEHICLE_DETAILS: '/owner-vehicle-details',

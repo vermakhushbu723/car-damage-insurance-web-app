@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const PhotoCaptureSelectionPage = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [isLandscape, setIsLandscape] = useState(window.innerWidth > window.innerHeight);
+    const [capturedPhotos, setCapturedPhotos] = useState({});
+
+    // Load captured photos from localStorage
+    const loadCapturedPhotos = () => {
+        const stored = JSON.parse(localStorage.getItem('damage_photos') || '{}');
+        setCapturedPhotos(stored);
+    };
 
     // Check for landscape orientation on mount and orientation change
     useEffect(() => {
@@ -21,6 +29,19 @@ const PhotoCaptureSelectionPage = () => {
         };
     }, []);
 
+    // Load photos on mount and every time we come back to this page
+    useEffect(() => {
+        loadCapturedPhotos();
+        const onFocus = () => loadCapturedPhotos();
+        const onVisible = () => { if (!document.hidden) loadCapturedPhotos(); };
+        window.addEventListener('focus', onFocus);
+        document.addEventListener('visibilitychange', onVisible);
+        return () => {
+            window.removeEventListener('focus', onFocus);
+            document.removeEventListener('visibilitychange', onVisible);
+        };
+    }, [location]); // re-run when navigating back to this page
+
     // Photo capture points with positioning around the car
     const photoPoints = [
         { id: 'rear-rh-side', label: 'Rear RH Side', top: '8%', left: '60%' },
@@ -37,7 +58,7 @@ const PhotoCaptureSelectionPage = () => {
     ];
 
     const handlePhotoPointClick = (point) => {
-        navigate(`/camera-capture/${point.id}`);
+        navigate(`/camera-capture/${point.id}`, { state: { returnTo: '/photo-capture-selection' } });
     };
 
     return (
@@ -67,35 +88,38 @@ const PhotoCaptureSelectionPage = () => {
                         />
 
                         {/* Photo Points - Circular Buttons with Labels */}
-                        {photoPoints.map((point) => (
-                            <div key={point.id} className="absolute" style={{ top: point.top, left: point.left }}>
-                                {/* Camera Icon Button */}
-                                <button
-                                    onClick={() => handlePhotoPointClick(point)}
-                                    className="w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 focus:outline-none"
-                                    style={{
-                                        border: '3px solid #EF4444',
-                                        background: 'rgba(239, 68, 68, 0.1)',
-                                        cursor: 'pointer',
-                                    }}
-                                    title={point.label}
-                                >
-                                    <span className="text-xl">📷</span>
-                                </button>
+                        {photoPoints.map((point) => {
+                            const isDone = !!capturedPhotos[point.id];
+                            return (
+                                <div key={point.id} className="absolute" style={{ top: point.top, left: point.left }}>
+                                    {/* Camera Icon Button */}
+                                    <button
+                                        onClick={() => handlePhotoPointClick(point)}
+                                        className="w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 focus:outline-none"
+                                        style={{
+                                            border: `3px solid ${isDone ? '#22C55E' : '#EF4444'}`,
+                                            background: isDone ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.1)',
+                                            cursor: 'pointer',
+                                        }}
+                                        title={point.label}
+                                    >
+                                        <span className="text-xl">{isDone ? '✅' : '📷'}</span>
+                                    </button>
 
-                                {/* Label Below Circle */}
-                                <div
-                                    className="absolute top-full mt-1 whitespace-nowrap text-center font-semibold text-xs pointer-events-none"
-                                    style={{
-                                        left: '50%',
-                                        transform: 'translateX(-50%)',
-                                        color: '#EF4444',
-                                    }}
-                                >
-                                    {point.label}
+                                    {/* Label Below Circle */}
+                                    <div
+                                        className="absolute top-full mt-1 whitespace-nowrap text-center font-semibold text-xs pointer-events-none"
+                                        style={{
+                                            left: '50%',
+                                            transform: 'translateX(-50%)',
+                                            color: isDone ? '#22C55E' : '#EF4444',
+                                        }}
+                                    >
+                                        {point.label}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             )}
