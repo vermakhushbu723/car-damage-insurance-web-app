@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { DownOutlined } from '@ant-design/icons';
 import AppHeader from '../../components/common/AppHeader';
 import PageTitleBar from '../../components/common/PageTitleBar';
 import BottomButton from '../../components/common/BottomButton';
 import { COLORS } from '../../constants/theme';
 import { ROUTES } from '../../constants/routes';
+import { setProduct } from '../../store/vehicleSlice';
 
 // Reusable Input Field
 const InputField = ({ label, placeholder, value, onChange, type = 'text', prefix }) => (
@@ -121,6 +123,7 @@ const SelectField = ({ label, placeholder, value, onChange, options = [] }) => {
 
 const OwnerVehicleDetailsPage = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const [form, setForm] = useState({
         ownerName: '',
@@ -139,7 +142,13 @@ const OwnerVehicleDetailsPage = () => {
 
     const set = (key) => (val) => setForm((p) => ({ ...p, [key]: val }));
 
-    const handleNext = () => navigate(ROUTES.DOCUMENT_UPLOAD);
+    const handleNext = () => {
+        // Persist the chosen product so the camera flow downstream
+        // (PhotoCaptureSelectionPage / CameraCapturePage) can pick the
+        // matching silhouette + angle guides (car / bike / truck).
+        dispatch(setProduct(form.product || null));
+        navigate(ROUTES.DOCUMENT_UPLOAD);
+    };
 
     return (
         <div className="min-h-screen flex flex-col" >

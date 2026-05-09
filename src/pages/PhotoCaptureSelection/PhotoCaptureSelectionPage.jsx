@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { CAMERA_ACCESS_KEY } from '../../routes/ProtectedCameraRoute';
+import { selectVehicleCategory } from '../../store/vehicleSlice';
+import { getCenterImage, isAngleSupported } from '../../constants/vehicleAssets';
 
 const PhotoCaptureSelectionPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    // Vehicle category (car / bike / truck) chosen on /owner-vehicle-details
+    // — drives which silhouette + angle guides are shown.
+    const vehicleCategory = useSelector(selectVehicleCategory);
     const [isLandscape, setIsLandscape] = useState(window.innerWidth > window.innerHeight);
     const [capturedPhotos, setCapturedPhotos] = useState({});
 
@@ -42,8 +49,10 @@ const PhotoCaptureSelectionPage = () => {
         };
     }, [location]); // re-run when navigating back to this page
 
-    // Photo capture points with positioning around the car
-    const photoPoints = [
+    // Photo capture points positioned around the silhouette. Points whose
+    // angle has no guide image for the current vehicle category are
+    // filtered out below (e.g. chassis-number for bikes).
+    const allPhotoPoints = [
         { id: 'rear-rh-side', label: 'Rear RH Side', top: '8%', left: '60%' },
         { id: 'rear-side', label: 'Rear Side', top: '12%', left: '72%' },
         { id: 'rear-lh-side', label: 'Rear LH Side', top: '8%', left: '84%' },
@@ -56,9 +65,19 @@ const PhotoCaptureSelectionPage = () => {
         { id: 'lh-side', label: 'LH Side', top: '36%', left: '86%' },
         { id: 'video', label: 'Video', top: '50%', left: '92%' },
     ];
+    const photoPoints = allPhotoPoints.filter(p => isAngleSupported(vehicleCategory, p.id));
+    const centerImage = getCenterImage(vehicleCategory);
 
     const handlePhotoPointClick = (point) => {
-        navigate(`/camera-capture/${point.id}`, { state: { returnTo: '/photo-capture-selection' } });
+        // Hand the camera route a durable access ticket — survives
+        // StrictMode remounts and any re-render that would drop location.state.
+        window.sessionStorage.setItem(CAMERA_ACCESS_KEY, 'true');
+        navigate(`/camera-capture/${point.id}`, {
+            state: {
+                returnTo: '/photo-capture-selection',
+                cameraEnabled: true,
+            },
+        });
     };
 
     return (
@@ -80,9 +99,11 @@ const PhotoCaptureSelectionPage = () => {
                 <div className="w-screen h-screen flex items-center justify-center overflow-hidden" style={{ background: '#9CA3AF' }}>
                     {/* Car Container */}
                     <div className="relative w-full h-full flex items-center justify-center" style={{ overflow: 'visible' }}>
-                        {/* Car Image */}
+                        {/* Vehicle silhouette — switches between car/bike/truck
+                            based on the "Select Product" choice on
+                            /owner-vehicle-details. */}
                         <img
-                            src="/public/images/png/car/car.png"
+                            src={centerImage}
                             alt="Vehicle"
                             className="h-5/6 w-auto object-contain"
                         />

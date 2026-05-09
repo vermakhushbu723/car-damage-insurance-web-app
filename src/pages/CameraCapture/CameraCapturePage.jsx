@@ -1,14 +1,29 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import AppHeader from '../../components/common/AppHeader';
 import PageTitleBar from '../../components/common/PageTitleBar';
 import { COLORS } from '../../constants/theme';
 import { REQUIRED_ANGLES } from '../AddDamagePhotos/AddDamagePhotosPage';
+import { useCameraContext } from '../../contexts/CameraContext';
+import {
+    selectWorkflowOption,
+    WORKFLOW_SUBMIT_ROUTES,
+} from '../../store/workflowSlice';
+import { selectVehicleCategory } from '../../store/vehicleSlice';
+import { getAngleImage } from '../../constants/vehicleAssets';
 
 const CameraCapturePage = () => {
     const { angle } = useParams();
     const navigate = useNavigate();
     const routeLocation = useLocation();
+    const { disableCamera, returnPath } = useCameraContext();
+    // Workflow option the user picked on the landing page — drives where
+    // Save & Continue takes them once all required angles are captured.
+    const workflowOption = useSelector(selectWorkflowOption);
+    // Vehicle category from /owner-vehicle-details — picks the asset
+    // folder (car / bike / truck) for the per-angle guide image.
+    const vehicleCategory = useSelector(selectVehicleCategory);
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const streamRef = useRef(null);
@@ -22,22 +37,11 @@ const CameraCapturePage = () => {
     const formatAngleName = (name) =>
         name.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
-    // ── Map each angle to its guide image ─────────────────────────────────
-    const ANGLE_IMAGES = {
-        'rear-rh-side': '/images/png/car/RearRight.png',
-        'rear-side': '/images/png/car/Rear.png',
-        'rear-lh-side': '/images/png/car/RearLeft.png',
-        'rh-side': '/images/png/car/Right.png',
-        'front-rh-side': '/images/png/car/FrontRight.png',
-        'front-side': '/images/png/car/Front.png',
-        'front-lh': '/images/png/car/FrontLeft.png',
-        'lh-side': '/images/png/car/Left.png',
-        'odometer': '/images/png/car/Odometer.png',
-        'chassis-number': '/images/png/car/ChassisNumber.png',
-        'video': '/images/png/car/car.png',
-    };
-
-    const guideImage = ANGLE_IMAGES[angle] || '/images/png/car/car.png';
+    // Resolve the guide image for the current angle from the vehicle
+    // category's asset folder. Falls back to the centre silhouette if
+    // the requested angle isn't available for that category (e.g.
+    // chassis-number on a bike).
+    const guideImage = getAngleImage(vehicleCategory, angle);
 
     // ── Live clock ─────────────────────────────────────────────────────────
     useEffect(() => {
@@ -111,23 +115,42 @@ const CameraCapturePage = () => {
 
     // ── Start camera ───────────────────────────────────────────────────────
     useEffect(() => {
+        // Guard against StrictMode's mount → cleanup → remount cycle: if the
+        // effect is torn down while getUserMedia() is still pending, the
+        // stream we eventually receive must be stopped instead of leaking
+        // (otherwise the camera light stays on after navigation).
+        let cancelled = false;
         const start = async () => {
             try {
                 setError(null);
                 setIsCameraReady(false);
                 const mediaStream = await getCameraStream();
+                if (cancelled) {
+                    mediaStream.getTracks().forEach(t => t.stop());
+                    return;
+                }
                 streamRef.current = mediaStream;
                 startVideoPreview(mediaStream);
             } catch (err) {
+                if (cancelled) return;
                 console.error('Camera error:', err);
                 setError(getErrorMessage(err));
             }
         };
         start();
         return () => {
-            if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
+            cancelled = true;
+            // ── CRITICAL: Stop all camera streams when component unmounts ──
+            if (streamRef.current) {
+                streamRef.current.getTracks().forEach(t => {
+                    t.stop();
+                });
+                streamRef.current = null;
+            }
+            // ── Disable camera access in context ──
+            disableCamera();
         };
-    }, []);
+    }, [startVideoPreview, disableCamera]);
 
     // ── Capture photo ──────────────────────────────────────────────────────
     const handleCapturePhoto = () => {
@@ -140,7 +163,10 @@ const CameraCapturePage = () => {
             canvas.height = video.videoHeight || 720;
             canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
             setCapturedImage(canvas.toDataURL('image/jpeg', 0.92));
-            if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
+            if (streamRef.current) { 
+                streamRef.current.getTracks().forEach(t => t.stop()); 
+                streamRef.current = null; 
+            }
         } catch (err) {
             console.error('Capture error:', err);
             setError('Failed to capture photo. Try again.');
@@ -173,15 +199,29 @@ const CameraCapturePage = () => {
         stored[angle] = capturedImage;
         localStorage.setItem('damage_photos', JSON.stringify(stored));
 
-        // If all required angles are now captured → go to Add Damage Photos page
         const allDone = REQUIRED_ANGLES.every(a => stored[a]);
-        if (allDone) {
-            navigate('/add-damage-photos');
-        } else {
-            // Otherwise return to where we came from (returnTo state) or photo-capture-selection
+
+        if (!allDone) {
+            // Still capturing — go back to the selection screen (or wherever
+            // the user came from) so they can pick the next angle.
             const returnTo = routeLocation.state?.returnTo || '/photo-capture-selection';
             navigate(returnTo);
+            return;
         }
+
+        // All required photos captured → branch on the workflow option the
+        // user picked on the landing page (stored in Redux). The first 3
+        // landing buttons land here on /damage-review; the last 3 on
+        // /vehicle-information. If we somehow have no choice (e.g. user
+        // navigated in directly), fall back to the legacy review screen.
+        const submitRoute =
+            WORKFLOW_SUBMIT_ROUTES[workflowOption] || '/add-damage-photos';
+        navigate(submitRoute);
+    };
+
+    const handleNavigateBack = () => {
+        // Navigate back - cleanup will happen in useEffect
+        navigate(-1);
     };
 
     // ─────────────────────────────────────────────────────────────────────
@@ -234,7 +274,7 @@ const CameraCapturePage = () => {
                             style={{ width: '100%', padding: 12, background: COLORS.btnPrimary, color: '#fff', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 700, marginBottom: 10, cursor: 'pointer' }}>
                             Try Again
                         </button>
-                        <button onClick={() => navigate(-1)}
+                        <button onClick={handleNavigateBack}
                             style={{ width: '100%', padding: 12, background: '#ef4444', color: '#fff', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 700, cursor: 'pointer' }}>
                             Go Back
                         </button>
@@ -290,7 +330,7 @@ const CameraCapturePage = () => {
 
                     {/* ── TOP-LEFT — back button ── */}
                     <button
-                        onClick={() => navigate(-1)}
+                        onClick={handleNavigateBack}
                         style={{
                             position: 'absolute', top: 16, left: 16,
                             zIndex: 10,

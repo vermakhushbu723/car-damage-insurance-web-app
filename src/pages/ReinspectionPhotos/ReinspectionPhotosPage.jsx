@@ -301,7 +301,9 @@ const ReinspectionPhotosPage = () => {
                                 borderRight: '1px solid #E2E8F0',
                             }}
                         >
-                            <span style={{ fontSize: 26 }}>🖼️</span>
+                            <span style={{ fontSize: 26 }}>
+                                <img src="/public/images/icons/GALLERY.svg" alt="GALLERY" className="" />
+                            </span>
                             <span style={{ fontSize: 12, fontWeight: 700, color: '#F97316' }}>GALLERY</span>
                             <span style={{ fontSize: 10, color: COLORS.textSecondary }}>Photos & Images</span>
                         </button>
@@ -315,7 +317,9 @@ const ReinspectionPhotosPage = () => {
                                 borderRight: '1px solid #E2E8F0',
                             }}
                         >
-                            <span style={{ fontSize: 26 }}>📁</span>
+                            <span style={{ fontSize: 26 }}>
+                                <img src="/public/images/icons/FILE.svg" alt="FILE" className="" />
+                            </span>
                             <span style={{ fontSize: 12, fontWeight: 700, color: '#3B82F6' }}>FILE</span>
                             <span style={{ fontSize: 10, color: COLORS.textSecondary, textAlign: 'center' }}>Documents{'\n'}(PDF, JPG, PNG)</span>
                         </button>
@@ -328,7 +332,9 @@ const ReinspectionPhotosPage = () => {
                                 cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
                             }}
                         >
-                            <span style={{ fontSize: 26 }}>📷</span>
+                            <span style={{ fontSize: 26 }}>
+                                <img src="/public/images/icons/CAMERA_ICON.svg" alt="CAMERA" className="" />
+                            </span>
                             <span style={{ fontSize: 12, fontWeight: 700, color: '#16A34A' }}>CAMERA</span>
                             <span style={{ fontSize: 10, color: COLORS.textSecondary }}>Scan Invoice Now</span>
                         </button>

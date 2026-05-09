@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AppHeader from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
+import { useSelector } from 'react-redux';
+import { useCameraContext } from '../../contexts/CameraContext';
+import {
+    selectWorkflowOption,
+    WORKFLOW_SUBMIT_ROUTES,
+} from '../../store/workflowSlice';
+import { CAMERA_ACCESS_KEY } from '../../routes/ProtectedCameraRoute';
 
 // ── Sections matching the reference image UI ──────────────────────────────
 const PHOTO_SECTIONS = [
@@ -56,6 +63,9 @@ export const REQUIRED_ANGLES = ['front-side', 'lh-side', 'rh-side', 'rear-side']
 
 const AddDamagePhotosPage = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const { enableCamera } = useCameraContext();
+    const workflowOption = useSelector(selectWorkflowOption);
     const [capturedPhotos, setCapturedPhotos] = useState({});
 
     useEffect(() => {
@@ -68,14 +78,23 @@ const AddDamagePhotosPage = () => {
     const progress = Math.round((completedCount / totalCount) * 100);
 
     const handleCapture = (captureAngle) => {
+        // Hand the camera route a durable access ticket — survives
+        // StrictMode remounts and any re-render that would drop location.state.
+        window.sessionStorage.setItem(CAMERA_ACCESS_KEY, 'true');
         navigate(`/camera-capture/${captureAngle}`, {
-            state: { returnTo: '/add-damage-photos' },
+            state: {
+                returnTo: '/add-damage-photos',
+                cameraEnabled: true,
+            },
         });
     };
 
     const handleSubmit = () => {
-        // Navigate to next step (e.g., review or submission page)
-        navigate('/damage-review');
+        // Workflow is picked on the landing page (stored in Redux), so jump
+        // straight to its destination. Falls back to the landing page if we
+        // somehow got here without a selection (e.g. direct URL access).
+        const next = WORKFLOW_SUBMIT_ROUTES[workflowOption] || '/';
+        navigate(next);
     };
 
     return (

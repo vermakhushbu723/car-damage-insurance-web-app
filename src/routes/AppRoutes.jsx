@@ -15,24 +15,63 @@ import DamageReviewPage from '../pages/DamageReview/DamageReviewPage';
 import SubmittedPage from '../pages/Submitted/SubmittedPage';
 import ReinspectionPhotosPage from '../pages/ReinspectionPhotos/ReinspectionPhotosPage';
 import RepairSubmissionPage from '../pages/RepairSubmission/RepairSubmissionPage';
+import VehicleInformationPage from '../pages/VehicleInformation/VehicleInformationPage';
+import ProtectedCameraRoute from './ProtectedCameraRoute';
+import ProtectedWorkflowRoute from './ProtectedWorkflowRoute';
+
+// Routes that don't need workflow protection
+const publicRoutes = [
+    { path: ROUTES.LANDING, element: <LandingPage /> },
+    { path: ROUTES.CLAIM_WORKSHOP_LOGIN, element: <LoginPage /> },
+    { path: ROUTES.DASHBOARD, element: <DashboardPage /> },
+    { path: ROUTES.CLAIM_START, element: <ClaimStartPage /> },
+    { path: ROUTES.OWNER_VEHICLE_DETAILS, element: <OwnerVehicleDetailsPage /> },
+    { path: ROUTES.DOCUMENT_UPLOAD, element: <DocumentUploadPage /> },
+    { path: ROUTES.INSPECTION_DETAILS, element: <InspectionDetailsPage /> },
+    { path: ROUTES.PHOTO_CAPTURE_SELECTION, element: <PhotoCaptureSelectionPage /> },
+    { path: ROUTES.CAMERA_CAPTURE, element: <ProtectedCameraRoute element={<CameraCapturePage />} /> },
+    { path: ROUTES.ADD_DAMAGE_PHOTOS, element: <AddDamagePhotosPage /> },
+];
+
+// Routes that need workflow protection (Option Group 1)
+const workflowGroup1Routes = [
+    { path: ROUTES.DAMAGE_REVIEW, element: <DamageReviewPage /> },
+    { path: ROUTES.SUBMITTED, element: <SubmittedPage /> },
+    { path: ROUTES.REINSPECTION_PHOTOS, element: <ReinspectionPhotosPage /> },
+    { path: ROUTES.REPAIR_SUBMISSION, element: <RepairSubmissionPage /> },
+];
+
+// Routes that need workflow protection (Option Group 2)
+const workflowGroup2Routes = [
+    { path: ROUTES.VEHICLE_INFORMATION, element: <VehicleInformationPage /> },
+];
 
 const AppRoutes = () => {
     return (
         <Routes>
-            <Route path={ROUTES.LANDING} element={<LandingPage />} />
-            <Route path={ROUTES.CLAIM_WORKSHOP_LOGIN} element={<LoginPage />} />
-            <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
-            <Route path={ROUTES.CLAIM_START} element={<ClaimStartPage />} />
-            <Route path={ROUTES.OWNER_VEHICLE_DETAILS} element={<OwnerVehicleDetailsPage />} />
-            <Route path={ROUTES.DOCUMENT_UPLOAD} element={<DocumentUploadPage />} />
-            <Route path={ROUTES.INSPECTION_DETAILS} element={<InspectionDetailsPage />} />
-            <Route path={ROUTES.PHOTO_CAPTURE_SELECTION} element={<PhotoCaptureSelectionPage />} />
-            <Route path={ROUTES.CAMERA_CAPTURE} element={<CameraCapturePage />} />
-            <Route path={ROUTES.ADD_DAMAGE_PHOTOS} element={<AddDamagePhotosPage />} />
-            <Route path={ROUTES.DAMAGE_REVIEW} element={<DamageReviewPage />} />
-            <Route path={ROUTES.SUBMITTED} element={<SubmittedPage />} />
-            <Route path={ROUTES.REINSPECTION_PHOTOS} element={<ReinspectionPhotosPage />} />
-            <Route path={ROUTES.REPAIR_SUBMISSION} element={<RepairSubmissionPage />} />
+            {/* Public routes */}
+            {publicRoutes.map((route) => (
+                <Route key={route.path} path={route.path} element={route.element} />
+            ))}
+
+            {/* Protected workflow routes - Group 1 */}
+            {workflowGroup1Routes.map((route) => (
+                <Route
+                    key={route.path}
+                    path={route.path}
+                    element={<ProtectedWorkflowRoute element={route.element} />}
+                />
+            ))}
+
+            {/* Protected workflow routes - Group 2 */}
+            {workflowGroup2Routes.map((route) => (
+                <Route
+                    key={route.path}
+                    path={route.path}
+                    element={<ProtectedWorkflowRoute element={route.element} />}
+                />
+            ))}
+
             {/* Fallback */}
             <Route path="*" element={<Navigate to={ROUTES.LANDING} replace />} />
         </Routes>

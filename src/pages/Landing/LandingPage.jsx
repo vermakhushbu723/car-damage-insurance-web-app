@@ -1,13 +1,23 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import AppHeader from '../../components/common/AppHeader';
 import { ROUTES } from '../../constants/routes';
 import { COLORS } from '../../constants/theme';
+import { setOption, WORKFLOW_TYPES } from '../../store/workflowSlice';
 
+// Each entry tags which workflow group the user has implicitly chosen by
+// clicking that button. The first 3 buttons belong to OPTION_GROUP_1
+// (Damage Review flow) and the last 3 to OPTION_GROUP_2 (Vehicle
+// Information flow). The choice is dispatched into the Redux workflow
+// slice and consumed later — when the user clicks "Save & Continue" on
+// /camera-capture/:angle after the final photo — to decide whether to
+// navigate to /damage-review or /vehicle-information. The button itself
+// still routes everyone to the login page, just like before.
 const menuItems = [
     {
         label: 'CLAIM-WORKSHOP LOGIN',
-        route: ROUTES.CLAIM_WORKSHOP_LOGIN,
+        workflow: WORKFLOW_TYPES.OPTION_GROUP_1,
         bg: 'linear-gradient(135deg, #E07B39 0%, #c95f1e 100%)',
         shadow: 'rgba(224,123,57,0.45)',
         icon: '🔧',
@@ -15,48 +25,58 @@ const menuItems = [
     },
     {
         label: 'CLAIM-SURVEYOR LOGIN',
-        route: ROUTES.CLAIM_SURVEYOR_LOGIN,
+        workflow: WORKFLOW_TYPES.OPTION_GROUP_1,
         bg: 'linear-gradient(135deg, #01A0FE 0%, #0077cc 100%)',
         shadow: 'rgba(1,160,254,0.45)',
         icon: '🔍',
-        available: false,
+        available: true,
     },
     {
         label: 'CLAIM-WEBLINK',
-        route: ROUTES.CLAIM_WEBLINK,
+        workflow: WORKFLOW_TYPES.OPTION_GROUP_1,
         bg: 'linear-gradient(135deg, #22C55E 0%, #15803d 100%)',
         shadow: 'rgba(34,197,94,0.45)',
         icon: '🔗',
-        available: false,
+        available: true,
     },
     {
         label: 'PREINSPECTION-AGENT LOGIN',
-        route: ROUTES.PREINSPECTION_AGENT_LOGIN,
+        workflow: WORKFLOW_TYPES.OPTION_GROUP_2,
         bg: 'linear-gradient(135deg, #4F46E5 0%, #3730a3 100%)',
         shadow: 'rgba(79,70,229,0.45)',
         icon: '👤',
-        available: false,
+        available: true,
     },
     {
         label: 'PREINSPECTION-SURVEYOR LOGIN WORKSHOP',
-        route: ROUTES.PREINSPECTION_SURVEYOR_LOGIN,
+        workflow: WORKFLOW_TYPES.OPTION_GROUP_2,
         bg: 'linear-gradient(135deg, #A855F7 0%, #7e22ce 100%)',
         shadow: 'rgba(168,85,247,0.45)',
         icon: '🏢',
-        available: false,
+        available: true,
     },
     {
         label: 'PREINSPECTION-WEBLINK',
-        route: ROUTES.PREINSPECTION_WEBLINK,
+        workflow: WORKFLOW_TYPES.OPTION_GROUP_2,
         bg: 'linear-gradient(135deg, #F59E0B 0%, #b45309 100%)',
         shadow: 'rgba(245,158,11,0.45)',
         icon: '🌐',
-        available: false,
+        available: true,
     },
 ];
 
 const LandingPage = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const handleSelect = (item) => {
+        if (!item.available) return;
+        // Persist the user's workflow choice in the Redux store so the
+        // later Save & Continue step on /camera-capture can route them
+        // to the correct page. Navigation here still goes to login.
+        dispatch(setOption(item.workflow));
+        navigate(ROUTES.CLAIM_WORKSHOP_LOGIN);
+    };
 
     return (
         <div
@@ -83,7 +103,7 @@ const LandingPage = () => {
                 {menuItems.map((item) => (
                     <button
                         key={item.label}
-                        onClick={() => item.available && navigate(item.route)}
+                        onClick={() => handleSelect(item)}
                         style={{
                             width: '100%',
                             maxWidth: '420px',

@@ -20,4 +20,5 @@ export const ROUTES = {
     SUBMITTED: '/submitted',
     REINSPECTION_PHOTOS: '/reinspection-photos',
     REPAIR_SUBMISSION: '/repair-submission',
+    VEHICLE_INFORMATION: '/vehicle-information',
 };
