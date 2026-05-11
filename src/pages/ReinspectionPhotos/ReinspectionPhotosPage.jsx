@@ -2,14 +2,23 @@ import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppHeader from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
+import galleryIcon from '../../assets/icons/GALLERY.svg';
+import fileIcon from '../../assets/icons/FILE.svg';
+import cameraIcon from '../../assets/icons/CAMERA_ICON.svg';
+import carRearLeft from '../../assets/png/car/RearLeft.png';
+import carLeft from '../../assets/png/car/Left.png';
+import carRight from '../../assets/png/car/Right.png';
+import carFrontRight from '../../assets/png/car/FrontRight.png';
+import carFront from '../../assets/png/car/Front.png';
+import carRear from '../../assets/png/car/Rear.png';
 
 const VEHICLE_PHOTOS = [
-    '/images/png/car/RearLeft.png',
-    '/images/png/car/Left.png',
-    '/images/png/car/Right.png',
-    '/images/png/car/FrontRight.png',
-    '/images/png/car/Front.png',
-    '/images/png/car/Rear.png',
+    carRearLeft,
+    carLeft,
+    carRight,
+    carFrontRight,
+    carFront,
+    carRear,
 ];
 
 const TOTAL_EXPECTED = 12;
@@ -302,7 +311,7 @@ const ReinspectionPhotosPage = () => {
                             }}
                         >
                             <span style={{ fontSize: 26 }}>
-                                <img src="/public/images/icons/GALLERY.svg" alt="GALLERY" className="" />
+                                <img src={galleryIcon} alt="GALLERY" className="" />
                             </span>
                             <span style={{ fontSize: 12, fontWeight: 700, color: '#F97316' }}>GALLERY</span>
                             <span style={{ fontSize: 10, color: COLORS.textSecondary }}>Photos & Images</span>
@@ -318,7 +327,7 @@ const ReinspectionPhotosPage = () => {
                             }}
                         >
                             <span style={{ fontSize: 26 }}>
-                                <img src="/public/images/icons/FILE.svg" alt="FILE" className="" />
+                                <img src={fileIcon} alt="FILE" className="" />
                             </span>
                             <span style={{ fontSize: 12, fontWeight: 700, color: '#3B82F6' }}>FILE</span>
                             <span style={{ fontSize: 10, color: COLORS.textSecondary, textAlign: 'center' }}>Documents{'\n'}(PDF, JPG, PNG)</span>
@@ -333,7 +342,7 @@ const ReinspectionPhotosPage = () => {
                             }}
                         >
                             <span style={{ fontSize: 26 }}>
-                                <img src="/public/images/icons/CAMERA_ICON.svg" alt="CAMERA" className="" />
+                                <img src={cameraIcon} alt="CAMERA" className="" />
                             </span>
                             <span style={{ fontSize: 12, fontWeight: 700, color: '#16A34A' }}>CAMERA</span>
                             <span style={{ fontSize: 10, color: COLORS.textSecondary }}>Scan Invoice Now</span>

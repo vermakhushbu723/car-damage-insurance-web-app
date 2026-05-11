@@ -1,6 +1,7 @@
 import React from 'react';
 import { COLORS } from '../../constants/theme';
 import BottomButton from '../common/BottomButton';
+import locationIcon from '../../assets/icons/location.svg';
 
 /**
  * Location Permission Modal
@@ -20,7 +21,7 @@ const LocationModal = ({ visible, onAllow }) => {
                     style={{ background: '#FF960940', border: '1px solid #FF9609' }}
                 >
                     <span style={{ fontSize: 42 }}>
-                        <img src="/public/images/icons/location.svg" alt="location" srcset="" />
+                        <img src={locationIcon} alt="location" srcset="" />
                     </span>
                 </div>
 

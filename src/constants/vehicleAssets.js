@@ -1,7 +1,31 @@
 // Maps the "Select Product" choice on /owner-vehicle-details to the asset
-// folder under /public/images/png/ that holds the matching silhouette and
+// folder under src/assets/png/ that holds the matching silhouette and
 // per-angle guide images. The folder names also double as the Redux
 // "category" value used by the camera flow.
+//
+// Images are imported via Vite's `import.meta.glob` (eager) so they are
+// bundled and hashed by Vite — the resolved URL strings end up in
+// VEHICLE_IMAGES and are looked up by category + filename.
+
+const VEHICLE_IMAGE_MODULES = import.meta.glob('../assets/png/**/*.png', {
+    eager: true,
+    query: '?url',
+    import: 'default',
+});
+
+// Build a nested map: { car: { 'Front.png': '/assets/.../Front-abc.png', ... }, bike: {...}, truck: {...} }
+const VEHICLE_IMAGES = (() => {
+    const map = {};
+    for (const [path, url] of Object.entries(VEHICLE_IMAGE_MODULES)) {
+        // path looks like '../assets/png/car/Front.png'
+        const match = path.match(/\/assets\/png\/([^/]+)\/([^/]+)$/);
+        if (!match) continue;
+        const [, cat, file] = match;
+        if (!map[cat]) map[cat] = {};
+        map[cat][file] = url;
+    }
+    return map;
+})();
 
 export const VEHICLE_CATEGORIES = Object.freeze({
     CAR: 'car',
@@ -78,7 +102,8 @@ export const getCategoryForProduct = (product) =>
 // /photo-capture-selection and as a fallback guide on /camera-capture.
 export const getCenterImage = (category) => {
     const cat = safeCategory(category);
-    return `/images/png/${cat}/${cat}.png`;
+    // Per-category centre image is named after the folder (car.png / bike.png / truck.png).
+    return VEHICLE_IMAGES[cat]?.[`${cat}.png`];
 };
 
 // Per-angle guide image path. Falls back to the centre silhouette if the
@@ -87,7 +112,8 @@ export const getCenterImage = (category) => {
 export const getAngleImage = (category, angleId) => {
     const cat = safeCategory(category);
     const file = ANGLE_FILES[cat][angleId];
-    return file ? `/images/png/${cat}/${file}` : getCenterImage(cat);
+    const url = file ? VEHICLE_IMAGES[cat]?.[file] : null;
+    return url || getCenterImage(cat);
 };
 
 // Whether the given angle has a real guide image for this category

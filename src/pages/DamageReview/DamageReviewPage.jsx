@@ -2,15 +2,27 @@ import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppHeader from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
+import carRearLeft from '../../assets/png/car/RearLeft.png';
+import carLeft from '../../assets/png/car/Left.png';
+import carRight from '../../assets/png/car/Right.png';
+import carFrontRight from '../../assets/png/car/FrontRight.png';
+import carFront from '../../assets/png/car/Front.png';
+import carRear from '../../assets/png/car/Rear.png';
+import greenInsuredNameIcon from '../../assets/icons/GreenInsuredName.svg';
+import phoneNumberIcon from '../../assets/icons/PhoneNumber.svg';
+import emailAddressIcon from '../../assets/icons/EmailAddress.svg';
+import purpleClaimNumberIcon from '../../assets/icons/PurpleClaimNumber.svg';
+import policyNumberIcon from '../../assets/icons/PolicyNumber.svg';
+import insuranceCompanyIcon from '../../assets/icons/InsuranceCompany.svg';
 
 // ── Static data (replace with API data as needed) ─────────────────────────
 const VEHICLE_PHOTOS = [
-    '/images/png/car/RearLeft.png',
-    '/images/png/car/Left.png',
-    '/images/png/car/Right.png',
-    '/images/png/car/FrontRight.png',
-    '/images/png/car/Front.png',
-    '/images/png/car/Rear.png',
+    carRearLeft,
+    carLeft,
+    carRight,
+    carFrontRight,
+    carFront,
+    carRear,
 ];
 
 const VEHICLE_DETAILS = [
@@ -26,12 +38,12 @@ const VEHICLE_DETAILS = [
 ];
 
 const INSURED_DETAILS = [
-    { icon: 'public/images/icons/GreenInsuredName.svg', label: 'Insured Name', value: 'User Full Name', color: '#22C55E' },
-    { icon: 'public/images/icons/PhoneNumber.svg', label: 'Mobile Number', value: '+91 1234567890', color: '#EC4899' },
-    { icon: 'public/images/icons/EmailAddress.svg', label: 'Email Address', value: 'Username@gmail.com', color: '#F97316' },
-    { icon: 'public/images/icons/PurpleClaimNumber.svg', label: 'Claim number', value: '123456789CAR20', color: '#7C3AED', muted: true },
-    { icon: 'public/images/icons/PolicyNumber.svg', label: 'Policy Number', value: '123456789CAR20', color: '#22C55E', muted: true },
-    { icon: 'public/images/icons/InsuranceCompany.svg', label: 'Insurance Co', value: 'XYZ insurance comapny ltd', color: '#3B82F6' },
+    { icon: greenInsuredNameIcon, label: 'Insured Name', value: 'User Full Name', color: '#22C55E' },
+    { icon: phoneNumberIcon, label: 'Mobile Number', value: '+91 1234567890', color: '#EC4899' },
+    { icon: emailAddressIcon, label: 'Email Address', value: 'Username@gmail.com', color: '#F97316' },
+    { icon: purpleClaimNumberIcon, label: 'Claim number', value: '123456789CAR20', color: '#7C3AED', muted: true },
+    { icon: policyNumberIcon, label: 'Policy Number', value: '123456789CAR20', color: '#22C55E', muted: true },
+    { icon: insuranceCompanyIcon, label: 'Insurance Co', value: 'XYZ insurance comapny ltd', color: '#3B82F6' },
 ];
 
 // ── Row component ─────────────────────────────────────────────────────────

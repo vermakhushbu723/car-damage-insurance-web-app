@@ -4,35 +4,41 @@ import AppHeader from '../../components/common/AppHeader';
 import BottomButton from '../../components/common/BottomButton';
 import { COLORS } from '../../constants/theme';
 import { ROUTES } from '../../constants/routes';
+import claimFormIcon from '../../assets/icons/claim-form.svg';
+import drivingLicenseIcon from '../../assets/icons/driving-license.svg';
+import registrationCertificateIcon from '../../assets/icons/registration-certificate.svg';
+import repairEstimateIcon from '../../assets/icons/repair-estimate.svg';
+import kycIcon from '../../assets/icons/kyc.svg';
+import phoneIcon from '../../assets/icons/phone.svg';
 
 const documents = [
     {
-        icon: 'public/images/icons/claim-form.svg',
+        icon: claimFormIcon,
         label: 'Claim Form',
         iconBg: '#7C3AED',
     },
     {
-        icon: '/public/images/icons/driving-license.svg',
+        icon: drivingLicenseIcon,
         label: 'Driving License',
         iconBg: '#EF4444',
     },
     {
-        icon: '/public/images/icons/registration-certificate.svg',
+        icon: registrationCertificateIcon,
         label: 'Registration Certificate',
         iconBg: '#16A34A',
     },
     {
-        icon: '/public/images/icons/repair-estimate.svg',
+        icon: repairEstimateIcon,
         label: 'Repair Estimate',
         iconBg: '#EA580C',
     },
     {
-        icon: '/public/images/icons/kyc.svg',
+        icon: kycIcon,
         label: 'KYC ( Aadhar & PAN Card )',
         iconBg: '#0EA5E9',
     },
     {
-        icon: '/public/images/icons/phone.svg',
+        icon: phoneIcon,
         label: 'If You Need Any Help Please Contact Our Toll Free Number @ +91 1234567890',
         iconBg: '#0EA5E9',
         isHelp: true,

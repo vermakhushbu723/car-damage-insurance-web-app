@@ -9,6 +9,14 @@ import {
     WORKFLOW_SUBMIT_ROUTES,
 } from '../../store/workflowSlice';
 import { CAMERA_ACCESS_KEY } from '../../routes/ProtectedCameraRoute';
+import carFrontLeft from '../../assets/png/car/FrontLeft.png';
+import carFront from '../../assets/png/car/Front.png';
+import carFrontRight from '../../assets/png/car/FrontRight.png';
+import carLeft from '../../assets/png/car/Left.png';
+import carRearLeft from '../../assets/png/car/RearLeft.png';
+import carRight from '../../assets/png/car/Right.png';
+import carRearRight from '../../assets/png/car/RearRight.png';
+import carRear from '../../assets/png/car/Rear.png';
 
 // ── Sections matching the reference image UI ──────────────────────────────
 const PHOTO_SECTIONS = [
@@ -17,10 +25,10 @@ const PHOTO_SECTIONS = [
         label: 'Front side',
         captureAngle: 'front-side',
         thumbnails: [
-            '/images/png/car/FrontLeft.png',
-            '/images/png/car/Front.png',
-            '/images/png/car/FrontRight.png',
-            '/images/png/car/Front.png',
+            carFrontLeft,
+            carFront,
+            carFrontRight,
+            carFront,
         ],
     },
     {
@@ -28,10 +36,10 @@ const PHOTO_SECTIONS = [
         label: 'Left side',
         captureAngle: 'lh-side',
         thumbnails: [
-            '/images/png/car/Left.png',
-            '/images/png/car/FrontLeft.png',
-            '/images/png/car/Left.png',
-            '/images/png/car/RearLeft.png',
+            carLeft,
+            carFrontLeft,
+            carLeft,
+            carRearLeft,
         ],
     },
     {
@@ -39,10 +47,10 @@ const PHOTO_SECTIONS = [
         label: 'Right side',
         captureAngle: 'rh-side',
         thumbnails: [
-            '/images/png/car/Right.png',
-            '/images/png/car/FrontRight.png',
-            '/images/png/car/Right.png',
-            '/images/png/car/RearRight.png',
+            carRight,
+            carFrontRight,
+            carRight,
+            carRearRight,
         ],
     },
     {
@@ -50,10 +58,10 @@ const PHOTO_SECTIONS = [
         label: 'Rear side',
         captureAngle: 'rear-side',
         thumbnails: [
-            '/images/png/car/RearLeft.png',
-            '/images/png/car/Rear.png',
-            '/images/png/car/RearRight.png',
-            '/images/png/car/Rear.png',
+            carRearLeft,
+            carRear,
+            carRearRight,
+            carRear,
         ],
     },
 ];

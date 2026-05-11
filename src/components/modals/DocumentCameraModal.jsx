@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CheckCircleFilled, PlusCircleOutlined } from '@ant-design/icons';
 import { COLORS } from '../../constants/theme';
+import cameraIcon from '../../assets/icons/camera.svg';
 
 /**
  * Document Camera/Gallery picker modal
@@ -45,7 +46,7 @@ const DocumentCameraModal = ({ visible, docName, onClose, onCapture }) => {
                                     className="w-20 h-20 rounded-md border-2 flex items-center justify-center"
                                 >
                                     <span style={{ fontSize: 32 }}>
-                                        <img src="public/images/icons/camera.svg" alt="" className="src" />
+                                        <img src={cameraIcon} alt="" className="src" />
                                     </span>
                                 </div>
                                 <span className="text-md">{side}</span>

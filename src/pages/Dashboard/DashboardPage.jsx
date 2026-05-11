@@ -14,10 +14,18 @@ import {
     FileOutlined,
     RightOutlined,
 } from '@ant-design/icons';
+import totalClaimsIcon from '../../assets/icons/TotalClaims.svg';
+import surveyCompletedIcon from '../../assets/icons/SurveyCompleted.svg';
+import pendingSurveyIcon from '../../assets/icons/PendingSurvey.svg';
+import searchClaimIcon from '../../assets/icons/SearchClaim.svg';
+import insurerNameIcon from '../../assets/icons/insurerName.svg';
+import claimNumberIcon from '../../assets/icons/claimNumber.svg';
+import registrationNumberIcon from '../../assets/icons/registrationNumber.svg';
+import insuredNameIcon from '../../assets/icons/insuredName.svg';
 
 const statsCards = [
     {
-        icon: 'public/images/icons/TotalClaims.svg',
+        icon: totalClaimsIcon,
         count: '20',
         label: 'Total Claims',
         bg: COLORS.cardTotalClaims,
@@ -25,7 +33,7 @@ const statsCards = [
         textColor: '#FFFFFF',
     },
     {
-        icon: 'public/images/icons/SurveyCompleted.svg',
+        icon: surveyCompletedIcon,
         count: '12',
         label: 'Survey Completed',
         bg: COLORS.cardSurveyCompleted,
@@ -33,7 +41,7 @@ const statsCards = [
         textColor: '#009348',
     },
     {
-        icon: 'public/images/icons/PendingSurvey.svg',
+        icon: pendingSurveyIcon,
         count: '08',
         label: 'Pending Survey',
         bg: COLORS.cardPendingSurvey,
@@ -41,7 +49,7 @@ const statsCards = [
         textColor: '#fff',
     },
     {
-        icon: 'public/images/icons/SearchClaim.svg',
+        icon: searchClaimIcon,
         count: '03',
         label: 'Search Claim',
         bg: COLORS.cardSearchClaim,
@@ -95,10 +103,10 @@ const ClaimCard = ({ claim, onViewDetails }) => (
 
         {/* Fields */}
         {[
-            { icon: 'public/images/icons/insurerName.svg', label: 'Insurer Name', value: claim.insurerName },
-            { icon: 'public/images/icons/claimNumber.svg', label: 'Claim Number', value: claim.claimNumber },
-            { icon: 'public/images/icons/registrationNumber.svg', label: 'Registration Number', value: claim.registrationNumber },
-            { icon: 'public/images/icons/insuredName.svg', label: 'Insured Name', value: claim.insuredName },
+            { icon: insurerNameIcon, label: 'Insurer Name', value: claim.insurerName },
+            { icon: claimNumberIcon, label: 'Claim Number', value: claim.claimNumber },
+            { icon: registrationNumberIcon, label: 'Registration Number', value: claim.registrationNumber },
+            { icon: insuredNameIcon, label: 'Insured Name', value: claim.insuredName },
         ].map((row, i) => (
             <div key={i} className="flex items-center gap-3 mb-2 ">
                 <span className="w-6 flex justify-center"><img src={row.icon} alt={row.label} className="src" /></span>

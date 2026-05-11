@@ -9,15 +9,23 @@ import { COLORS } from '../../constants/theme';
 import { ROUTES } from '../../constants/routes';
 import PrimaryButton from '../../components/common/PrimaryButton';
 import SecondaryButton from '../../components/common/SecondaryButton';
+import greenTickIcon from '../../assets/icons/greenTick.svg';
+import pendingIcon from '../../assets/icons/pending.svg';
+import claimFormIcon from '../../assets/icons/claim-form.svg';
+import drivingLicenseIcon from '../../assets/icons/driving-license.svg';
+import registrationCertificateIcon from '../../assets/icons/registration-certificate.svg';
+import repairEstimateIcon from '../../assets/icons/repair-estimate.svg';
+import kycIcon from '../../assets/icons/kyc.svg';
+import phoneIcon from '../../assets/icons/phone.svg';
 
 const DOC_LIST = [
-    { id: 'claim_form', icon: 'public/images/icons/claim-form.svg', bgColor: '#8A64FF40', borderColor: '#8A64FF', label: 'Claim Form', desc: 'Insurance Claim Application Form', required: true },
-    { id: 'driving_license', icon: 'public/images/icons/driving-license.svg', bgColor: '#FF787040', borderColor: '#FF7870', label: 'Driving License', desc: 'DL Of Driver At the time of accident', required: true },
-    { id: 'rc', icon: 'public/images/icons/registration-certificate.svg', bgColor: '#00934840', borderColor: '#009348', label: 'Registration Certificate', desc: 'Registration Certificate of insured vehicle', required: true },
-    { id: 'repair_estimate', icon: 'public/images/icons/repair-estimate.svg', bgColor: '#DB6F3740', borderColor: '#DB6F37', label: 'Repair Estimate', desc: 'Repair estimate of insured vehicle', required: false },
-    { id: 'aadhar', icon: 'public/images/icons/kyc.svg', bgColor: '#1FA0D940', borderColor: '#1FA0D9', label: 'Aadhar Card', desc: 'Aadhar of the insured Person', required: false },
-    { id: 'pan', icon: 'public/images/icons/kyc.svg', bgColor: '#1FA0D940', borderColor: '#1FA0D9', label: 'Pan Card', desc: 'Pan of the insured person', required: true },
-    { id: 'others', icon: 'public/images/icons/phone.svg', bgColor: '#01A0FE40', borderColor: '#01A0FE', label: 'Others', desc: 'PUC, Fitness, Police papers & any other documents required in support of claim', required: false },
+    { id: 'claim_form', icon: claimFormIcon, bgColor: '#8A64FF40', borderColor: '#8A64FF', label: 'Claim Form', desc: 'Insurance Claim Application Form', required: true },
+    { id: 'driving_license', icon: drivingLicenseIcon, bgColor: '#FF787040', borderColor: '#FF7870', label: 'Driving License', desc: 'DL Of Driver At the time of accident', required: true },
+    { id: 'rc', icon: registrationCertificateIcon, bgColor: '#00934840', borderColor: '#009348', label: 'Registration Certificate', desc: 'Registration Certificate of insured vehicle', required: true },
+    { id: 'repair_estimate', icon: repairEstimateIcon, bgColor: '#DB6F3740', borderColor: '#DB6F37', label: 'Repair Estimate', desc: 'Repair estimate of insured vehicle', required: false },
+    { id: 'aadhar', icon: kycIcon, bgColor: '#1FA0D940', borderColor: '#1FA0D9', label: 'Aadhar Card', desc: 'Aadhar of the insured Person', required: false },
+    { id: 'pan', icon: kycIcon, bgColor: '#1FA0D940', borderColor: '#1FA0D9', label: 'Pan Card', desc: 'Pan of the insured person', required: true },
+    { id: 'others', icon: phoneIcon, bgColor: '#01A0FE40', borderColor: '#01A0FE', label: 'Others', desc: 'PUC, Fitness, Police papers & any other documents required in support of claim', required: false },
 ];
 
 const DocumentUploadPage = () => {
@@ -90,9 +98,9 @@ const DocumentUploadPage = () => {
                                         </div>
                                         <span className="font-semibold text-sm" style={{ color: COLORS.textPrimary }}>{doc.label}</span>
                                         {doc.required ? (
-                                            <img src="/public/images/icons/greenTick.svg" alt="submited" className="w-5 h-5" />
+                                            <img src={greenTickIcon} alt="submited" className="w-5 h-5" />
                                         ) : (
-                                            <img src="/public/images/icons/pending.svg" alt="pending" className="w-5 h-5" />
+                                            <img src={pendingIcon} alt="pending" className="w-5 h-5" />
                                         )}
                                     </div>
                                     <span

@@ -1,6 +1,7 @@
 import React from 'react';
 import { COLORS } from '../../constants/theme';
 import BottomButton from '../common/BottomButton';
+import rotateIcon from '../../assets/icons/Rotate.svg';
 
 /**
  * Rotate Device Modal
@@ -20,7 +21,7 @@ const RotateDeviceModal = ({ visible, onAllow }) => {
                     style={{ background: '#EFF6FF', border: '1px solid #00A0FE' }}
                 >
                     <span className="text-4xl p-3">
-                        <img src="/public/images/icons/rotate.svg" alt="rotate" srcset="" />
+                        <img src={rotateIcon} alt="rotate" srcset="" />
                     </span>
                 </div>
 
