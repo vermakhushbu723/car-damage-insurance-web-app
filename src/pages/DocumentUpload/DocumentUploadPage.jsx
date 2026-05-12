@@ -33,6 +33,7 @@ const DocumentUploadPage = () => {
     const [uploaded, setUploaded] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
     const [activeDoc, setActiveDoc] = useState(null);
+    const [pickerSource, setPickerSource] = useState('camera'); // 'camera' | 'gallery'
 
     const completedCount = Object.keys(uploaded).filter((k) => uploaded[k]).length;
     const totalCount = DOC_LIST.length;
@@ -40,14 +41,21 @@ const DocumentUploadPage = () => {
     const optionalCount = DOC_LIST.filter((d) => !d.required).length;
     const progressPercent = Math.round((completedCount / totalCount) * 100);
 
-    const openModal = (doc) => {
+    const openModal = (doc, source) => {
         setActiveDoc(doc);
+        setPickerSource(source);
         setModalVisible(true);
     };
 
-    const handleCapture = () => {
+    const handleCapture = (side, file) => {
         if (activeDoc) {
-            setUploaded((p) => ({ ...p, [activeDoc.id]: true }));
+            setUploaded((p) => ({
+                ...p,
+                [activeDoc.id]: {
+                    ...(typeof p[activeDoc.id] === 'object' ? p[activeDoc.id] : {}),
+                    [side]: file || true,
+                },
+            }));
         }
         setModalVisible(false);
     };
@@ -120,13 +128,13 @@ const DocumentUploadPage = () => {
                                 <div className="flex gap-3">
                                     <PrimaryButton
                                     label='Camera'
-                                        onClick={() => openModal(doc)}
+                                        onClick={() => openModal(doc, 'camera')}
                                         className="flex-1 py-2.5 rounded-xl text-white text-sm font-semibold"
                                         style={{ width: '181px', height: '37px', }}
                                     />
                                     <SecondaryButton
                                     label='Gallery'
-                                        onClick={() => openModal(doc)}
+                                        onClick={() => openModal(doc, 'gallery')}
                                         // className="flex-1 py-2.5 rounded-xl text-white text-sm font-semibold"
                                         style={{ width: '181px', height: '37px', }}
                                     />
@@ -142,6 +150,7 @@ const DocumentUploadPage = () => {
                 <DocumentCameraModal
                     visible={modalVisible}
                     docName={activeDoc?.label}
+                    source={pickerSource}
                     onClose={() => setModalVisible(false)}
                     onCapture={handleCapture}
                 />

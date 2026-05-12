@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { CAMERA_ACCESS_KEY } from '../../routes/ProtectedCameraRoute';
+import { ROUTES } from '../../constants/routes';
 import { selectVehicleCategory } from '../../store/vehicleSlice';
 import { getCenterImage, isAngleSupported } from '../../constants/vehicleAssets';
 
@@ -69,6 +70,16 @@ const PhotoCaptureSelectionPage = () => {
     const centerImage = getCenterImage(vehicleCategory);
 
     const handlePhotoPointClick = (point) => {
+        // The "Video" point is a walk-around video flow, not a single-photo
+        // capture — route it to the dedicated recording page instead of the
+        // per-angle camera page.
+        if (point.id === 'video') {
+            navigate(ROUTES.WALK_AROUND_VIDEO, {
+                state: { returnTo: '/photo-capture-selection' },
+            });
+            return;
+        }
+
         // Hand the camera route a durable access ticket — survives
         // StrictMode remounts and any re-render that would drop location.state.
         window.sessionStorage.setItem(CAMERA_ACCESS_KEY, 'true');

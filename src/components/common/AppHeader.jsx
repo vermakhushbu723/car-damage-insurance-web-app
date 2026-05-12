@@ -1,7 +1,7 @@
 import React from 'react';
 import { COLORS } from '../../constants/theme';
 import leftLogo from '../../assets/leftlogo.png';
-import rightLogo from '../../assets/rightlogo.png';
+import rightLogo from '../../assets/rightlogo.svg';
 
 const AppHeader = () => {
     return (

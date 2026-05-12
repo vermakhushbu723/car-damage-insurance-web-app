@@ -285,6 +285,34 @@ const CameraCapturePage = () => {
             {/* ═══════════ LIVE CAMERA OVERLAY — exactly like reference image ═══════════ */}
             {isCameraReady && !capturedImage && (
                 <>
+                    {/* ── Peripheral blur — keeps a clear "window" in the
+                        centre (where the vehicle silhouette sits) and
+                        blurs everything around it so distractions in the
+                        surroundings fade away. The radial-gradient mask
+                        is transparent in the middle (overlay hidden →
+                        clear video shows through) and fully opaque at the
+                        edges (overlay visible → blurred view). The size
+                        is tuned to match the silhouette's `maxWidth/Height`
+                        of 75% × 95%. ── */}
+                    <div
+                        aria-hidden="true"
+                        style={{
+                            position: 'absolute',
+                            inset: 0,
+                            zIndex: 4,
+                            pointerEvents: 'none',
+                            backdropFilter: 'blur(18px) saturate(1.05)',
+                            WebkitBackdropFilter: 'blur(18px) saturate(1.05)',
+                            background: 'rgba(0,0,0,0.18)',
+                            WebkitMaskImage:
+                                'radial-gradient(ellipse 38% 48% at center, transparent 55%, rgba(0,0,0,0.85) 75%, black 95%)',
+                            maskImage:
+                                'radial-gradient(ellipse 38% 48% at center, transparent 55%, rgba(0,0,0,0.85) 75%, black 95%)',
+                            WebkitMaskMode: 'alpha',
+                            maskMode: 'alpha',
+                        }}
+                    />
+
                     {/* ── Car guide image — center ── */}
                     <img
                         src={guideImage}
@@ -294,7 +322,7 @@ const CameraCapturePage = () => {
                             top: '50%', left: '50%',
                             transform: 'translate(-50%, -50%)',
                             width: 'auto', height: 'auto',
-                            maxWidth: '75%', maxHeight: '75%',
+                            maxWidth: '75%', maxHeight: '95%',
                             objectFit: 'contain',
                             opacity: 0.5,
                             pointerEvents: 'none',
@@ -318,11 +346,11 @@ const CameraCapturePage = () => {
                         position: 'absolute', bottom: 20, left: 16,
                         zIndex: 10, display: 'flex', flexDirection: 'column', gap: 4,
                     }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ef4444', fontWeight: 700, fontSize: 13 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ef4444', fontWeight: 700, fontSize: 10 }}>
                             <span style={{ fontSize: 14 }}>📍</span>
                             <span style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{location}</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ef4444', fontWeight: 700, fontSize: 13 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ef4444', fontWeight: 700, fontSize: 10 }}>
                             <span style={{ fontSize: 14 }}>🕐</span>
                             <span style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{dateTime}</span>
                         </div>

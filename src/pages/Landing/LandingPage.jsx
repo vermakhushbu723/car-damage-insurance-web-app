@@ -38,6 +38,9 @@ const menuItems = [
         shadow: 'rgba(34,197,94,0.45)',
         icon: '🔗',
         available: true,
+        // Weblink buttons skip the login screen and go straight to the
+        // claim-start flow.
+        route: ROUTES.CLAIM_START,
     },
     {
         label: 'PREINSPECTION-AGENT LOGIN',
@@ -62,6 +65,9 @@ const menuItems = [
         shadow: 'rgba(245,158,11,0.45)',
         icon: '🌐',
         available: true,
+        // Weblink buttons skip the login screen and go straight to the
+        // claim-start flow.
+        route: ROUTES.CLAIM_START,
     },
 ];
 
@@ -73,9 +79,11 @@ const LandingPage = () => {
         if (!item.available) return;
         // Persist the user's workflow choice in the Redux store so the
         // later Save & Continue step on /camera-capture can route them
-        // to the correct page. Navigation here still goes to login.
+        // to the correct page. Default destination is the login screen;
+        // items that declare an explicit `route` (e.g. the *-WEBLINK
+        // buttons) jump straight there instead.
         dispatch(setOption(item.workflow));
-        navigate(ROUTES.CLAIM_WORKSHOP_LOGIN);
+        navigate(item.route || ROUTES.CLAIM_WORKSHOP_LOGIN);
     };
 
     return (

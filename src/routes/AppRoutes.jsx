@@ -10,6 +10,7 @@ import DocumentUploadPage from '../pages/DocumentUpload/DocumentUploadPage';
 import InspectionDetailsPage from '../pages/InspectionDetails/InspectionDetailsPage';
 import PhotoCaptureSelectionPage from '../pages/PhotoCaptureSelection/PhotoCaptureSelectionPage';
 import CameraCapturePage from '../pages/CameraCapture/CameraCapturePage';
+import WalkAroundVideoPage from '../pages/WalkAroundVideo/WalkAroundVideoPage';
 import AddDamagePhotosPage from '../pages/AddDamagePhotos/AddDamagePhotosPage';
 import DamageReviewPage from '../pages/DamageReview/DamageReviewPage';
 import SubmittedPage from '../pages/Submitted/SubmittedPage';
@@ -30,6 +31,7 @@ const publicRoutes = [
     { path: ROUTES.INSPECTION_DETAILS, element: <InspectionDetailsPage /> },
     { path: ROUTES.PHOTO_CAPTURE_SELECTION, element: <PhotoCaptureSelectionPage /> },
     { path: ROUTES.CAMERA_CAPTURE, element: <ProtectedCameraRoute element={<CameraCapturePage />} /> },
+    { path: ROUTES.WALK_AROUND_VIDEO, element: <WalkAroundVideoPage /> },
     { path: ROUTES.ADD_DAMAGE_PHOTOS, element: <AddDamagePhotosPage /> },
 ];
 
