@@ -1,0 +1,25 @@
+/* ─────────────────────────────────────────────────────────────────────
+ * Admin panel — global typography.
+ *
+ * Single source of truth for the admin font. Apply the `.admin-root`
+ * class to the topmost element of each admin route (AdminLayout for
+ * /admin/* pages, AdminLoginPage for the standalone login) and every
+ * descendant — including buttons / inputs that normally don't inherit
+ * font-family — will pick up Instrument Sans.
+ *
+ * Loaded via Google Fonts so we don't have to ship the font files;
+ * `display=swap` avoids invisible text while the font is fetching.
+ * ───────────────────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap');
+
+.admin-root {
+    font-family: 'Instrument Sans', sans-serif;
+}
+
+/* Buttons, inputs, textareas, and selects don't inherit font-family by
+ * default in most browsers — force them to so the admin look stays
+ * consistent without each component re-declaring the font. */
+.admin-root * {
+    font-family: inherit;
+}

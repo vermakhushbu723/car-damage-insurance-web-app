@@ -4,6 +4,9 @@ import leftLogo from '../../../assets/png/leftlogo.png';
 import rightLogo from '../../../assets/rightlogo.svg';
 import loginImage from '../../../assets/png/loginImage.jpg';
 import { ROUTES } from '../../../constants/routes';
+// Shared admin typography (Instrument Sans). Login lives outside
+// AdminLayout, so it imports the stylesheet directly.
+import '../admin.css';
 
 /**
  * Admin Panel — Login page.
@@ -73,7 +76,7 @@ const AdminLoginPage = () => {
     };
 
     return (
-        <div className="min-h-screen flex bg-white">
+        <div className="admin-root min-h-screen flex bg-white">
             {/* ── Left panel — hero image ──────────────────────────────
                 Full-bleed photograph from src/assets/png/loginImage.jpg.
                 Hidden below `md` (768px) so mobile gets the form alone. */}

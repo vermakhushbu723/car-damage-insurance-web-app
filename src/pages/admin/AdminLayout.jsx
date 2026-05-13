@@ -3,6 +3,9 @@ import { Outlet } from 'react-router-dom';
 import AdminSidebar from './components/AdminSidebar';
 import AdminHeader from './components/AdminHeader';
 import { PALETTE } from './adminTheme';
+// Side-effect import: loads Instrument Sans + defines `.admin-root` so
+// every nested admin route inherits the admin typography.
+import './admin.css';
 
 /**
  * Shared layout for every /admin/* page (except /admin/login which keeps
@@ -17,7 +20,7 @@ import { PALETTE } from './adminTheme';
  */
 const AdminLayout = () => {
     return (
-        <div className="min-h-screen flex" style={{ background: PALETTE.pageBg }}>
+        <div className="admin-root min-h-screen flex" style={{ background: PALETTE.pageBg }}>
             <AdminSidebar />
 
             <div className="flex-1 flex flex-col min-w-0">

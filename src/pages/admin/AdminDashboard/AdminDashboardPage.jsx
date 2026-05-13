@@ -4,18 +4,6 @@ import { CompassIcon, ArrowRight } from '../components/AdminIcons';
 
 /**
  * Admin Panel — Dashboard content.
- *
- * Rendered inside AdminLayout's <Outlet />, so this file only owns the
- * page body (heading + cards). The sidebar and top bar live in
- * AdminLayout / AdminSidebar / AdminHeader.
- *
- *   <main>
- *     Dashboard
- *     ┌── Claim ─────────┐ ┌── Preinspection ─┐
- *     └──────────────────┘ └──────────────────┘
- *     ┌── Performance ───┐ ┌── Quick Action ──┐
- *     └──────────────────┘ └──────────────────┘
- *   </main>
  */
 
 // ── Reusable bits (kept local — only used on this page) ───────────────
@@ -24,9 +12,9 @@ const Card = ({ children, style }) => (
         className="bg-white"
         style={{
             border: `1px solid ${PALETTE.cardBorder}`,
-            borderRadius: 12,
+            borderRadius: 7,
             padding: 20,
-            boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+            boxShadow: '0px 1px 4px 0px #00000040',
             ...style,
         }}
     >
@@ -104,12 +92,12 @@ const AdminDashboardPage = () => {
             </p>
 
             {/* ── Top row: Claim + Preinspection ─────────── */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
                 {/* Claim card */}
                 <Card>
                     <div className="flex items-center gap-3 mb-3">
                         <CardTopIcon />
-                        <h3 style={{ color: PALETTE.primaryBlue, fontSize: 20, fontWeight: 700, margin: 0 }}>
+                        <h3 style={{ color: PALETTE.primaryBlue, fontSize: 20, fontWeight: 600, margin: 0 }}>
                             Claim
                         </h3>
                     </div>
@@ -127,7 +115,7 @@ const AdminDashboardPage = () => {
                 <Card>
                     <div className="flex items-center gap-3 mb-3">
                         <CardTopIcon />
-                        <h3 style={{ color: PALETTE.primaryBlue, fontSize: 20, fontWeight: 700, margin: 0 }}>
+                        <h3 style={{ color: PALETTE.primaryBlue, fontSize: 20, fontWeight: 600, margin: 0 }}>
                             Preinspection
                         </h3>
                     </div>
@@ -143,9 +131,9 @@ const AdminDashboardPage = () => {
             </div>
 
             {/* ── Bottom row: Performance + Quick Action ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
                 {/* System Performance Sanctuary */}
-                <Card>
+                <div style={{ background: '#F3F4F6', border: '1px solid #E3E3E3', padding: 20, borderRadius: 1 }}>
                     <h3 style={{ color: PALETTE.primaryBlue, fontSize: 18, fontWeight: 700, margin: 0 }}>
                         System Performance Sanctuary
                     </h3>
@@ -173,10 +161,10 @@ const AdminDashboardPage = () => {
                         </div>
                         <CompassIcon size={56} />
                     </div>
-                </Card>
+                </div>
 
                 {/* Quick Action */}
-                <Card>
+                <div style={{ background: '#F3F4F6', border: '1px solid #E3E3E3', padding: 20, borderRadius: 1 }}>
                     <p
                         style={{
                             color: PALETTE.muted,
@@ -197,7 +185,7 @@ const AdminDashboardPage = () => {
                     <p style={{ color: PALETTE.body, fontSize: 12, marginTop: 14, fontWeight: 600 }}>
                         Last report generated 2 hours ago by admin
                     </p>
-                </Card>
+                </div>
             </div>
         </main>
     );
