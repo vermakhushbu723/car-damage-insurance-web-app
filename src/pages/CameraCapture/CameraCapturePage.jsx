@@ -33,6 +33,13 @@ const CameraCapturePage = () => {
     const [error, setError] = useState(null);
     const [location, setLocation] = useState('Fetching...');
     const [dateTime, setDateTime] = useState('');
+    // Match PhotoCaptureSelectionPage: photo capture must happen in
+    // landscape. Used to gate the camera-start effect *and* the render —
+    // in portrait we show a rotate prompt and keep the camera fully off
+    // so the device light doesn't stay on behind a hidden UI.
+    const [isLandscape, setIsLandscape] = useState(
+        typeof window !== 'undefined' && window.innerWidth > window.innerHeight
+    );
 
     const formatAngleName = (name) =>
         name.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
@@ -42,6 +49,22 @@ const CameraCapturePage = () => {
     // the requested angle isn't available for that category (e.g.
     // chassis-number on a bike).
     const guideImage = getAngleImage(vehicleCategory, angle);
+
+    // ── Orientation watcher ────────────────────────────────────────────────
+    // Mirrors PhotoCaptureSelectionPage so the camera flow is consistent —
+    // we only render the live preview / capture UI in landscape; portrait
+    // shows a rotate prompt.
+    useEffect(() => {
+        const checkOrientation = () => {
+            setIsLandscape(window.innerWidth > window.innerHeight);
+        };
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', checkOrientation);
+        return () => {
+            window.removeEventListener('resize', checkOrientation);
+            window.removeEventListener('orientationchange', checkOrientation);
+        };
+    }, []);
 
     // ── Live clock ─────────────────────────────────────────────────────────
     useEffect(() => {
@@ -115,6 +138,11 @@ const CameraCapturePage = () => {
 
     // ── Start camera ───────────────────────────────────────────────────────
     useEffect(() => {
+        // Camera only runs in landscape — rotating to portrait tears down
+        // this effect (cleanup stops the stream), rotating back to landscape
+        // re-runs it and reopens the camera.
+        if (!isLandscape) return;
+
         // Guard against StrictMode's mount → cleanup → remount cycle: if the
         // effect is torn down while getUserMedia() is still pending, the
         // stream we eventually receive must be stopped instead of leaking
@@ -150,7 +178,7 @@ const CameraCapturePage = () => {
             // ── Disable camera access in context ──
             disableCamera();
         };
-    }, [startVideoPreview, disableCamera]);
+    }, [startVideoPreview, disableCamera, isLandscape]);
 
     // ── Capture photo ──────────────────────────────────────────────────────
     const handleCapturePhoto = () => {
@@ -225,6 +253,24 @@ const CameraCapturePage = () => {
     };
 
     // ─────────────────────────────────────────────────────────────────────
+    // Portrait branch — match PhotoCaptureSelectionPage's rotate prompt
+    // so every /camera-capture/* angle behaves identically. The camera
+    // is not started in this branch (see the gated useEffect above).
+    if (!isLandscape) {
+        return (
+            <div className="w-screen h-screen flex items-center justify-center" style={{ background: '#3B82F6' }}>
+                <div className="flex flex-col items-center justify-center text-center px-6">
+                    <div className="text-6xl mb-6">📱</div>
+                    <h2 className="text-2xl font-bold text-white mb-4">Rotate Device</h2>
+                    <p className="text-white text-lg mb-8">
+                        Please rotate your device to landscape mode to capture vehicle photos
+                    </p>
+                    <div className="text-5xl animate-spin">↻</div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div style={{ position: 'fixed', inset: 0, background: '#000', overflow: 'hidden' }}>
 

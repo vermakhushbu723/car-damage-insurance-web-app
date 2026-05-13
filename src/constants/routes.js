@@ -22,4 +22,12 @@ export const ROUTES = {
     REINSPECTION_PHOTOS: '/reinspection-photos',
     REPAIR_SUBMISSION: '/repair-submission',
     VEHICLE_INFORMATION: '/vehicle-information',
+
+    // ── Admin panel ────────────────────────────────────────────────────
+    // All admin-side routes live under /admin/*. Nested for organisation
+    // — use as `ROUTES.ADMIN.LOGIN`, `ROUTES.ADMIN.DASHBOARD`, etc.
+    ADMIN: {
+        LOGIN: '/admin/login',
+        DASHBOARD: '/admin/dashboard',
+    },
 };

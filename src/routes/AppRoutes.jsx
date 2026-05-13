@@ -17,6 +17,9 @@ import SubmittedPage from '../pages/Submitted/SubmittedPage';
 import ReinspectionPhotosPage from '../pages/ReinspectionPhotos/ReinspectionPhotosPage';
 import RepairSubmissionPage from '../pages/RepairSubmission/RepairSubmissionPage';
 import VehicleInformationPage from '../pages/VehicleInformation/VehicleInformationPage';
+import AdminLoginPage from '../pages/admin/AdminLogin/AdminLoginPage';
+import AdminLayout from '../pages/admin/AdminLayout';
+import AdminDashboardPage from '../pages/admin/AdminDashboard/AdminDashboardPage';
 import ProtectedCameraRoute from './ProtectedCameraRoute';
 import ProtectedWorkflowRoute from './ProtectedWorkflowRoute';
 
@@ -48,6 +51,12 @@ const workflowGroup2Routes = [
     { path: ROUTES.VEHICLE_INFORMATION, element: <VehicleInformationPage /> },
 ];
 
+// ── Admin panel routes ─────────────────────────────────────────────────
+// ROUTES.ADMIN.DASHBOARD = "/admin/dashboard" is rendered as the child
+const adminLayoutChildren = [
+    { path: 'dashboard', element: <AdminDashboardPage /> },
+];
+
 const AppRoutes = () => {
     return (
         <Routes>
@@ -73,6 +82,18 @@ const AppRoutes = () => {
                     element={<ProtectedWorkflowRoute element={route.element} />}
                 />
             ))}
+
+            {/* Admin login — kept outside AdminLayout so it can use its
+                own full-bleed layout. */}
+            <Route path={ROUTES.ADMIN.LOGIN} element={<AdminLoginPage />} />
+
+            {/* Admin panel routes (/admin/*) — shared sidebar + top bar
+                via AdminLayout's <Outlet />. */}
+            <Route path="/admin" element={<AdminLayout />}>
+                {adminLayoutChildren.map((route) => (
+                    <Route key={route.path} path={route.path} element={route.element} />
+                ))}
+            </Route>
 
             {/* Fallback */}
             <Route path="*" element={<Navigate to={ROUTES.LANDING} replace />} />

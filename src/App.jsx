@@ -6,9 +6,13 @@ import { CameraProvider } from './contexts/CameraContext';
 const AppContent = () => {
     const location = useLocation();
 
-    // Check if current route is a fullscreen landscape page
+    // Check if current route is a fullscreen landscape page. The mobile-
+    // styled flows are clamped to `max-w-sm`, but the camera/photo-capture
+    // screens and the admin panel (everything under /admin/*) need to use
+    // the full viewport width.
     const isFullscreenPage = location.pathname.includes('photo-capture-selection') ||
-                             location.pathname.includes('camera-capture');
+                             location.pathname.includes('camera-capture') ||
+                             location.pathname.startsWith('/admin');
 
     return (
         <div

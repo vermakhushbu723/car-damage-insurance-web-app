@@ -4,7 +4,8 @@
       "Bash(node -e \"require\\('fs'\\).readFileSync\\('src/pages/PhotoCaptureSelection/PhotoCaptureSelectionPage.jsx','utf8'\\).split\\('\\\\n'\\).slice\\(0,8\\).forEach\\(\\(l,i\\)=>console.log\\(\\(i+1\\)+': '+l\\)\\)\")",
       "Bash(npm install *)",
       "Bash(npx vite *)",
-      "Bash(grep -i \"\\\\.svg$\")"
+      "Bash(grep -i \"\\\\.svg$\")",
+      "Bash(npm run *)"
     ]
   }
 }
