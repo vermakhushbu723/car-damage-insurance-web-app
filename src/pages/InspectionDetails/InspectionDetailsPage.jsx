@@ -119,9 +119,9 @@ const InspectionDetailsPage = () => {
                                 </span>
                             </div>
                             {/* Label */}
-                            <span className="text-sm flex-1" style={{ color: COLORS.textSecondary }}>{row.label}</span>
+                            <span className="text-sm w-36 font-semibold" style={{ color: COLORS.textSecondary }}>{row.label}</span>
                             {/* Value */}
-                            <span className="text-sm font-semibold text-right" style={{ color: COLORS.textPrimary, maxWidth: '55%' }}>
+                            <span className="text-sm font-semibold flex-1" style={{ color: COLORS.textPrimary }}>
                                 {row.value}
                             </span>
                         </div>

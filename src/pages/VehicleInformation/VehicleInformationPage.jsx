@@ -63,10 +63,8 @@ const VehicleInformationPage = () => {
     const InformationRow = ({ icon, label, value }) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingBottom: 12, borderBottom: '1px solid #E5E7EB' }}>
             <div style={{ fontSize: 20 }}>{icon}</div>
-            <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 12, color: COLORS.textSecondary, marginBottom: 2 }}>{label}</p>
-                <p style={{ fontSize: 14, fontWeight: 500, color: COLORS.textPrimary }}>{value}</p>
-            </div>
+            <span style={{ width: 120, fontSize: 13, color: COLORS.textSecondary, fontWeight: 500 }}>{label}</span>
+            <span style={{ flex: 1, fontSize: 14, color: COLORS.textPrimary, fontWeight: 600 }}>{value}</span>
         </div>
     );
 

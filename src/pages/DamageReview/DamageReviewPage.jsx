@@ -64,10 +64,10 @@ const DetailRow = ({ icon, label, value, muted, last, isImg }) => (
                 ? <img src={icon} alt={label} style={{ width: 26, height: 26, objectFit: 'contain' }} />
                 : <span style={{ fontSize: 20 }}>{icon}</span>}
         </div>
-        <span style={{ flex: 1, fontSize: 13, color: COLORS.textPrimary, fontWeight: 500 }}>{label}</span>
-        <span style={{ fontSize: 13, fontWeight: 600, color: muted ? '#94A3B8' : COLORS.textPrimary, textAlign: 'left', maxWidth: '52%' }}>
-            {value}
-        </span>
+        {/* Label with fixed width */}
+        <span style={{ width: 120, fontSize: 13, color: COLORS.textPrimary, fontWeight: 500 }}>{label}</span>
+        {/* Value left-aligned and flexible */}
+        <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: muted ? '#94A3B8' : COLORS.textPrimary }}>{value}</span>
     </div>
 );
 

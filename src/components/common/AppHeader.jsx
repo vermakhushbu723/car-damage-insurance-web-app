@@ -12,7 +12,7 @@ const AppHeader = () => {
             <img
                 src={Logo}
                 alt="New India Assurance"
-                className="h-18 w-auto object-contain"
+                className="h-18 w-auto object-contain mt-4"
             />
         </div>
     );
