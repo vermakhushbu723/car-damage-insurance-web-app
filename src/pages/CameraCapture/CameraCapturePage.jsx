@@ -14,6 +14,75 @@ import {
 import { selectVehicleCategory } from '../../store/vehicleSlice';
 import { getAngleImage } from '../../constants/vehicleAssets';
 
+// Helper function to create a precise mask that fits the outline of the vehicle frame.
+// Uses a flood-fill algorithm from the edges to find the "outside" of the frame.
+const createMaskFromOutline = (imageUrl) => {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            ctx.drawImage(img, 0, 0);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            const visited = new Uint8Array(width * height);
+            let stackPtr = 0;
+            const stackX = new Int32Array(width * height);
+            const stackY = new Int32Array(width * height);
+            
+            const push = (x, y) => {
+                if (x < 0 || x >= width || y < 0 || y >= height) return;
+                const idx = y * width + x;
+                if (visited[idx]) return;
+                // Outline is red, transparent background. Stop at anything non-transparent.
+                if (data[idx * 4 + 3] > 20) return;
+                visited[idx] = 1;
+                stackX[stackPtr] = x;
+                stackY[stackPtr] = y;
+                stackPtr++;
+            };
+            
+            for(let x=0; x<width; x++) { push(x, 0); push(x, height-1); }
+            for(let y=0; y<height; y++) { push(0, y); push(width-1, y); }
+            
+            while(stackPtr > 0) {
+                stackPtr--;
+                const x = stackX[stackPtr];
+                const y = stackY[stackPtr];
+                push(x+1, y);
+                push(x-1, y);
+                push(x, y+1);
+                push(x, y-1);
+            }
+            
+            const maskData = ctx.createImageData(width, height);
+            for(let i = 0; i < width * height; i++) {
+                if (visited[i]) {
+                    maskData.data[i*4] = 0;
+                    maskData.data[i*4+1] = 0;
+                    maskData.data[i*4+2] = 0;
+                    maskData.data[i*4+3] = 255;
+                } else {
+                    maskData.data[i*4] = 0;
+                    maskData.data[i*4+1] = 0;
+                    maskData.data[i*4+2] = 0;
+                    maskData.data[i*4+3] = 0;
+                }
+            }
+            ctx.putImageData(maskData, 0, 0);
+            resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = () => resolve(null);
+        img.src = imageUrl;
+    });
+};
+
 const CameraCapturePage = () => {
     usePageLoading();
     const { angle } = useParams();
@@ -43,6 +112,10 @@ const CameraCapturePage = () => {
         typeof window !== 'undefined' && window.innerWidth > window.innerHeight
     );
 
+    const [silhouetteMask, setSilhouetteMask] = useState(null);
+    const [imgSize, setImgSize] = useState({ width: 0, height: 0 });
+    const imgRef = useRef(null);
+
     const formatAngleName = (name) =>
         name.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
@@ -67,6 +140,31 @@ const CameraCapturePage = () => {
             window.removeEventListener('orientationchange', checkOrientation);
         };
     }, []);
+
+    // ── Generate silhouette mask for the specific guide image ──────────────
+    useEffect(() => {
+        if (!guideImage) return;
+        let cancelled = false;
+        createMaskFromOutline(guideImage).then(url => {
+            if (!cancelled) setSilhouetteMask(url);
+        });
+        return () => { cancelled = true; };
+    }, [guideImage]);
+
+    // ── Track the exact pixel dimensions of the guide image ────────────────
+    useEffect(() => {
+        if (!imgRef.current) return;
+        const observer = new ResizeObserver((entries) => {
+            for (let entry of entries) {
+                setImgSize({
+                    width: entry.contentRect.width,
+                    height: entry.contentRect.height
+                });
+            }
+        });
+        observer.observe(imgRef.current);
+        return () => observer.disconnect();
+    }, [isCameraReady, capturedImage]);
 
     // ── Live clock ─────────────────────────────────────────────────────────
     useEffect(() => {
@@ -352,10 +450,18 @@ const CameraCapturePage = () => {
                             backdropFilter: 'blur(18px) saturate(1.05)',
                             WebkitBackdropFilter: 'blur(18px) saturate(1.05)',
                             background: 'rgba(0,0,0,0.18)',
-                            WebkitMaskImage:
-                                'radial-gradient(ellipse 38% 48% at center, transparent 55%, rgba(0,0,0,0.85) 75%, black 95%)',
-                            maskImage:
-                                'radial-gradient(ellipse 38% 48% at center, transparent 55%, rgba(0,0,0,0.85) 75%, black 95%)',
+                            WebkitMaskImage: silhouetteMask 
+                                ? `url(${silhouetteMask}), linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) calc(50% - ${imgSize.width/2}px + 4px), rgba(0,0,0,0) calc(50% - ${imgSize.width/2}px + 4px), rgba(0,0,0,0) calc(50% + ${imgSize.width/2}px - 4px), rgba(0,0,0,1) calc(50% + ${imgSize.width/2}px - 4px), rgba(0,0,0,1) 100%), linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) calc(50% - ${imgSize.height/2}px + 4px), rgba(0,0,0,0) calc(50% - ${imgSize.height/2}px + 4px), rgba(0,0,0,0) calc(50% + ${imgSize.height/2}px - 4px), rgba(0,0,0,1) calc(50% + ${imgSize.height/2}px - 4px), rgba(0,0,0,1) 100%)`
+                                : 'linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 8%, rgba(0,0,0,0) 12%, rgba(0,0,0,0) 88%, rgba(0,0,0,0.85) 92%, rgba(0,0,0,1) 100%), linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 1.5%, rgba(0,0,0,0) 2.5%, rgba(0,0,0,0) 97.5%, rgba(0,0,0,0.85) 98.5%, rgba(0,0,0,1) 100%)',
+                            maskImage: silhouetteMask 
+                                ? `url(${silhouetteMask}), linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) calc(50% - ${imgSize.width/2}px + 4px), rgba(0,0,0,0) calc(50% - ${imgSize.width/2}px + 4px), rgba(0,0,0,0) calc(50% + ${imgSize.width/2}px - 4px), rgba(0,0,0,1) calc(50% + ${imgSize.width/2}px - 4px), rgba(0,0,0,1) 100%), linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) calc(50% - ${imgSize.height/2}px + 4px), rgba(0,0,0,0) calc(50% - ${imgSize.height/2}px + 4px), rgba(0,0,0,0) calc(50% + ${imgSize.height/2}px - 4px), rgba(0,0,0,1) calc(50% + ${imgSize.height/2}px - 4px), rgba(0,0,0,1) 100%)`
+                                : 'linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 8%, rgba(0,0,0,0) 12%, rgba(0,0,0,0) 88%, rgba(0,0,0,0.85) 92%, rgba(0,0,0,1) 100%), linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 1.5%, rgba(0,0,0,0) 2.5%, rgba(0,0,0,0) 97.5%, rgba(0,0,0,0.85) 98.5%, rgba(0,0,0,1) 100%)',
+                            WebkitMaskSize: silhouetteMask ? `${imgSize.width}px ${imgSize.height}px, 100% 100%, 100% 100%` : '100% 100%, 100% 100%',
+                            maskSize: silhouetteMask ? `${imgSize.width}px ${imgSize.height}px, 100% 100%, 100% 100%` : '100% 100%, 100% 100%',
+                            WebkitMaskPosition: silhouetteMask ? 'center, center, center' : 'center, center',
+                            maskPosition: silhouetteMask ? 'center, center, center' : 'center, center',
+                            WebkitMaskRepeat: silhouetteMask ? 'no-repeat, no-repeat, no-repeat' : 'no-repeat, no-repeat',
+                            maskRepeat: silhouetteMask ? 'no-repeat, no-repeat, no-repeat' : 'no-repeat, no-repeat',
                             WebkitMaskMode: 'alpha',
                             maskMode: 'alpha',
                         }}
@@ -363,6 +469,7 @@ const CameraCapturePage = () => {
 
                     {/* ── Car guide image — center ── */}
                     <img
+                        ref={imgRef}
                         src={guideImage}
                         alt="Vehicle guide"
                         style={{
@@ -376,6 +483,8 @@ const CameraCapturePage = () => {
                             pointerEvents: 'none',
                             userSelect: 'none',
                             zIndex: 5,
+                            clipPath: 'inset(4px)',
+                            WebkitClipPath: 'inset(4px)'
                         }}
                     />
 
