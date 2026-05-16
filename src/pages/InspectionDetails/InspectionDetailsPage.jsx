@@ -7,6 +7,7 @@ import RotateDeviceModal from '../../components/modals/RotateDeviceModal';
 import LocationModal from '../../components/modals/LocationModal';
 import { COLORS } from '../../constants/theme';
 import { ROUTES } from '../../constants/routes';
+import { usePageLoading } from '../../hooks/usePageLoading';
 import insuranceCompanyIcon from '../../assets/icons/InsuranceCompany.svg';
 import greenInsuredNameIcon from '../../assets/icons/GreenInsuredName.svg';
 import vehicleNumberIcon from '../../assets/icons/VehicleNumber.svg';
@@ -69,6 +70,7 @@ const instructions = [
 ];
 
 const InspectionDetailsPage = () => {
+    usePageLoading();
     const navigate = useNavigate();
     const [showRotate, setShowRotate] = useState(false);
     const [showLocation, setShowLocation] = useState(false);

@@ -8,6 +8,7 @@ import DocumentCameraModal from '../../components/modals/DocumentCameraModal';
 import { COLORS } from '../../constants/theme';
 import { ROUTES } from '../../constants/routes';
 import PrimaryButton from '../../components/common/PrimaryButton';
+import { usePageLoading } from '../../hooks/usePageLoading';
 import SecondaryButton from '../../components/common/SecondaryButton';
 import greenTickIcon from '../../assets/icons/greenTick.svg';
 import pendingIcon from '../../assets/icons/pending.svg';
@@ -29,6 +30,7 @@ const DOC_LIST = [
 ];
 
 const DocumentUploadPage = () => {
+    usePageLoading();
     const navigate = useNavigate();
     const [uploaded, setUploaded] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
@@ -127,13 +129,13 @@ const DocumentUploadPage = () => {
                                 {/* Action Buttons */}
                                 <div className="flex gap-3">
                                     <PrimaryButton
-                                    label='Camera'
+                                        label='Camera'
                                         onClick={() => openModal(doc, 'camera')}
                                         className="flex-1 py-2.5 rounded-xl text-white text-sm font-semibold"
                                         style={{ width: '181px', height: '37px', }}
                                     />
                                     <SecondaryButton
-                                    label='Gallery'
+                                        label='Gallery'
                                         onClick={() => openModal(doc, 'gallery')}
                                         // className="flex-1 py-2.5 rounded-xl text-white text-sm font-semibold"
                                         style={{ width: '181px', height: '37px', }}

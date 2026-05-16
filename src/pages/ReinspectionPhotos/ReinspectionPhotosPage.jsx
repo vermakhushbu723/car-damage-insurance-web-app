@@ -1,7 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppHeader from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
+import { usePageLoading } from '../../hooks/usePageLoading';
 import galleryIcon from '../../assets/icons/GALLERY.svg';
 import fileIcon from '../../assets/icons/FILE.svg';
 import cameraIcon from '../../assets/icons/CAMERA_ICON.svg';
@@ -12,7 +13,7 @@ import carFrontRight from '../../assets/png/car/FrontRight.png';
 import carFront from '../../assets/png/car/Front.png';
 import carRear from '../../assets/png/car/Rear.png';
 
-const VEHICLE_PHOTOS = [
+const DEFAULT_VEHICLE_PHOTOS = [
     carRearLeft,
     carLeft,
     carRight,
@@ -24,8 +25,23 @@ const VEHICLE_PHOTOS = [
 const TOTAL_EXPECTED = 12;
 
 const ReinspectionPhotosPage = () => {
+    usePageLoading();
     const navigate = useNavigate();
     const scrollRef = useRef(null);
+    const [vehiclePhotos, setVehiclePhotos] = useState([]);
+
+    // Load vehicle photos from localStorage
+    useEffect(() => {
+        const storedPhotos = JSON.parse(localStorage.getItem('damage_photos') || '{}');
+        const photoArray = Object.values(storedPhotos).filter(photo => photo);
+
+        // If we have photos from localStorage, use them; otherwise use default photos
+        if (photoArray.length > 0) {
+            setVehiclePhotos(photoArray);
+        } else {
+            setVehiclePhotos(DEFAULT_VEHICLE_PHOTOS);
+        }
+    }, []);
 
     const [reinspectionPhoto, setReinspectionPhoto] = useState(null); // base64 or null
     const [reinspectionStatus, setReinspectionStatus] = useState('required'); // 'required' | 'submitted'
@@ -262,7 +278,7 @@ const ReinspectionPhotosPage = () => {
                         ref={scrollRef}
                         style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}
                     >
-                        {VEHICLE_PHOTOS.map((src, i) => (
+                        {vehiclePhotos.map((src, i) => (
                             <div key={i} style={{ minWidth: 100, height: 88, borderRadius: 10, overflow: 'hidden', background: '#F1F5F9', flexShrink: 0 }}>
                                 <img src={src} alt={`v-${i}`} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                             </div>

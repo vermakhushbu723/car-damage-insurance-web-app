@@ -4,6 +4,7 @@ import AppHeader from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
 import { useSelector } from 'react-redux';
 import { useCameraContext } from '../../contexts/CameraContext';
+import { usePageLoading } from '../../hooks/usePageLoading';
 import {
     selectWorkflowOption,
     WORKFLOW_SUBMIT_ROUTES,
@@ -70,6 +71,7 @@ const PHOTO_SECTIONS = [
 export const REQUIRED_ANGLES = ['front-side', 'lh-side', 'rh-side', 'rear-side'];
 
 const AddDamagePhotosPage = () => {
+    usePageLoading();
     const navigate = useNavigate();
     const location = useLocation();
     const { enableCamera } = useCameraContext();

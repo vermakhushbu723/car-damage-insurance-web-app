@@ -1,7 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppHeader from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
+import { usePageLoading } from '../../hooks/usePageLoading';
 import carRearLeft from '../../assets/png/car/RearLeft.png';
 import carLeft from '../../assets/png/car/Left.png';
 import carRight from '../../assets/png/car/Right.png';
@@ -15,8 +16,8 @@ import purpleClaimNumberIcon from '../../assets/icons/PurpleClaimNumber.svg';
 import policyNumberIcon from '../../assets/icons/PolicyNumber.svg';
 import insuranceCompanyIcon from '../../assets/icons/InsuranceCompany.svg';
 
-// ── Static data (replace with API data as needed) ─────────────────────────
-const VEHICLE_PHOTOS = [
+// ── Default fallback photos ─────────────────────────
+const DEFAULT_VEHICLE_PHOTOS = [
     carRearLeft,
     carLeft,
     carRight,
@@ -64,7 +65,7 @@ const DetailRow = ({ icon, label, value, muted, last, isImg }) => (
                 : <span style={{ fontSize: 20 }}>{icon}</span>}
         </div>
         <span style={{ flex: 1, fontSize: 13, color: COLORS.textPrimary, fontWeight: 500 }}>{label}</span>
-        <span style={{ fontSize: 13, fontWeight: 600, color: muted ? '#94A3B8' : COLORS.textPrimary, textAlign: 'right', maxWidth: '52%' }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: muted ? '#94A3B8' : COLORS.textPrimary, textAlign: 'left', maxWidth: '52%' }}>
             {value}
         </span>
     </div>
@@ -72,9 +73,24 @@ const DetailRow = ({ icon, label, value, muted, last, isImg }) => (
 
 // ── Main Page ─────────────────────────────────────────────────────────────
 const DamageReviewPage = () => {
+    usePageLoading();
     const navigate = useNavigate();
     const scrollRef = useRef(null);
     const [photoIndex, setPhotoIndex] = useState(0);
+    const [vehiclePhotos, setVehiclePhotos] = useState([]);
+
+    // Load vehicle photos from localStorage
+    useEffect(() => {
+        const storedPhotos = JSON.parse(localStorage.getItem('damage_photos') || '{}');
+        const photoArray = Object.values(storedPhotos).filter(photo => photo);
+
+        // If we have photos from localStorage, use them; otherwise use default photos
+        if (photoArray.length > 0) {
+            setVehiclePhotos(photoArray);
+        } else {
+            setVehiclePhotos(DEFAULT_VEHICLE_PHOTOS);
+        }
+    }, []);
 
     const scrollPhotos = (dir) => {
         const el = scrollRef.current;
@@ -129,7 +145,7 @@ const DamageReviewPage = () => {
                         ref={scrollRef}
                         style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 8 }}
                     >
-                        {VEHICLE_PHOTOS.map((src, i) => (
+                        {vehiclePhotos.map((src, i) => (
                             <div
                                 key={i}
                                 style={{

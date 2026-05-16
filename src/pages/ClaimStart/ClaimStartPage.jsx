@@ -4,6 +4,7 @@ import AppHeader from '../../components/common/AppHeader';
 import BottomButton from '../../components/common/BottomButton';
 import { COLORS } from '../../constants/theme';
 import { ROUTES } from '../../constants/routes';
+import { usePageLoading } from '../../hooks/usePageLoading';
 import claimFormIcon from '../../assets/icons/claim-form.svg';
 import drivingLicenseIcon from '../../assets/icons/driving-license.svg';
 import registrationCertificateIcon from '../../assets/icons/registration-certificate.svg';
@@ -46,6 +47,7 @@ const documents = [
 ];
 
 const ClaimStartPage = () => {
+    usePageLoading();
     const navigate = useNavigate();
 
     return (

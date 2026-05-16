@@ -15,7 +15,6 @@ import AddDamagePhotosPage from '../pages/AddDamagePhotos/AddDamagePhotosPage';
 import DamageReviewPage from '../pages/DamageReview/DamageReviewPage';
 import SubmittedPage from '../pages/Submitted/SubmittedPage';
 import ReinspectionPhotosPage from '../pages/ReinspectionPhotos/ReinspectionPhotosPage';
-import RepairSubmissionPage from '../pages/RepairSubmission/RepairSubmissionPage';
 import VehicleInformationPage from '../pages/VehicleInformation/VehicleInformationPage';
 import AdminLoginPage from '../pages/admin/AdminLogin/AdminLoginPage';
 import AdminLayout from '../pages/admin/AdminLayout';
@@ -43,7 +42,6 @@ const workflowGroup1Routes = [
     { path: ROUTES.DAMAGE_REVIEW, element: <DamageReviewPage /> },
     { path: ROUTES.SUBMITTED, element: <SubmittedPage /> },
     { path: ROUTES.REINSPECTION_PHOTOS, element: <ReinspectionPhotosPage /> },
-    { path: ROUTES.REPAIR_SUBMISSION, element: <RepairSubmissionPage /> },
 ];
 
 // Routes that need workflow protection (Option Group 2)

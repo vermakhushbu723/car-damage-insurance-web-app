@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppHeader from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
+import { usePageLoading } from '../../hooks/usePageLoading';
 
 const TOTAL_EXPECTED = 12;
 
@@ -25,6 +26,7 @@ const Badge = ({ status }) => {
 };
 
 const RepairSubmissionPage = () => {
+    usePageLoading();
     const navigate = useNavigate();
 
     const [reinspectionPhoto, setReinspectionPhoto] = useState(null);

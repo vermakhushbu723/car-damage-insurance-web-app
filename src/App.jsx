@@ -1,24 +1,28 @@
 import React from 'react';
 import { BrowserRouter, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import AppRoutes from './routes/AppRoutes';
 import { CameraProvider } from './contexts/CameraContext';
+import LoadingScreen from './components/common/LoadingScreen';
 
 const AppContent = () => {
     const location = useLocation();
+    const isLoading = useSelector((state) => state.loading.isLoading);
 
     // Check if current route is a fullscreen landscape page. The mobile-
     // styled flows are clamped to `max-w-sm`, but the camera/photo-capture
     // screens and the admin panel (everything under /admin/*) need to use
     // the full viewport width.
     const isFullscreenPage = location.pathname.includes('photo-capture-selection') ||
-                             location.pathname.includes('camera-capture') ||
-                             location.pathname.startsWith('/admin');
+        location.pathname.includes('camera-capture') ||
+        location.pathname.startsWith('/admin');
 
     return (
         <div
             className="min-h-screen w-full flex justify-center"
             style={{ background: '#94A3B8' }}
         >
+            {isLoading && <LoadingScreen />}
             <div
                 className={`w-full ${!isFullscreenPage ? 'max-w-sm' : ''} min-h-screen relative overflow-x-hidden`}
                 style={{ background: 'transparent' }}

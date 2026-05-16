@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { COLORS } from '../../constants/theme';
 import rightLogo from '../../assets/rightlogo.svg';
+import { usePageLoading } from '../../hooks/usePageLoading';
 
 /**
  * Walk-Around Video capture page.
@@ -80,6 +81,7 @@ const formatClock = (seconds) => {
 };
 
 const WalkAroundVideoPage = () => {
+    usePageLoading();
     const navigate = useNavigate();
     const videoRef = useRef(null);
     const streamRef = useRef(null);
@@ -94,7 +96,7 @@ const WalkAroundVideoPage = () => {
     const [recordedUrl, setRecordedUrl] = useState(null);
     const [recBlink, setRecBlink] = useState(true);
     const [dateTime, setDateTime] = useState('');
-    const [geoTag, setGeoTag] = useState('Geo-Tag');
+    const [geoTag, setGeoTag] = useState('Location: Not available');
 
     // ── Live clock for the bottom-right timestamp ──────────────────────────
     useEffect(() => {
@@ -115,9 +117,9 @@ const WalkAroundVideoPage = () => {
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 const { latitude, longitude } = pos.coords;
-                setGeoTag(`Geo-Tag · ${latitude.toFixed(3)}°, ${longitude.toFixed(3)}°`);
+                setGeoTag(`Location: ${latitude.toFixed(3)}°, ${longitude.toFixed(3)}°`);
             },
-            () => setGeoTag('Geo-Tag'),
+            () => setGeoTag('Location: Not available'),
             { timeout: 8000 }
         );
     }, []);
@@ -189,7 +191,7 @@ const WalkAroundVideoPage = () => {
                     video.setAttribute('playsinline', '');
                     video.setAttribute('muted', '');
                     video.muted = true; // avoid feedback loop with the mic
-                    const tryPlay = () => video.play().then(() => !cancelled && setIsCameraReady(true)).catch(() => {});
+                    const tryPlay = () => video.play().then(() => !cancelled && setIsCameraReady(true)).catch(() => { });
                     if (video.readyState >= 3) tryPlay();
                     else {
                         video.addEventListener('canplay', tryPlay, { once: true });
@@ -440,7 +442,7 @@ const WalkAroundVideoPage = () => {
                             {current.desc}
                         </div>
                         <div style={{ color: '#fff', textAlign: 'right', flexShrink: 0 }}>
-                            <div style={{ fontSize: 14, fontWeight: 500, opacity: 0.95 }}>{dateTime}</div>
+                            <div style={{ fontSize: 14, fontWeight: 500, opacity: 0.95 }}>Date: {dateTime}</div>
                             <div style={{ fontSize: 14, fontWeight: 700, marginTop: 6 }}>{geoTag}</div>
                         </div>
                     </div>

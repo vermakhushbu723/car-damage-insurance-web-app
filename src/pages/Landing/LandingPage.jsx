@@ -5,6 +5,7 @@ import AppHeader from '../../components/common/AppHeader';
 import { ROUTES } from '../../constants/routes';
 import { COLORS } from '../../constants/theme';
 import { setOption, WORKFLOW_TYPES } from '../../store/workflowSlice';
+import { setLoading } from '../../store/loadingSlice';
 
 // Each entry tags which workflow group the user has implicitly chosen by
 // clicking that button. The first 3 buttons belong to OPTION_GROUP_1
@@ -94,7 +95,7 @@ const LandingPage = () => {
             <AppHeader />
 
             {/* Title */}
-            <div className="flex flex-col items-center mt-8 mb-6 px-4">
+            <div className="flex flex-col items-center mt-16 mb-6 px-4">
                 <h1
                     className="text-white font-bold text-2xl text-center tracking-wide drop-shadow"
                     style={{ letterSpacing: '0.04em' }}

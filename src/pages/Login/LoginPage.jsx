@@ -7,6 +7,7 @@ import { COLORS } from '../../constants/theme';
 import captureRefresh from '../../assets/capturerefress.png';
 import { ROUTES } from '../../constants/routes';
 import BottomButton from '../../components/common/BottomButton';
+import { usePageLoading } from '../../hooks/usePageLoading';
 
 const generateCaptcha = () => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
@@ -18,6 +19,7 @@ const generateCaptcha = () => {
 };
 
 const LoginPage = () => {
+    usePageLoading();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('claim');
     const [username, setUsername] = useState('');

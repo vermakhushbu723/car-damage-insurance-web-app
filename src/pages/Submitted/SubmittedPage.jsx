@@ -1,8 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { COLORS } from '../../constants/theme';
+import { usePageLoading } from '../../hooks/usePageLoading';
 
 const SubmittedPage = () => {
+    usePageLoading();
     const navigate = useNavigate();
 
     return (

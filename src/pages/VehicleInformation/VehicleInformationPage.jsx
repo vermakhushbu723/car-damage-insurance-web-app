@@ -5,8 +5,10 @@ import PrimaryButton from '../../components/common/PrimaryButton';
 import SecondaryButton from '../../components/common/SecondaryButton';
 import SignaturePad from '../../components/common/SignaturePad';
 import { COLORS } from '../../constants/theme';
+import { usePageLoading } from '../../hooks/usePageLoading';
 
 const VehicleInformationPage = () => {
+    usePageLoading();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         vehiclePhotos: [],

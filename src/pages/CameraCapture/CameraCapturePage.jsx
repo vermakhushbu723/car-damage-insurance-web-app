@@ -6,6 +6,7 @@ import PageTitleBar from '../../components/common/PageTitleBar';
 import { COLORS } from '../../constants/theme';
 import { REQUIRED_ANGLES } from '../AddDamagePhotos/AddDamagePhotosPage';
 import { useCameraContext } from '../../contexts/CameraContext';
+import { usePageLoading } from '../../hooks/usePageLoading';
 import {
     selectWorkflowOption,
     WORKFLOW_SUBMIT_ROUTES,
@@ -14,6 +15,7 @@ import { selectVehicleCategory } from '../../store/vehicleSlice';
 import { getAngleImage } from '../../constants/vehicleAssets';
 
 const CameraCapturePage = () => {
+    usePageLoading();
     const { angle } = useParams();
     const navigate = useNavigate();
     const routeLocation = useLocation();
@@ -191,9 +193,9 @@ const CameraCapturePage = () => {
             canvas.height = video.videoHeight || 720;
             canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
             setCapturedImage(canvas.toDataURL('image/jpeg', 0.92));
-            if (streamRef.current) { 
-                streamRef.current.getTracks().forEach(t => t.stop()); 
-                streamRef.current = null; 
+            if (streamRef.current) {
+                streamRef.current.getTracks().forEach(t => t.stop());
+                streamRef.current = null;
             }
         } catch (err) {
             console.error('Capture error:', err);
@@ -394,11 +396,11 @@ const CameraCapturePage = () => {
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ef4444', fontWeight: 700, fontSize: 10 }}>
                             <span style={{ fontSize: 14 }}>📍</span>
-                            <span style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{location}</span>
+                            <span style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>Location: {location}</span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ef4444', fontWeight: 700, fontSize: 10 }}>
                             <span style={{ fontSize: 14 }}>🕐</span>
-                            <span style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{dateTime}</span>
+                            <span style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>Date: {dateTime}</span>
                         </div>
                     </div>
 

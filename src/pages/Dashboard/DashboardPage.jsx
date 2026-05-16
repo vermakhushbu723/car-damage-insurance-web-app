@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AppHeader from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
 import { ROUTES } from '../../constants/routes';
+import { usePageLoading } from '../../hooks/usePageLoading';
 import {
     FileTextOutlined,
     CheckSquareOutlined,
@@ -132,6 +133,7 @@ const ClaimCard = ({ claim, onViewDetails }) => (
 );
 
 const DashboardPage = () => {
+    usePageLoading();
     const navigate = useNavigate();
 
     return (

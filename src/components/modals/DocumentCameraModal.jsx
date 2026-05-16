@@ -30,6 +30,7 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
     const [isCameraReady, setIsCameraReady] = useState(false);
     const [cameraError, setCameraError] = useState(null);
     const [isCapturing, setIsCapturing] = useState(false);
+    const [forceUpdate, setForceUpdate] = useState(0); // Force re-render when images change
 
     // ── Stop any running camera stream ─────────────────────────────────────
     const stopStream = useCallback(() => {
@@ -128,10 +129,39 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
         }
     };
 
+    // Save image to localStorage
+    const saveToLocalStorage = (side, file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64String = reader.result;
+            const storageKey = `${docName}_${side}`;
+            localStorage.setItem(storageKey, base64String);
+
+            // Also save metadata
+            const metadata = {
+                fileName: file.name,
+                fileType: file.type,
+                fileSize: file.size,
+                side: side,
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem(`${storageKey}_metadata`, JSON.stringify(metadata));
+
+            // Force re-render to show the new image
+            setForceUpdate(prev => prev + 1);
+
+            // Call onCapture callback
+            onCapture && onCapture(side, file);
+        };
+        reader.readAsDataURL(file);
+    };
+
     const handleFileChange = (side) => (e) => {
         const file = e.target.files && e.target.files[0];
         if (!file) return;
-        onCapture && onCapture(side, file);
+
+        // Directly save to localStorage
+        saveToLocalStorage(side, file);
     };
 
     // ── Side button click — branches on source ─────────────────────────────
@@ -164,7 +194,9 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
             stopStream();
             const side = activeSide;
             setActiveSide(null);
-            onCapture && onCapture(side, file);
+
+            // Directly save to localStorage
+            saveToLocalStorage(side, file);
         }, 'image/jpeg', 0.92);
     };
 
@@ -177,6 +209,16 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
     // capture="environment" hint for mobile gallery input (ignored on desktop).
     // We don't set it at all — gallery flow should NEVER open the camera.
     const galleryCaptureAttr = undefined;
+
+    // Load existing images from localStorage
+    const getStoredImage = (side) => {
+        if (!docName) return null;
+        const storageKey = `${docName}_${side}`;
+        return localStorage.getItem(storageKey);
+    };
+
+    const frontImage = getStoredImage('Front Side');
+    const backImage = getStoredImage('Back Side');
 
     // ── Render ─────────────────────────────────────────────────────────────
     const inCameraView = source === 'camera' && activeSide !== null;
@@ -210,27 +252,43 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
 
                         {/* Front / Back */}
                         <div className="flex gap-10 justify-center items-center">
-                            {['Front Side', 'Back Side'].map((side, index) => (
-                                <div key={side} className="flex items-center gap-10">
-                                    <button
-                                        type="button"
-                                        onClick={() => handleSideClick(side)}
-                                        className="flex flex-col items-center gap-2"
-                                    >
-                                        <div
-                                            className="w-20 h-20 rounded-md border-2 flex items-center justify-center"
+                            {['Front Side', 'Back Side'].map((side, index) => {
+                                const storedImage = side === 'Front Side' ? frontImage : backImage;
+                                return (
+                                    <div key={side} className="flex items-center gap-10">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleSideClick(side)}
+                                            className="flex flex-col items-center gap-2"
                                         >
-                                            <span style={{ fontSize: 32 }}>
-                                                <img src={cameraIcon} alt="" className="src" />
-                                            </span>
-                                        </div>
-                                        <span className="text-md">{side}</span>
-                                    </button>
-                                    {index === 0 && (
-                                        <div style={{ width: '1px', height: '150px', background: COLORS.borderLight }} />
-                                    )}
-                                </div>
-                            ))}
+                                            <div
+                                                className="w-20 h-20 rounded-md border-2 flex items-center justify-center overflow-hidden"
+                                                style={{ position: 'relative' }}
+                                            >
+                                                {storedImage ? (
+                                                    <img
+                                                        src={storedImage}
+                                                        alt={side}
+                                                        style={{
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            objectFit: 'cover'
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <span style={{ fontSize: 32 }}>
+                                                        <img src={cameraIcon} alt="" className="src" />
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <span className="text-md">{side}</span>
+                                        </button>
+                                        {index === 0 && (
+                                            <div style={{ width: '1px', height: '150px', background: COLORS.borderLight }} />
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
 
                         {/* Hidden inputs for gallery flow */}

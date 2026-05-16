@@ -1,26 +1,18 @@
 import React from 'react';
 import { COLORS } from '../../constants/theme';
-import leftLogo from '../../assets/leftlogo.png';
-import rightLogo from '../../assets/rightlogo.svg';
+import Logo from '../../assets/logo.png';
 
 const AppHeader = () => {
     return (
         <div
-            className="w-full flex items-center justify-between px-4 py-3"
+            className="w-full flex items-center justify-center px-4 py-6"
             style={{ background: COLORS.bgApp }}
         >
             {/* Left Logo - New India Assurance */}
             <img
-                src={leftLogo}
+                src={Logo}
                 alt="New India Assurance"
                 className="h-18 w-auto object-contain"
-            />
-
-            {/* Right Logo - IBima Assist */}
-            <img
-                src={rightLogo}
-                alt="IBima Assist"
-                className="h-[70px] w-auto object-contain"
             />
         </div>
     );

@@ -5,8 +5,10 @@ import { CAMERA_ACCESS_KEY } from '../../routes/ProtectedCameraRoute';
 import { ROUTES } from '../../constants/routes';
 import { selectVehicleCategory } from '../../store/vehicleSlice';
 import { getCenterImage, isAngleSupported } from '../../constants/vehicleAssets';
+import { usePageLoading } from '../../hooks/usePageLoading';
 
 const PhotoCaptureSelectionPage = () => {
+    usePageLoading();
     const navigate = useNavigate();
     const location = useLocation();
     // Vehicle category (car / bike / truck) chosen on /owner-vehicle-details
@@ -54,17 +56,17 @@ const PhotoCaptureSelectionPage = () => {
     // angle has no guide image for the current vehicle category are
     // filtered out below (e.g. chassis-number for bikes).
     const allPhotoPoints = [
-        { id: 'rear-rh-side', label: 'Rear RH Side', top: '8%', left: '60%' },
-        { id: 'rear-side', label: 'Rear Side', top: '12%', left: '72%' },
-        { id: 'rear-lh-side', label: 'Rear LH Side', top: '8%', left: '84%' },
-        { id: 'rh-side', label: 'RH Side', top: '28%', left: '12%' },
-        { id: 'front-rh-side', label: 'Front RH Side', top: '44%', left: '10%' },
-        { id: 'odometer', label: 'Odometer', top: '56%', left: '18%' },
-        { id: 'front-side', label: 'Front Side', top: '72%', left: '32%' },
-        { id: 'chassis-number', label: 'Chassis Number', top: '80%', left: '50%' },
-        { id: 'front-lh', label: 'Front LH', top: '72%', left: '68%' },
-        { id: 'lh-side', label: 'LH Side', top: '36%', left: '86%' },
-        { id: 'video', label: 'Video', top: '50%', left: '92%' },
+        { id: 'rear-rh-side', label: 'Rear RH Side', top: '12%', left: '55%', labelPosition: 'top' },
+        { id: 'rear-side', label: 'Rear Side', top: '12%', left: '70%', labelPosition: 'top' },
+        { id: 'rear-lh-side', label: 'Rear LH Side', top: '12%', left: '85%', labelPosition: 'top' },
+        { id: 'rh-side', label: 'RH Side', top: '35%', left: '15%', labelPosition: 'left' },
+        { id: 'front-rh-side', label: 'Front RH Side', top: '58%', left: '12%', labelPosition: 'left' },
+        { id: 'odometer', label: 'Odometer', top: '70%', left: '22%', labelPosition: 'bottom' },
+        { id: 'front-side', label: 'Front Side', top: '80%', left: '35%', labelPosition: 'bottom' },
+        { id: 'chassis-number', label: 'Chassis Number', top: '85%', left: '50%', labelPosition: 'bottom' },
+        { id: 'front-lh', label: 'Front LH', top: '80%', left: '65%', labelPosition: 'bottom' },
+        { id: 'lh-side', label: 'LH Side', top: '38%', left: '88%', labelPosition: 'right' },
+        { id: 'video', label: 'Video', top: '65%', left: '88%', labelPosition: 'right' },
     ];
     const photoPoints = allPhotoPoints.filter(p => isAngleSupported(vehicleCategory, p.id));
     const centerImage = getCenterImage(vehicleCategory);
@@ -107,46 +109,142 @@ const PhotoCaptureSelectionPage = () => {
                 </div>
             ) : (
                 // Landscape Mode - Show car with photo points
-                <div className="w-screen h-screen flex items-center justify-center overflow-hidden" style={{ background: '#9CA3AF' }}>
+                <div className="w-screen h-screen flex items-center justify-center overflow-hidden" style={{ background: '#9CA3AF', padding: '20px' }}>
                     {/* Car Container */}
-                    <div className="relative w-full h-full flex items-center justify-center" style={{ overflow: 'visible' }}>
+                    <div
+                        className="relative w-full h-full flex items-center justify-center"
+                        style={{
+                            maxWidth: '95vw',
+                            maxHeight: '90vh',
+                            margin: '0 auto',
+                        }}
+                    >
                         {/* Vehicle silhouette — switches between car/bike/truck
                             based on the "Select Product" choice on
                             /owner-vehicle-details. */}
                         <img
                             src={centerImage}
                             alt="Vehicle"
-                            className="h-5/6 w-auto object-contain"
+                            className="object-contain"
+                            style={{
+                                maxHeight: '60vh',
+                                maxWidth: '50vw',
+                                width: 'auto',
+                                height: 'auto',
+                            }}
                         />
 
                         {/* Photo Points - Circular Buttons with Labels */}
                         {photoPoints.map((point) => {
                             const isDone = !!capturedPhotos[point.id];
+                            const capturedImageUrl = capturedPhotos[point.id];
+
+                            // Calculate responsive circle size based on viewport
+                            const circleSize = Math.min(Math.max(window.innerWidth * 0.055, 45), 65);
+                            const fontSize = Math.min(Math.max(window.innerWidth * 0.012, 10), 12);
+
+                            // Determine label position styles based on photo direction
+                            const getLabelStyles = () => {
+                                const baseStyle = {
+                                    position: 'absolute',
+                                    whiteSpace: 'nowrap',
+                                    textAlign: 'center',
+                                    fontWeight: 600,
+                                    pointerEvents: 'none',
+                                    color: '#EF4444',
+                                    fontSize: `${fontSize}px`,
+                                };
+
+                                switch (point.labelPosition) {
+                                    case 'top':
+                                        return {
+                                            ...baseStyle,
+                                            bottom: '100%',
+                                            left: '50%',
+                                            transform: 'translateX(-50%)',
+                                            marginBottom: '4px',
+                                        };
+                                    case 'bottom':
+                                        return {
+                                            ...baseStyle,
+                                            top: '100%',
+                                            left: '50%',
+                                            transform: 'translateX(-50%)',
+                                            marginTop: '4px',
+                                        };
+                                    case 'left':
+                                        return {
+                                            ...baseStyle,
+                                            right: '100%',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            marginRight: '8px',
+                                        };
+                                    case 'right':
+                                        return {
+                                            ...baseStyle,
+                                            left: '100%',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            marginLeft: '8px',
+                                        };
+                                    default:
+                                        return {
+                                            ...baseStyle,
+                                            top: '100%',
+                                            left: '50%',
+                                            transform: 'translateX(-50%)',
+                                            marginTop: '4px',
+                                        };
+                                }
+                            };
+
                             return (
-                                <div key={point.id} className="absolute" style={{ top: point.top, left: point.left }}>
+                                <div
+                                    key={point.id}
+                                    className="absolute"
+                                    style={{
+                                        top: point.top,
+                                        left: point.left,
+                                        transform: 'translate(-50%, -50%)',
+                                    }}
+                                >
                                     {/* Camera Icon Button */}
                                     <button
                                         onClick={() => handlePhotoPointClick(point)}
-                                        className="w-14 h-14 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 focus:outline-none"
+                                        className="rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110 focus:outline-none overflow-hidden"
                                         style={{
-                                            border: `3px solid ${isDone ? '#22C55E' : '#EF4444'}`,
-                                            background: isDone ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.1)',
+                                            width: `${circleSize}px`,
+                                            height: `${circleSize}px`,
+                                            border: '2px solid #EF4444',
+                                            background: capturedImageUrl ? 'transparent' : 'rgba(239, 68, 68, 0.1)',
                                             cursor: 'pointer',
+                                            position: 'relative',
+                                            minWidth: '50px',
+                                            minHeight: '50px',
                                         }}
                                         title={point.label}
                                     >
-                                        <span className="text-xl">{isDone ? '✅' : '📷'}</span>
+                                        {capturedImageUrl ? (
+                                            <img
+                                                src={capturedImageUrl}
+                                                alt={point.label}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover',
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    left: 0,
+                                                }}
+                                            />
+                                        ) : (
+                                            <span style={{ fontSize: `${circleSize * 0.35}px` }}>📷</span>
+                                        )}
                                     </button>
 
-                                    {/* Label Below Circle */}
-                                    <div
-                                        className="absolute top-full mt-1 whitespace-nowrap text-center font-semibold text-xs pointer-events-none"
-                                        style={{
-                                            left: '50%',
-                                            transform: 'translateX(-50%)',
-                                            color: isDone ? '#22C55E' : '#EF4444',
-                                        }}
-                                    >
+                                    {/* Label - Position based on photo direction */}
+                                    <div style={getLabelStyles()}>
                                         {point.label}
                                     </div>
                                 </div>
