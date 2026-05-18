@@ -97,6 +97,7 @@ const WalkAroundVideoPage = () => {
     const [recBlink, setRecBlink] = useState(true);
     const [dateTime, setDateTime] = useState('');
     const [geoTag, setGeoTag] = useState('Location: Not available');
+    const [isRecording, setIsRecording] = useState(false);
 
     // ── Live clock for the bottom-right timestamp ──────────────────────────
     useEffect(() => {
@@ -129,6 +130,31 @@ const WalkAroundVideoPage = () => {
         const id = setInterval(() => setRecBlink((b) => !b), 600);
         return () => clearInterval(id);
     }, []);
+
+    // Start Recording functionnality (triggered by the "Stop & Finish" button or auto-finish when time's up)
+    const handleStartRecording = () => {
+        if (recorderRef.current && recorderRef.current.state === 'inactive') {
+            recorderRef.current.start(1000);
+            setIsRecording(true);
+
+            const startedAt = Date.now();
+            tickRef.current = setInterval(() => {
+                const secs = Math.floor((Date.now() - startedAt) / 1000);
+                setElapsed(secs);
+
+                const idx = Math.min(TOTAL_STEPS - 1, Math.floor(secs / INSTRUCTION_SECONDS));
+                setStepIndex(idx);
+
+                if (secs >= TOTAL_SECONDS) {
+                    clearInterval(tickRef.current);
+                    tickRef.current = null;
+
+                    recorderRef.current.stop();
+                    streamRef.current?.getTracks().forEach(t => t.stop());
+                }
+            }, 250);
+        }
+    };
 
     // ── Get camera + mic stream ────────────────────────────────────────────
     const getStream = async () => {
@@ -213,28 +239,28 @@ const WalkAroundVideoPage = () => {
                     setRecordedUrl(url);
                 };
                 recorderRef.current = recorder;
-                recorder.start(1000); // emit a chunk every second
+                // recorder.start(1000); // emit a chunk every second
 
                 // ── Drive the on-screen timer + auto-advance instructions ──
-                const startedAt = Date.now();
-                tickRef.current = setInterval(() => {
-                    const secs = Math.floor((Date.now() - startedAt) / 1000);
-                    setElapsed(secs);
-                    const idx = Math.min(TOTAL_STEPS - 1, Math.floor(secs / INSTRUCTION_SECONDS));
-                    setStepIndex(idx);
-                    if (secs >= TOTAL_SECONDS) {
-                        // Auto-finish once the script is done.
-                        clearInterval(tickRef.current);
-                        tickRef.current = null;
-                        if (recorderRef.current && recorderRef.current.state !== 'inactive') {
-                            try { recorderRef.current.stop(); } catch { /* ignore */ }
-                        }
-                        if (streamRef.current) {
-                            streamRef.current.getTracks().forEach((t) => t.stop());
-                            streamRef.current = null;
-                        }
-                    }
-                }, 250);
+                // const startedAt = Date.now();
+                // tickRef.current = setInterval(() => {
+                //     const secs = Math.floor((Date.now() - startedAt) / 1000);
+                //     setElapsed(secs);
+                //     const idx = Math.min(TOTAL_STEPS - 1, Math.floor(secs / INSTRUCTION_SECONDS));
+                //     setStepIndex(idx);
+                //     if (secs >= TOTAL_SECONDS) {
+                //         // Auto-finish once the script is done.
+                //         clearInterval(tickRef.current);
+                //         tickRef.current = null;
+                //         if (recorderRef.current && recorderRef.current.state !== 'inactive') {
+                //             try { recorderRef.current.stop(); } catch { /* ignore */ }
+                //         }
+                //         if (streamRef.current) {
+                //             streamRef.current.getTracks().forEach((t) => t.stop());
+                //             streamRef.current = null;
+                //         }
+                //     }
+                // }, 250);
             } catch (err) {
                 if (cancelled) return;
                 console.error('Walk-around video error:', err);
@@ -446,6 +472,26 @@ const WalkAroundVideoPage = () => {
                             <div style={{ fontSize: 14, fontWeight: 700, marginTop: 6 }}>{geoTag}</div>
                         </div>
                     </div>
+
+                    {isCameraReady && !isFinished && !isRecording && (
+                        <button
+                            onClick={handleStartRecording}
+                            style={{
+                                position: 'absolute',
+                                bottom: 90,
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                zIndex: 12,
+                                width: 70,
+                                height: 70,
+                                borderRadius: '50%',
+                                background: '#fff',
+                                border: '5px solid #EF4444',
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
+                            }}
+                        />
+                    )}
 
                     {/* ── Finish Now (small floating button) ── */}
                     <button
