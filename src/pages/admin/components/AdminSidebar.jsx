@@ -1,52 +1,41 @@
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { PALETTE } from '../adminTheme';
 import {
     DashboardIcon,
     DocIcon,
     SettingsIcon,
     HeadphonesIcon,
+    UserPlusIcon,
 } from './AdminIcons';
 import { ROUTES } from '../../../constants/routes';
 
 // ── Sidebar nav config ─────────────────────────────────────────────────
 const PRIMARY_NAV = [
     { id: 'dashboard', label: 'Dashboard', Icon: DashboardIcon, path: ROUTES.ADMIN.DASHBOARD },
-    { id: 'claim', label: 'Claim insure', Icon: DocIcon, path: null },
-    { id: 'preinspection', label: 'Preinspection', Icon: DocIcon, path: null },
+    { id: 'claim', label: 'Claim insure', Icon: DocIcon, path: ROUTES.ADMIN.CLAIM },
+    { id: 'preinspection', label: 'Preinspection', Icon: DocIcon, path: ROUTES.ADMIN.PREINSPECTION },
+    { id: 'user-creation', label: 'User Creation', Icon: UserPlusIcon, path: ROUTES.ADMIN.USER_CREATION },
 ];
 
 const SECONDARY_NAV = [
-    { id: 'settings', label: 'Settings', Icon: SettingsIcon, path: null },
-    { id: 'support', label: 'Support', Icon: HeadphonesIcon, path: null },
+    { id: 'settings', label: 'Settings', Icon: SettingsIcon, path: ROUTES.ADMIN.SETTINGS },
+    { id: 'support', label: 'Support', Icon: HeadphonesIcon, path: ROUTES.ADMIN.SUPPORT },
 ];
 
-const SidebarItem = ({ item, active, onClick }) => {
-    const isActive = active === item.id;
+const SidebarItem = ({ item }) => {
     return (
-        <button
-            onClick={() => onClick(item)}
-            style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 14,
-                padding: '14px 24px',
-                background: isActive ? '#fff' : 'transparent',
-                color: isActive ? PALETTE.sidebarActiveText : '#fff',
-                border: 'none',
-                fontSize: 15,
-                fontWeight: 600,
-                cursor: 'pointer',
-                textAlign: 'left',
-                borderTopRightRadius: isActive ? 24 : 0,
-                borderBottomRightRadius: isActive ? 24 : 0,
-                transition: 'background 0.15s',
-            }}
+        <NavLink
+            to={item.path}
+            className={({ isActive }) => `admin-sidebar-item${isActive ? ' is-active' : ''}`}
         >
-            <item.Icon size={18} color={isActive ? PALETTE.sidebarActiveText : '#fff'} />
-            <span>{item.label}</span>
-        </button>
+            {({ isActive }) => (
+                <>
+                    <item.Icon size={18} color={isActive ? PALETTE.sidebarActiveText : PALETTE.sidebarText} />
+                    <span>{item.label}</span>
+                </>
+            )}
+        </NavLink>
     );
 };
 
@@ -59,48 +48,23 @@ const SidebarItem = ({ item, active, onClick }) => {
  * a no-op until those routes are built.
  */
 const AdminSidebar = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-
-    // Map URL → nav id. Defaults to 'dashboard' for any unrecognised
-    // admin sub-path so something is always highlighted.
-    const activeId = (() => {
-        const p = location.pathname;
-        if (p.startsWith('/admin/claim')) return 'claim';
-        if (p.startsWith('/admin/preinspection')) return 'preinspection';
-        if (p.startsWith('/admin/settings')) return 'settings';
-        if (p.startsWith('/admin/support')) return 'support';
-        return 'dashboard';
-    })();
-
-    const handleNavClick = (item) => {
-        if (item.path) navigate(item.path);
-        // TODO: wire claim / preinspection / settings / support routes
-        // here as those pages get built.
-    };
-
     return (
         <aside
-            className="flex flex-col"
+            className="admin-sidebar flex flex-col"
             style={{
-                width: 220,
+                width: 166,
                 background: PALETTE.sidebar,
                 color: '#fff',
                 flexShrink: 0,
             }}
         >
             {/* logo / brand slot */}
-            <div style={{ height: 64 }} />
+            <div style={{ height: 53 }} />
 
             {/* primary nav */}
-            <nav style={{ paddingTop: 8 }}>
+            <nav style={{ paddingTop: 0 }}>
                 {PRIMARY_NAV.map((item) => (
-                    <SidebarItem
-                        key={item.id}
-                        item={item}
-                        active={activeId}
-                        onClick={handleNavClick}
-                    />
+                    <SidebarItem key={item.id} item={item} />
                 ))}
             </nav>
 
@@ -110,12 +74,7 @@ const AdminSidebar = () => {
             {/* secondary nav */}
             <nav style={{ paddingBottom: 24 }}>
                 {SECONDARY_NAV.map((item) => (
-                    <SidebarItem
-                        key={item.id}
-                        item={item}
-                        active={activeId}
-                        onClick={handleNavClick}
-                    />
+                    <SidebarItem key={item.id} item={item} />
                 ))}
             </nav>
         </aside>

@@ -20,12 +20,38 @@ import './admin.css';
  */
 const AdminLayout = () => {
     return (
-        <div className="admin-root min-h-screen flex" style={{ background: PALETTE.pageBg }}>
+        <div
+            className="admin-root"
+            style={{
+                display: 'flex',
+                height: '100vh',
+                overflow: 'hidden',
+                background: PALETTE.pageBg,
+            }}
+        >
+            {/* Sidebar — fixed width, full viewport height, never scrolls */}
             <AdminSidebar />
 
-            <div className="flex-1 flex flex-col min-w-0">
-                <AdminHeader />
-                <Outlet />
+            {/* Right pane: sticky header + scrollable content */}
+            <div
+                style={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minWidth: 0,
+                    height: '100vh',
+                    overflow: 'hidden',
+                }}
+            >
+                {/* Header stays fixed at top */}
+                <div style={{ flexShrink: 0 }}>
+                    <AdminHeader />
+                </div>
+
+                {/* Only this area scrolls */}
+                <div style={{ flex: 1, overflowY: 'auto' }}>
+                    <Outlet />
+                </div>
             </div>
         </div>
     );

@@ -27,7 +27,27 @@ export const ROUTES = {
     // All admin-side routes live under /admin/*. Nested for organisation
     // — use as `ROUTES.ADMIN.LOGIN`, `ROUTES.ADMIN.DASHBOARD`, etc.
     ADMIN: {
+        SELECT: '/admin',
         LOGIN: '/admin/login',
         DASHBOARD: '/admin/dashboard',
+        CLAIM: '/admin/claim',
+        PREINSPECTION: '/admin/preinspection',
+        SETTINGS: '/admin/settings',
+        SUPPORT: '/admin/support',
+        USER_CREATION: '/admin/user-creation',
+    },
+
+    // ── Intimation Management System ──────────────────────────────────
+    INTIMATION: {
+        BASE: '/admin/intimation',
+        CLAIM_HANDLER: '/admin/intimation/claim-handler',
+        SURVEYOR_APPOINTMENT: '/admin/intimation/surveyor-appointment',
+        CLAIM_DETAILS: '/admin/intimation/claim-details',
+        ILA: '/admin/intimation/ila',
+        SETTLEMENT: '/admin/intimation/settlement',
+        FLA: '/admin/intimation/fla',
+        RECOMMENDATION: '/admin/intimation/recommendation',
+        DMS_SURVEYOR: '/admin/intimation/dms-surveyor',
+        DMS_PREINSPECTION: '/admin/intimation/dms-preinspection',
     },
 };

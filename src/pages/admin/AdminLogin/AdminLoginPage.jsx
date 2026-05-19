@@ -60,18 +60,8 @@ const AdminLoginPage = () => {
         e.preventDefault();
         setError('');
         if (!email.trim()) { setError('Please enter your email address.'); return; }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-            setError('Please enter a valid email address.');
-            return;
-        }
         if (!password) { setError('Please enter your password.'); return; }
-        if (captchaInput.trim() !== captcha) {
-            setError('Captcha does not match. Please try again.');
-            refreshCaptcha();
-            return;
-        }
-        // TODO: wire up to real admin auth API. For now route to the
-        // placeholder dashboard so the flow is testable end-to-end.
+        // Demo login — any email + password is accepted.
         navigate(ROUTES.ADMIN.DASHBOARD);
     };
 

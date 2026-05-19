@@ -17,8 +17,23 @@ import SubmittedPage from '../pages/Submitted/SubmittedPage';
 import ReinspectionPhotosPage from '../pages/ReinspectionPhotos/ReinspectionPhotosPage';
 import VehicleInformationPage from '../pages/VehicleInformation/VehicleInformationPage';
 import AdminLoginPage from '../pages/admin/AdminLogin/AdminLoginPage';
+import AdminSelectPage from '../pages/admin/AdminSelect/AdminSelectPage';
 import AdminLayout from '../pages/admin/AdminLayout';
 import AdminDashboardPage from '../pages/admin/AdminDashboard/AdminDashboardPage';
+import AdminClaimPage from '../pages/admin/AdminClaim/AdminClaimPage';
+import AdminPlaceholderPage from '../pages/admin/AdminPlaceholder/AdminPlaceholderPage';
+import AdminUserCreationPage from '../pages/admin/AdminUserCreation/AdminUserCreationPage';
+import IntimationLayout from '../pages/admin/intimation/IntimationLayout';
+import IntimationPage from '../pages/admin/intimation/pages/IntimationPage';
+import ClaimHandlerPage from '../pages/admin/intimation/pages/ClaimHandlerPage';
+import SurveyorAppointmentPage from '../pages/admin/intimation/pages/SurveyorAppointmentPage';
+import ClaimDetailsPage from '../pages/admin/intimation/pages/ClaimDetailsPage';
+import ILAPage from '../pages/admin/intimation/pages/ILAPage';
+import SettlementPage from '../pages/admin/intimation/pages/SettlementPage';
+import FLAPage from '../pages/admin/intimation/pages/FLAPage';
+import RecommendationPage from '../pages/admin/intimation/pages/RecommendationPage';
+import DmsSurveyorPage from '../pages/admin/intimation/pages/DmsSurveyorPage';
+import DmsPreInspectionPage from '../pages/admin/intimation/pages/DmsPreInspectionPage';
 import ProtectedCameraRoute from './ProtectedCameraRoute';
 import ProtectedWorkflowRoute from './ProtectedWorkflowRoute';
 
@@ -53,6 +68,11 @@ const workflowGroup2Routes = [
 // ROUTES.ADMIN.DASHBOARD = "/admin/dashboard" is rendered as the child
 const adminLayoutChildren = [
     { path: 'dashboard', element: <AdminDashboardPage /> },
+    { path: 'claim', element: <AdminClaimPage /> },
+    { path: 'preinspection', element: <AdminPlaceholderPage title="Preinspection" /> },
+    { path: 'settings', element: <AdminPlaceholderPage title="Settings" /> },
+    { path: 'support', element: <AdminPlaceholderPage title="Support" /> },
+    { path: 'user-creation', element: <AdminUserCreationPage /> },
 ];
 
 const AppRoutes = () => {
@@ -81,6 +101,9 @@ const AppRoutes = () => {
                 />
             ))}
 
+            {/* Super-Admin portal selection — shown at /admin before login */}
+            <Route path={ROUTES.ADMIN.SELECT} element={<AdminSelectPage />} />
+
             {/* Admin login — kept outside AdminLayout so it can use its
                 own full-bleed layout. */}
             <Route path={ROUTES.ADMIN.LOGIN} element={<AdminLoginPage />} />
@@ -89,8 +112,27 @@ const AppRoutes = () => {
                 via AdminLayout's <Outlet />. */}
             <Route path="/admin" element={<AdminLayout />}>
                 {adminLayoutChildren.map((route) => (
-                    <Route key={route.path} path={route.path} element={route.element} />
+                    <Route
+                        key={route.path || 'admin-index'}
+                        index={route.index}
+                        path={route.path}
+                        element={route.element}
+                    />
                 ))}
+            </Route>
+
+            {/* Intimation Management System (/admin/intimation/*) */}
+            <Route path="/admin/intimation" element={<IntimationLayout />}>
+                <Route index element={<IntimationPage />} />
+                <Route path="claim-handler" element={<ClaimHandlerPage />} />
+                <Route path="surveyor-appointment" element={<SurveyorAppointmentPage />} />
+                <Route path="claim-details" element={<ClaimDetailsPage />} />
+                <Route path="ila" element={<ILAPage />} />
+                <Route path="settlement" element={<SettlementPage />} />
+                <Route path="fla" element={<FLAPage />} />
+                <Route path="recommendation" element={<RecommendationPage />} />
+                <Route path="dms-surveyor" element={<DmsSurveyorPage />} />
+                <Route path="dms-preinspection" element={<DmsPreInspectionPage />} />
             </Route>
 
             {/* Fallback */}

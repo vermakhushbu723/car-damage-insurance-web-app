@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PALETTE } from '../adminTheme';
 import { CompassIcon, ArrowRight } from '../components/AdminIcons';
+import { ROUTES } from '../../../constants/routes';
 
 /**
  * Admin Panel — Dashboard content.
@@ -70,16 +72,18 @@ const CardTopIcon = () => (
 );
 
 const AdminDashboardPage = () => {
+    const navigate = useNavigate();
+
     return (
-        <main className="p-8" style={{ flex: 1 }}>
+        <main className="admin-page">
             {/* Heading */}
             <h1
                 style={{
                     color: PALETTE.primaryBlue,
-                    fontSize: 32,
+                    fontSize: 30,
                     fontWeight: 800,
                     margin: 0,
-                    marginBottom: 14,
+                    marginBottom: 12,
                 }}
             >
                 Dashboard
@@ -88,13 +92,13 @@ const AdminDashboardPage = () => {
                 Welcome to the central command for the architectural sanctuary motor insurance
             </p>
             <p style={{ color: PALETTE.body, fontSize: 14, fontWeight: 600, margin: 0, marginBottom: 24 }}>
-                System motor claims, manage insurer partnerships, &amp; ocersee system performance
+                System motor claims, manage insurer partnerships, &amp; oversee system performance
             </p>
 
             {/* ── Top row: Claim + Preinspection ─────────── */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
                 {/* Claim card */}
-                <Card>
+                <Card style={{ minHeight: 206 }}>
                     <div className="flex items-center gap-3 mb-3">
                         <CardTopIcon />
                         <h3 style={{ color: PALETTE.primaryBlue, fontSize: 20, fontWeight: 600, margin: 0 }}>
@@ -106,13 +110,13 @@ const AdminDashboardPage = () => {
                         lifecycle from initial submission to final resolution with architectural precision.
                     </p>
                     <div className="flex items-center justify-between">
-                        <PrimaryButton>View Claims</PrimaryButton>
+                        <PrimaryButton onClick={() => navigate(ROUTES.ADMIN.CLAIM)}>View Claims</PrimaryButton>
                         <Badge>12+</Badge>
                     </div>
                 </Card>
 
                 {/* Preinspection card */}
-                <Card>
+                <Card style={{ minHeight: 206 }}>
                     <div className="flex items-center gap-3 mb-3">
                         <CardTopIcon />
                         <h3 style={{ color: PALETTE.primaryBlue, fontSize: 20, fontWeight: 600, margin: 0 }}>
@@ -124,16 +128,16 @@ const AdminDashboardPage = () => {
                         compliance and maintain high-performance standards across the sanctuary ecosystem
                     </p>
                     <div className="flex items-center justify-between">
-                        <PrimaryButton>View Claims</PrimaryButton>
+                        <PrimaryButton onClick={() => navigate(ROUTES.ADMIN.PREINSPECTION)}>View Claims</PrimaryButton>
                         <Badge>Active Partners</Badge>
                     </div>
                 </Card>
             </div>
 
             {/* ── Bottom row: Performance + Quick Action ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 {/* System Performance Sanctuary */}
-                <div style={{ background: '#F3F4F6', border: '1px solid #E3E3E3', padding: 20, borderRadius: 1 }}>
+                <div style={{ background: '#F7F8FB', border: '1px solid #E3E3E3', padding: 30, borderRadius: 8, minHeight: 158 }}>
                     <h3 style={{ color: PALETTE.primaryBlue, fontSize: 18, fontWeight: 700, margin: 0 }}>
                         System Performance Sanctuary
                     </h3>
@@ -164,7 +168,7 @@ const AdminDashboardPage = () => {
                 </div>
 
                 {/* Quick Action */}
-                <div style={{ background: '#F3F4F6', border: '1px solid #E3E3E3', padding: 20, borderRadius: 1 }}>
+                <div style={{ background: '#F7F8FB', border: '1px solid #E3E3E3', padding: 30, borderRadius: 8, minHeight: 158 }}>
                     <p
                         style={{
                             color: PALETTE.muted,
