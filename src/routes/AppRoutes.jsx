@@ -16,6 +16,8 @@ import DamageReviewPage from '../pages/DamageReview/DamageReviewPage';
 import SubmittedPage from '../pages/Submitted/SubmittedPage';
 import ReinspectionPhotosPage from '../pages/ReinspectionPhotos/ReinspectionPhotosPage';
 import VehicleInformationPage from '../pages/VehicleInformation/VehicleInformationPage';
+import CustomerDeclarationPage from '../pages/CustomerDeclaration/CustomerDeclarationPage';
+import InspectorDeclarationPage from '../pages/InspectorDeclaration/InspectorDeclarationPage';
 import AdminLoginPage from '../pages/admin/AdminLogin/AdminLoginPage';
 import AdminSelectPage from '../pages/admin/AdminSelect/AdminSelectPage';
 import AdminLayout from '../pages/admin/AdminLayout';
@@ -41,6 +43,7 @@ import ProtectedWorkflowRoute from './ProtectedWorkflowRoute';
 const publicRoutes = [
     { path: ROUTES.LANDING, element: <LandingPage /> },
     { path: ROUTES.CLAIM_WORKSHOP_LOGIN, element: <LoginPage /> },
+    { path: ROUTES.CLAIM_SURVEYOR_LOGIN, element: <LoginPage /> },
     { path: ROUTES.DASHBOARD, element: <DashboardPage /> },
     { path: ROUTES.CLAIM_START, element: <ClaimStartPage /> },
     { path: ROUTES.OWNER_VEHICLE_DETAILS, element: <OwnerVehicleDetailsPage /> },
@@ -50,6 +53,8 @@ const publicRoutes = [
     { path: ROUTES.CAMERA_CAPTURE, element: <ProtectedCameraRoute element={<CameraCapturePage />} /> },
     { path: ROUTES.WALK_AROUND_VIDEO, element: <WalkAroundVideoPage /> },
     { path: ROUTES.ADD_DAMAGE_PHOTOS, element: <AddDamagePhotosPage /> },
+    { path: ROUTES.CUSTOMER_DECLARATION, element: <CustomerDeclarationPage /> },
+    { path: ROUTES.INSPECTOR_DECLARATION, element: <InspectorDeclarationPage /> },
 ];
 
 // Routes that need workflow protection (Option Group 1)

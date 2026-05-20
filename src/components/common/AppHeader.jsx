@@ -1,8 +1,19 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { COLORS } from '../../constants/theme';
 import Logo from '../../assets/logo.png';
 
 const AppHeader = () => {
+    const location = useLocation();
+
+    // Hide header on declaration pages
+    if (
+        location?.pathname?.includes('customer-declaration') ||
+        location?.pathname?.includes('inspector-declaration')
+    ) {
+        return null;
+    }
+
     return (
         <div
             className="w-full flex items-center justify-center px-4 py-6"

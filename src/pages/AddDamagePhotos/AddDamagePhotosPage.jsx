@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import AppHeader from '../../components/common/AppHeader';
+import { ROUTES } from '../../constants/routes';
 import { COLORS } from '../../constants/theme';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useCameraContext } from '../../contexts/CameraContext';
 import { usePageLoading } from '../../hooks/usePageLoading';
 import {
     selectWorkflowOption,
     WORKFLOW_SUBMIT_ROUTES,
+    setOption,
+    WORKFLOW_TYPES,
 } from '../../store/workflowSlice';
 import { CAMERA_ACCESS_KEY } from '../../routes/ProtectedCameraRoute';
 import carFrontLeft from '../../assets/png/car/FrontLeft.png';
@@ -76,6 +79,7 @@ const AddDamagePhotosPage = () => {
     const location = useLocation();
     const { enableCamera } = useCameraContext();
     const workflowOption = useSelector(selectWorkflowOption);
+    const dispatch = useDispatch();
     const [capturedPhotos, setCapturedPhotos] = useState({});
 
     useEffect(() => {
@@ -101,9 +105,15 @@ const AddDamagePhotosPage = () => {
 
     const handleSubmit = () => {
         // Workflow is picked on the landing page (stored in Redux), so jump
-        // straight to its destination. Falls back to the landing page if we
-        // somehow got here without a selection (e.g. direct URL access).
-        const next = WORKFLOW_SUBMIT_ROUTES[workflowOption] || '/';
+        // straight to its destination. If the current workflow option is
+        // missing, assume the Damage Review flow because this page belongs to
+        // that route and persist the fallback so protected routing works.
+        const selectedOption = workflowOption || WORKFLOW_TYPES.OPTION_GROUP_1;
+        if (!workflowOption) {
+            dispatch(setOption(selectedOption));
+        }
+
+        const next = WORKFLOW_SUBMIT_ROUTES[selectedOption] || ROUTES.DAMAGE_REVIEW;
         navigate(next);
     };
 

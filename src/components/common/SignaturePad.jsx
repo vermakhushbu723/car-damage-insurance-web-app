@@ -20,6 +20,7 @@ const SignaturePad = ({
     onChange,
     height = 120,
     placeholder = 'Please sign in this field',
+    showClearButton = true,
 }) => {
     const canvasRef = useRef(null);
     const drawingRef = useRef(false);
@@ -43,36 +44,49 @@ const SignaturePad = ({
         ctx.strokeStyle = '#111827';
     }, []);
 
+    const drawValue = useCallback((dataUrl) => {
+        const canvas = canvasRef.current;
+        if (!canvas || !dataUrl) return;
+        const img = new Image();
+        img.onload = () => {
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            ctx.clearRect(0, 0, rect.width, rect.height);
+            ctx.drawImage(img, 0, 0, rect.width, rect.height);
+        };
+        img.src = dataUrl;
+    }, []);
+
     useEffect(() => {
         resizeCanvas();
         const onResize = () => {
-            // Preserve the current drawing across a resize by snapshotting
-            // it as a data URL, resizing, then redrawing onto the new size.
             const canvas = canvasRef.current;
             if (!canvas) return;
             const snapshot = canvas.toDataURL('image/png');
             resizeCanvas();
-            const img = new Image();
-            img.onload = () => {
-                const ctx = canvas.getContext('2d');
-                const rect = canvas.getBoundingClientRect();
-                ctx.drawImage(img, 0, 0, rect.width, rect.height);
-            };
-            img.src = snapshot;
+            drawValue(snapshot);
         };
         window.addEventListener('resize', onResize);
         return () => window.removeEventListener('resize', onResize);
-    }, [resizeCanvas]);
+    }, [resizeCanvas, drawValue]);
 
-    // External clear: when parent resets `value` to null, wipe the canvas.
     useEffect(() => {
-        if (value === null && canvasRef.current) {
-            const ctx = canvasRef.current.getContext('2d');
-            const rect = canvasRef.current.getBoundingClientRect();
+        if (!canvasRef.current) return;
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+        const rect = canvas.getBoundingClientRect();
+
+        if (value === null) {
             ctx.clearRect(0, 0, rect.width, rect.height);
             setIsEmpty(true);
+            return;
         }
-    }, [value]);
+
+        if (typeof value === 'string') {
+            drawValue(value);
+            setIsEmpty(false);
+        }
+    }, [value, drawValue]);
 
     const getPoint = (evt) => {
         const canvas = canvasRef.current;
@@ -86,13 +100,18 @@ const SignaturePad = ({
         evt.preventDefault();
         drawingRef.current = true;
         lastPointRef.current = getPoint(evt);
+        if (evt.target.setPointerCapture) {
+            evt.target.setPointerCapture(evt.pointerId);
+        }
     };
 
     const continueStroke = (evt) => {
         if (!drawingRef.current) return;
         evt.preventDefault();
         const point = getPoint(evt);
-        const ctx = canvasRef.current.getContext('2d');
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
         ctx.beginPath();
         ctx.moveTo(lastPointRef.current.x, lastPointRef.current.y);
         ctx.lineTo(point.x, point.y);
@@ -105,7 +124,6 @@ const SignaturePad = ({
         if (!drawingRef.current) return;
         drawingRef.current = false;
         lastPointRef.current = null;
-        // Emit the current signature snapshot to the parent.
         if (onChange && canvasRef.current) {
             onChange(canvasRef.current.toDataURL('image/png'));
         }
@@ -138,14 +156,11 @@ const SignaturePad = ({
                 <canvas
                     ref={canvasRef}
                     style={{ width: '100%', height: '100%', display: 'block', cursor: 'crosshair' }}
-                    onMouseDown={startStroke}
-                    onMouseMove={continueStroke}
-                    onMouseUp={endStroke}
-                    onMouseLeave={endStroke}
-                    onTouchStart={startStroke}
-                    onTouchMove={continueStroke}
-                    onTouchEnd={endStroke}
-                    onTouchCancel={endStroke}
+                    onPointerDown={startStroke}
+                    onPointerMove={continueStroke}
+                    onPointerUp={endStroke}
+                    onPointerCancel={endStroke}
+                    onPointerLeave={endStroke}
                 />
                 {isEmpty && (
                     <div
@@ -165,24 +180,26 @@ const SignaturePad = ({
                     </div>
                 )}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}>
-                <button
-                    type="button"
-                    onClick={handleClear}
-                    disabled={isEmpty}
-                    style={{
-                        background: 'none',
-                        border: 'none',
-                        color: isEmpty ? '#9CA3AF' : COLORS.primary,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        cursor: isEmpty ? 'default' : 'pointer',
-                        padding: 0,
-                    }}
-                >
-                    Clear
-                </button>
-            </div>
+            {showClearButton && (
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}>
+                    <button
+                        type="button"
+                        onClick={handleClear}
+                        disabled={isEmpty}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            color: isEmpty ? '#9CA3AF' : COLORS.primary,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: isEmpty ? 'default' : 'pointer',
+                            padding: 0,
+                        }}
+                    >
+                        Clear
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

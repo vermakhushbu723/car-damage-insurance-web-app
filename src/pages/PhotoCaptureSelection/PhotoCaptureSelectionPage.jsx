@@ -58,15 +58,15 @@ const PhotoCaptureSelectionPage = () => {
     const allPhotoPoints = [
         { id: 'rear-rh-side', label: 'Rear RH Side', top: '12%', left: '55%', labelPosition: 'top' },
         { id: 'rear-side', label: 'Rear Side', top: '12%', left: '70%', labelPosition: 'top' },
-        { id: 'rear-lh-side', label: 'Rear LH Side', top: '12%', left: '85%', labelPosition: 'top' },
-        { id: 'rh-side', label: 'RH Side', top: '35%', left: '15%', labelPosition: 'left' },
-        { id: 'front-rh-side', label: 'Front RH Side', top: '58%', left: '12%', labelPosition: 'left' },
+        { id: 'rear-lh-side', label: 'Rear LH Side', top: '30%', left: '80%', labelPosition: 'top' },
+        { id: 'rh-side', label: 'RH Side', top: '20%', left: '30%', labelPosition: 'left' },
+        { id: 'front-rh-side', label: 'Front RH Side', top: '40%', left: '20%', labelPosition: 'left' },
         { id: 'odometer', label: 'Odometer', top: '70%', left: '22%', labelPosition: 'bottom' },
         { id: 'front-side', label: 'Front Side', top: '80%', left: '35%', labelPosition: 'bottom' },
         { id: 'chassis-number', label: 'Chassis Number', top: '85%', left: '50%', labelPosition: 'bottom' },
         { id: 'front-lh', label: 'Front LH', top: '80%', left: '65%', labelPosition: 'bottom' },
-        { id: 'lh-side', label: 'LH Side', top: '38%', left: '88%', labelPosition: 'right' },
-        { id: 'video', label: 'Video', top: '65%', left: '88%', labelPosition: 'right' },
+        { id: 'lh-side', label: 'LH Side', top: '55%', left: '80%', labelPosition: 'right' },
+        { id: 'video', label: 'Video', top: '90%', left: '88%', labelPosition: 'right' },
     ];
     const photoPoints = allPhotoPoints.filter(p => isAngleSupported(vehicleCategory, p.id));
     const centerImage = getCenterImage(vehicleCategory);

@@ -19,6 +19,7 @@ const menuItems = [
     {
         label: 'CLAIM-WORKSHOP LOGIN',
         workflow: WORKFLOW_TYPES.OPTION_GROUP_1,
+        route: ROUTES.CLAIM_WORKSHOP_LOGIN,
         bg: 'linear-gradient(135deg, #E07B39 0%, #c95f1e 100%)',
         shadow: 'rgba(224,123,57,0.45)',
         icon: '🔧',
@@ -27,6 +28,7 @@ const menuItems = [
     {
         label: 'CLAIM-SURVEYOR LOGIN',
         workflow: WORKFLOW_TYPES.OPTION_GROUP_1,
+        route: ROUTES.CLAIM_SURVEYOR_LOGIN,
         bg: 'linear-gradient(135deg, #01A0FE 0%, #0077cc 100%)',
         shadow: 'rgba(1,160,254,0.45)',
         icon: '🔍',
