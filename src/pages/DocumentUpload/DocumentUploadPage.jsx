@@ -59,7 +59,6 @@ const DocumentUploadPage = () => {
                 },
             }));
         }
-        setModalVisible(false);
     };
 
     const handleNext = () => {

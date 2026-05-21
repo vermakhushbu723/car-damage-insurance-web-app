@@ -5,7 +5,30 @@
       "Bash(npm install *)",
       "Bash(npx vite *)",
       "Bash(grep -i \"\\\\.svg$\")",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(npx -y playwright --version)",
+      "Bash(ls ~/.cache/ms-playwright/ 2>&1 | head -10)",
+      "Read(//Users/abcom/.cache/**)",
+      "Read(//private/tmp/doc-upload-test/**)",
+      "Bash(node test-upload.js)",
+      "Bash(npx playwright *)",
+      "Bash(node gen-big-jpeg.js)",
+      "Bash(curl -sk \"https://localhost:5173/src/components/modals/DocumentCameraModal.jsx\")",
+      "Bash(sed -i.bak 's/for \\(let i = 0; i < 9; i++\\)/for \\(let i = 0; i < 10; i++\\)/' test-stale-storage.js)",
+      "Bash(node test-stale-storage.js)",
+      "Bash(kill 5533)",
+      "Bash(pkill -f \"vite\")",
+      "Bash(curl -k -s -o /dev/null -w \"%{http_code}\\\\n\" https://localhost:5173/)",
+      "Bash(curl -k -s -o /dev/null -w \"%{http_code}\\\\n\" https://localhost:5174/)",
+      "Bash(node test-clear-on-submit.js)",
+      "Bash(node test-camera-save.js)",
+      "Bash(node test-two-saves.js)",
+      "Bash(node test-orientation.js)",
+      "Bash(node test-orient-conditional.js)"
+    ],
+    "additionalDirectories": [
+      "/tmp/doc-upload-test",
+      "/private/tmp/doc-upload-test"
     ]
   }
 }

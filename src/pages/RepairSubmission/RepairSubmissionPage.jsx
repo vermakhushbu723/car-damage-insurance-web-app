@@ -84,6 +84,12 @@ const RepairSubmissionPage = () => {
         triggerGallery((d) => { setBillPhoto(d); setBillStatus('submitted'); });
 
     const handleSubmit = () => {
+        // Safety net in case any flow lands here with leftover cache.
+        try {
+            localStorage.clear();
+        } catch (e) {
+            console.warn('localStorage.clear failed:', e);
+        }
         navigate('/dashboard');
     };
 

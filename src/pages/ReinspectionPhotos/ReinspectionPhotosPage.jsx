@@ -129,6 +129,13 @@ const ReinspectionPhotosPage = () => {
     };
 
     const handleSubmit = () => {
+        // This is the last page in the flow — wipe every form-related cache so
+        // the next session starts clean.
+        try {
+            localStorage.clear();
+        } catch (e) {
+            console.warn('localStorage.clear failed:', e);
+        }
         navigate('/repair-submission');
     };
 

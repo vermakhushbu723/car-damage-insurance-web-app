@@ -30,7 +30,27 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
     const [isCameraReady, setIsCameraReady] = useState(false);
     const [cameraError, setCameraError] = useState(null);
     const [isCapturing, setIsCapturing] = useState(false);
-    const [forceUpdate, setForceUpdate] = useState(0); // Force re-render when images change
+    // In-memory previews keyed by `${docName}_${side}` → object URL.
+    // Stored as a ref so multiple uploads in sequence don't race with React
+    // re-render; mirrored to a state counter for repaint.
+    const previewsRef = useRef({});
+    const [, setPreviewsTick] = useState(0);
+
+    // One-time: purge stale large localStorage entries from older builds that
+    // tried to persist multi-MB base64 images (the cause of the bug where the
+    // second upload silently failed because the first one filled the quota).
+    useEffect(() => {
+        try {
+            for (let i = localStorage.length - 1; i >= 0; i--) {
+                const k = localStorage.key(i);
+                if (!k) continue;
+                const v = localStorage.getItem(k);
+                if (v && v.length > 600 * 1024 && v.startsWith('data:image')) {
+                    localStorage.removeItem(k);
+                }
+            }
+        } catch { /* ignore */ }
+    }, []);
 
     // ── Stop any running camera stream ─────────────────────────────────────
     const stopStream = useCallback(() => {
@@ -129,31 +149,68 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
         }
     };
 
-    // Save image to localStorage
-    const saveToLocalStorage = (side, file) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            const base64String = reader.result;
-            const storageKey = `${docName}_${side}`;
-            localStorage.setItem(storageKey, base64String);
-
-            // Also save metadata
-            const metadata = {
-                fileName: file.name,
-                fileType: file.type,
-                fileSize: file.size,
-                side: side,
-                timestamp: new Date().toISOString()
+    // Compress + resize the image so the base64 preview fits inside the
+    // ~5MB localStorage quota even when several documents are uploaded.
+    const compressImage = (file, maxDimension = 1024, quality = 0.75) =>
+        new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onerror = () => reject(reader.error);
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onerror = () => reject(new Error('Image decode failed'));
+                img.onload = () => {
+                    let { width, height } = img;
+                    if (width > height && width > maxDimension) {
+                        height = Math.round((height * maxDimension) / width);
+                        width = maxDimension;
+                    } else if (height >= width && height > maxDimension) {
+                        width = Math.round((width * maxDimension) / height);
+                        height = maxDimension;
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.src = e.target.result;
             };
-            localStorage.setItem(`${storageKey}_metadata`, JSON.stringify(metadata));
+            reader.readAsDataURL(file);
+        });
 
-            // Force re-render to show the new image
-            setForceUpdate(prev => prev + 1);
+    // Save the upload: store a blob URL for preview, optionally cache a small
+    // compressed copy in localStorage, and notify the parent. localStorage is
+    // a nice-to-have for cross-session persistence — never load-bearing.
+    const saveToLocalStorage = async (side, file) => {
+        const key = `${docName}_${side}`;
+        // 1) In-memory preview (no quota, never fails)
+        const prevUrl = previewsRef.current[key];
+        if (prevUrl && prevUrl.startsWith('blob:')) URL.revokeObjectURL(prevUrl);
+        previewsRef.current[key] = URL.createObjectURL(file);
+        setPreviewsTick((n) => n + 1);
 
-            // Call onCapture callback
-            onCapture && onCapture(side, file);
-        };
-        reader.readAsDataURL(file);
+        // 2) Always notify the parent first — uploads must not depend on storage.
+        onCapture && onCapture(side, file);
+
+        // 3) Best-effort: compress + persist to localStorage for re-opens.
+        try {
+            const base64String = await compressImage(file);
+            try {
+                localStorage.setItem(key, base64String);
+                const metadata = {
+                    fileName: file.name,
+                    fileType: file.type,
+                    fileSize: file.size,
+                    side,
+                    timestamp: new Date().toISOString(),
+                };
+                localStorage.setItem(`${key}_metadata`, JSON.stringify(metadata));
+            } catch (storageErr) {
+                console.warn('localStorage write failed (preview kept in memory):', storageErr);
+            }
+        } catch (err) {
+            console.error('Image compression failed (preview kept in memory):', err);
+        }
     };
 
     const handleFileChange = (side) => (e) => {
@@ -210,11 +267,12 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
     // We don't set it at all — gallery flow should NEVER open the camera.
     const galleryCaptureAttr = undefined;
 
-    // Load existing images from localStorage
+    // Prefer the in-memory blob URL from this session; fall back to any
+    // base64 we previously cached in localStorage (for re-opens).
     const getStoredImage = (side) => {
         if (!docName) return null;
-        const storageKey = `${docName}_${side}`;
-        return localStorage.getItem(storageKey);
+        const key = `${docName}_${side}`;
+        return previewsRef.current[key] || localStorage.getItem(key);
     };
 
     const frontImage = getStoredImage('Front Side');

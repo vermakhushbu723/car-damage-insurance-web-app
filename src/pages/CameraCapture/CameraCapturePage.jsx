@@ -13,6 +13,7 @@ import {
 } from '../../store/workflowSlice';
 import { selectVehicleCategory } from '../../store/vehicleSlice';
 import { getAngleImage } from '../../constants/vehicleAssets';
+import { lockToPortrait, unlockOrientation } from '../../utils/orientation';
 
 // Helper function to create a precise mask that fits the outline of the vehicle frame.
 // Uses a flood-fill algorithm from the edges to find the "outside" of the frame.
@@ -130,6 +131,10 @@ const CameraCapturePage = () => {
     // we only render the live preview / capture UI in landscape; portrait
     // shows a rotate prompt.
     useEffect(() => {
+        // Release any portrait-lock left over from a previous Save & Continue
+        // — otherwise the user would be trapped on the "rotate device" prompt
+        // because the browser keeps reporting portrait dimensions.
+        unlockOrientation();
         const checkOrientation = () => {
             setIsLandscape(window.innerWidth > window.innerHeight);
         };
@@ -281,16 +286,25 @@ const CameraCapturePage = () => {
     }, [startVideoPreview, disableCamera, isLandscape]);
 
     // ── Capture photo ──────────────────────────────────────────────────────
+    // Captures the live frame, then downscales to ≤1280px and JPEG q=0.75 so
+    // the base64 fits inside localStorage's ~5MB quota even when several
+    // angles are saved (a 0.92-quality full-frame can easily exceed 1MB).
     const handleCapturePhoto = () => {
         const video = videoRef.current;
         const canvas = canvasRef.current;
         if (!video || !canvas) return;
         setIsCapturing(true);
         try {
-            canvas.width = video.videoWidth || 1280;
-            canvas.height = video.videoHeight || 720;
-            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-            setCapturedImage(canvas.toDataURL('image/jpeg', 0.92));
+            const srcW = video.videoWidth || 1280;
+            const srcH = video.videoHeight || 720;
+            const MAX = 1280;
+            let w = srcW, h = srcH;
+            if (w > h && w > MAX) { h = Math.round((h * MAX) / w); w = MAX; }
+            else if (h >= w && h > MAX) { w = Math.round((w * MAX) / h); h = MAX; }
+            canvas.width = w;
+            canvas.height = h;
+            canvas.getContext('2d').drawImage(video, 0, 0, w, h);
+            setCapturedImage(canvas.toDataURL('image/jpeg', 0.75));
             if (streamRef.current) {
                 streamRef.current.getTracks().forEach(t => t.stop());
                 streamRef.current = null;
@@ -322,10 +336,33 @@ const CameraCapturePage = () => {
     };
 
     const handleSavePhoto = () => {
-        // Save captured image to localStorage keyed by angle
+        // Save captured image to localStorage keyed by angle.
+        // Storage is best-effort: if the quota is exceeded the user must
+        // still be able to navigate forward, otherwise the whole flow
+        // gets stuck (see bug: second Save & Continue did nothing on phone).
         const stored = JSON.parse(localStorage.getItem('damage_photos') || '{}');
         stored[angle] = capturedImage;
-        localStorage.setItem('damage_photos', JSON.stringify(stored));
+        let storedOk = true;
+        try {
+            localStorage.setItem('damage_photos', JSON.stringify(stored));
+        } catch (e) {
+            storedOk = false;
+            console.warn('damage_photos write failed (quota?), navigating anyway:', e);
+            // Drop other large entries that aren't damage_photos so future
+            // saves can succeed. Keeps the current attempt's data only.
+            try {
+                for (let i = localStorage.length - 1; i >= 0; i--) {
+                    const k = localStorage.key(i);
+                    if (!k || k === 'damage_photos') continue;
+                    const v = localStorage.getItem(k);
+                    if (v && v.length > 200 * 1024) localStorage.removeItem(k);
+                }
+                localStorage.setItem('damage_photos', JSON.stringify(stored));
+                storedOk = true;
+            } catch (e2) {
+                console.warn('damage_photos still failed after cleanup:', e2);
+            }
+        }
 
         const allDone = REQUIRED_ANGLES.every(a => stored[a]);
 
@@ -344,6 +381,12 @@ const CameraCapturePage = () => {
         // navigated in directly), fall back to the legacy review screen.
         const submitRoute =
             WORKFLOW_SUBMIT_ROUTES[workflowOption] || '/add-damage-photos';
+
+        // Going to a portrait-only review page — flip the phone for the
+        // user. Must fire from this click handler (user-gesture context)
+        // for requestFullscreen to be allowed. Best-effort.
+        lockToPortrait();
+
         navigate(submitRoute);
     };
 
