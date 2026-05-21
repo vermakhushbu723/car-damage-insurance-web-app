@@ -181,7 +181,7 @@ const ReinspectionPhotosPage = () => {
             </div>
 
             {/* Body */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 14px 90px', background: '#fff' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 14px 12px', background: '#fff' }}>
 
                 {/* ── Progress bar ─── */}
                 <div style={{ marginBottom: 16 }}>
@@ -199,7 +199,7 @@ const ReinspectionPhotosPage = () => {
 
                 {/* ── Under repair / Reinspection photo ─── */}
                 <div style={{
-                    background: '#EFF6FF', borderRadius: 14,
+                    background: '#DAF0FE', borderRadius: 14,
                     padding: '14px 14px',
                     marginBottom: 12,
                 }}>
@@ -298,7 +298,7 @@ const ReinspectionPhotosPage = () => {
                     Upload repair bill / invoice
                 </p>
                 <div style={{
-                    background: '#EFF6FF', borderRadius: 14, padding: '14px 14px',
+                    background: '#DAF0FE', borderRadius: 14, padding: '14px 14px',
                     marginBottom: 16,
                 }}>
                     {/* Status row */}

@@ -55,11 +55,11 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col" style={{ background: COLORS.bgApp }}>
+        <div className="min-h-screen flex flex-col" style={{ background: 'rgba(218, 240, 254, 1)' }}>
             <AppHeader />
             {/* <div className="w-full" style={{ background: COLORS.primaryDark, height: '8px' }} /> */}
             <div class="login-card">
-                <div className="flex gap-4 mt-8 mb-6">
+                <div className="flex gap-4 mt-4 mb-8 justify-center">
                     <button
                         onClick={() => setActiveTab('claim')}
                         className="font-bold text-white text-lg"
@@ -92,8 +92,8 @@ const LoginPage = () => {
                     </button>
                 </div>
 
-                <div className="flex-1 flex flex-col px-5 gap-5 pb-4">
-                    <div className="flex items-center gap-3 px-5" style={{ background: COLORS.bgCard, height: '53px', borderRadius: '7px', border: '1px solid #000000', opacity: 1 }}>
+                <div className="flex-1 flex flex-col px-5 gap-3 pb-2">
+                    <div className="flex items-center gap-3 px-5" style={{ background: COLORS.bgCard, height: '53px', borderRadius: '7px', border: '1px solid #C5C5C5', opacity: 1 }}>
                         <UserOutlined style={{ color: COLORS.primary, fontSize: 22 }} />
                         <input
                             type="text"
@@ -106,7 +106,7 @@ const LoginPage = () => {
                     </div>
                     {errors.username && <p className="text-xs -mt-3" style={{ color: COLORS.textRed }}>{errors.username}</p>}
 
-                    <div className="flex items-center gap-3 px-5" style={{ background: COLORS.bgCard, height: '53px', borderRadius: '7px', border: '1px solid #000000', opacity: 1 }}>
+                    <div className="flex items-center gap-3 px-5" style={{ background: COLORS.bgCard, height: '53px', borderRadius: '7px', border: '1px solid #C5C5C5', opacity: 1 }}>
                         <input
                             type={showPassword ? 'text' : 'password'}
                             placeholder="Password"
@@ -116,15 +116,17 @@ const LoginPage = () => {
                             style={{ color: COLORS.textPrimary }}
                         />
                         <button onClick={() => setShowPassword(!showPassword)}>
-                            {showPassword ? <EyeOutlined style={{ color: COLORS.textSecondary, fontSize: 22 }} /> : <EyeInvisibleOutlined style={{ color: COLORS.textSecondary, fontSize: 22 }} />}
+                            {showPassword
+                                ? <EyeOutlined style={{ color: COLORS.textSecondary, fontSize: 22 }} />
+                                : <img src="/images/icons/passwordicon.png" alt="show password" style={{ width: 22, height: 22, objectFit: 'contain' }} />}
                         </button>
                     </div>
                     {errors.password && <p className="text-xs -mt-3" style={{ color: COLORS.textRed }}>{errors.password}</p>}
 
-                    <div className="flex items-center gap-4 px-3 mt-3">
+                    <div className="flex items-center gap-4 px-3">
                         <div className="flex items-center gap-1">
                             {captchaText.split('').map((char, i) => (
-                                <span key={i} className="font-bold text-2xl select-none" style={{ color: COLORS.textPrimary, fontFamily: 'monospace', letterSpacing: 6, transform: `rotate(${Math.random() > 0.5 ? 6 : -6}deg)`, display: 'inline-block', marginRight: 4 }}>
+                                <span key={i} className="font-bold text-2xl select-none" style={{ color: COLORS.textPrimary, fontFamily: 'monospace', letterSpacing: 6, display: 'inline-block', marginRight: 4 }}>
                                     {char}
                                 </span>
                             ))}
@@ -134,7 +136,7 @@ const LoginPage = () => {
                         </button>
                     </div>
 
-                    <div className="flex items-center gap-3 px-5" style={{ background: COLORS.bgCard, height: '53px', borderRadius: '7px', border: '1px solid #000000', opacity: 1 }}>
+                    <div className="flex items-center gap-3 px-5" style={{ background: COLORS.bgCard, height: '53px', borderRadius: '7px', border: '1px solid #C5C5C5', opacity: 1 }}>
                         <input
                             type="text"
                             placeholder="Enter Captcha"
@@ -151,10 +153,10 @@ const LoginPage = () => {
                     </div>
                 </div>
 
-                <div className="px-5 py-6 mt-6 text-center" style={{ color: COLORS.textSecondary }}>
+                <div className="px-5 pt-2 pb-4 text-left" style={{ color: COLORS.textPrimary }}>
                     <p className="text-sm">Powered by <strong style={{ color: COLORS.textPrimary }}>VROOMSYNC EXPERTISE PRIVATE LIMITED</strong></p>
                     <p className="text-xs mt-1 leading-relaxed">All Rights Reserved 2025. CIN: U62099CT2025PTC017274</p>
-                    <p className="text-xs mt-1 leading-relaxed">Insurance is subject matter of solicitation.</p>
+                    <p className="text-xs mt-1 leading-relaxed">Insurance is subject matter of solicitation. Images used on the website and the mobile photographed, in them are for representative purpose only and are not indicative of anyone's thought.</p>
                 </div>
             </div>
 

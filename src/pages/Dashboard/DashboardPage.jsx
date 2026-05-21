@@ -85,8 +85,8 @@ const claimsList = [
 
 const ClaimCard = ({ claim, onViewDetails }) => (
     <div
-        className="mb-4 rounded-lg px-5 py-4  border border-[#6997B9]"
-        style={{ background: '#fff', }}
+        className="mb-4 rounded-lg px-5 py-4"
+        style={{ background: '#DAF0FE' }}
     >
         {/* Status Badge */}
         <div className="flex justify-end mb-3 ">
@@ -117,7 +117,7 @@ const ClaimCard = ({ claim, onViewDetails }) => (
         ))}
 
         {/* Divider */}
-        <div className="my-3" style={{ borderTop: '1px solid #00000080' }} />
+        <div className="my-3" style={{ borderTop: '1px solid #00000033' }} />
 
         {/* View Details */}
         <div className="flex justify-end">
@@ -152,7 +152,7 @@ const DashboardPage = () => {
                     </p>
                 </div>
 
-                <div class="login-card">
+                <div class="login-card" style={{ background: '#FFFFFF' }}>
 
                     {/* Stats Cards Grid */}
                     <div className="grid grid-cols-2 gap-3 mb-4">

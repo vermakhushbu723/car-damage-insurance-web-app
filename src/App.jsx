@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import AppRoutes from './routes/AppRoutes';
 import { CameraProvider } from './contexts/CameraContext';
 import LoadingScreen from './components/common/LoadingScreen';
+import ScrollToTop from './components/common/ScrollToTop';
 
 const AppContent = () => {
     const location = useLocation();
@@ -22,6 +23,7 @@ const AppContent = () => {
             className="min-h-screen w-full flex justify-center"
             style={{ background: '#94A3B8' }}
         >
+            <ScrollToTop />
             {isLoading && <LoadingScreen />}
             <div
                 className={`w-full ${!isFullscreenPage ? 'max-w-sm' : ''} min-h-screen relative overflow-x-hidden`}

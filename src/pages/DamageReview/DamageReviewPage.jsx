@@ -129,7 +129,7 @@ const DamageReviewPage = () => {
             </div>
 
             {/* Scrollable body */}
-            <div style={{ flex: 1, overflowY: 'auto', background: '#fff', paddingBottom: 90 }}>
+            <div style={{ flex: 1, overflowY: 'auto', background: '#fff', paddingBottom: 12 }}>
 
                 {/* ── Vehicle Photos ─── */}
                 <div style={{ padding: '14px 16px 0' }}>
@@ -162,7 +162,7 @@ const DamageReviewPage = () => {
                 </div>
 
                 {/* ── Vehicle Details Card ─── */}
-                <div style={{ margin: '14px 14px 0', background: '#EFF6FF', borderRadius: 14, padding: '4px 14px 4px' }}>
+                <div style={{ margin: '14px 14px 0', background: '#DAF0FE', borderRadius: 14, padding: '4px 14px 4px' }}>
                     <p style={{ fontWeight: 700, fontSize: 15, color: COLORS.textPrimary, padding: '12px 0 4px' }}>Vehicle Details</p>
                     {VEHICLE_DETAILS.map((row, i) => (
                         <DetailRow key={i} {...row} last={i === VEHICLE_DETAILS.length - 1} isImg={false} />
@@ -170,7 +170,7 @@ const DamageReviewPage = () => {
                 </div>
 
                 {/* ── Insured Details Card ─── */}
-                <div style={{ margin: '14px 14px 0', background: '#EFF6FF', borderRadius: 14, padding: '4px 14px 4px' }}>
+                <div style={{ margin: '14px 14px 0', background: '#DAF0FE', borderRadius: 14, padding: '4px 14px 4px' }}>
                     <p style={{ fontWeight: 700, fontSize: 15, color: COLORS.textPrimary, padding: '12px 0 4px' }}>Insured Details</p>
                     <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
                         <span style={{ width: 8, height: 8, borderRadius: '50%', background: COLORS.textSecondary, marginTop: 4 }} />
