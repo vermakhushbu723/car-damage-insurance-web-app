@@ -30,6 +30,10 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
     const [isCameraReady, setIsCameraReady] = useState(false);
     const [cameraError, setCameraError] = useState(null);
     const [isCapturing, setIsCapturing] = useState(false);
+    // Captured-but-not-yet-confirmed photo (camera flow). When set, the live
+    // video is hidden and a preview with ✕ (retake) / ✓ (confirm) is shown.
+    const [pendingFile, setPendingFile] = useState(null);
+    const [pendingUrl, setPendingUrl] = useState(null);
     // In-memory previews keyed by `${docName}_${side}` → object URL.
     // Stored as a ref so multiple uploads in sequence don't race with React
     // re-render; mirrored to a state counter for repaint.
@@ -71,9 +75,10 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
         return `Camera error: ${err.message || err.name}`;
     };
 
-    // ── Start the live camera (only when source=camera + a side was picked)
+    // ── Start the live camera (only when source=camera + a side was picked,
+    //    and no captured preview is awaiting confirmation)
     useEffect(() => {
-        if (!visible || source !== 'camera' || !activeSide) return;
+        if (!visible || source !== 'camera' || !activeSide || pendingFile) return;
 
         let cancelled = false;
 
@@ -127,7 +132,7 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
             cancelled = true;
             stopStream();
         };
-    }, [visible, source, activeSide, stopStream]);
+    }, [visible, source, activeSide, pendingFile, stopStream]);
 
     // ── Close / reset on modal hide ────────────────────────────────────────
     useEffect(() => {
@@ -135,6 +140,16 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
             stopStream();
             setActiveSide(null);
             setCameraError(null);
+            setPendingFile((prev) => {
+                if (prev) {
+                    // nothing — file is just dropped; URL revoke handled below
+                }
+                return null;
+            });
+            setPendingUrl((url) => {
+                if (url) URL.revokeObjectURL(url);
+                return null;
+            });
         }
     }, [visible, stopStream]);
 
@@ -232,6 +247,8 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
     };
 
     // ── Capture from live video ────────────────────────────────────────────
+    // Doesn't save yet — produces a preview the user can approve (✓) or
+    // retake (✕). Saving happens in handleConfirmCapture.
     const handleCapturePhoto = () => {
         const video = videoRef.current;
         const canvas = canvasRef.current;
@@ -248,17 +265,40 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
                 `${(docName || 'document').replace(/\s+/g, '_')}_${activeSide.replace(/\s+/g, '_')}.jpg`,
                 { type: 'image/jpeg' }
             );
+            const url = URL.createObjectURL(file);
+            // Stop the stream so the still preview takes over.
             stopStream();
-            const side = activeSide;
-            setActiveSide(null);
-
-            // Directly save to localStorage
-            saveToLocalStorage(side, file);
+            setPendingFile(file);
+            setPendingUrl(url);
         }, 'image/jpeg', 0.92);
+    };
+
+    // ✓ — accept the captured photo
+    const handleConfirmCapture = () => {
+        if (!pendingFile) return;
+        const side = activeSide;
+        const fileToSave = pendingFile;
+        if (pendingUrl) URL.revokeObjectURL(pendingUrl);
+        setPendingFile(null);
+        setPendingUrl(null);
+        setActiveSide(null);
+        saveToLocalStorage(side, fileToSave);
+    };
+
+    // ✕ — discard and resume the camera so the user can retake
+    const handleRetake = () => {
+        if (pendingUrl) URL.revokeObjectURL(pendingUrl);
+        setPendingFile(null);
+        setPendingUrl(null);
+        // Camera will restart automatically via the start-stream useEffect
+        // when pendingFile becomes null.
     };
 
     const handleBackToSelection = () => {
         stopStream();
+        if (pendingUrl) URL.revokeObjectURL(pendingUrl);
+        setPendingFile(null);
+        setPendingUrl(null);
         setActiveSide(null);
         setCameraError(null);
     };
@@ -371,7 +411,7 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
 
                 {inCameraView && (
                     <div style={{ position: 'absolute', inset: 0, background: '#000' }}>
-                        {/* Live video */}
+                        {/* Live video — hidden while a captured preview is pending */}
                         <video
                             ref={videoRef}
                             playsInline muted autoPlay
@@ -379,12 +419,26 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
                                 position: 'absolute', inset: 0,
                                 width: '100%', height: '100%',
                                 objectFit: 'cover',
-                                display: isCameraReady ? 'block' : 'none',
+                                display: !pendingFile && isCameraReady ? 'block' : 'none',
                             }}
                         />
 
+                        {/* Captured still preview (awaiting confirm) */}
+                        {pendingFile && pendingUrl && (
+                            <img
+                                src={pendingUrl}
+                                alt="Captured preview"
+                                style={{
+                                    position: 'absolute', inset: 0,
+                                    width: '100%', height: '100%',
+                                    objectFit: 'contain',
+                                    background: '#000',
+                                }}
+                            />
+                        )}
+
                         {/* Loading */}
-                        {!isCameraReady && !cameraError && (
+                        {!pendingFile && !isCameraReady && !cameraError && (
                             <div style={{
                                 position: 'absolute', inset: 0,
                                 display: 'flex', flexDirection: 'column',
@@ -453,8 +507,8 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
                             </button>
                         </div>
 
-                        {/* Capture button */}
-                        {isCameraReady && !cameraError && (
+                        {/* Capture button (live camera, nothing pending) */}
+                        {!pendingFile && isCameraReady && !cameraError && (
                             <button
                                 onClick={handleCapturePhoto}
                                 disabled={isCapturing}
@@ -475,6 +529,74 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
                             >
                                 <div style={{ width: 56, height: 56, borderRadius: '50%', background: COLORS.btnPrimary || '#01A0FE' }} />
                             </button>
+                        )}
+
+                        {/* Approve / Retake controls (captured-photo preview) */}
+                        {pendingFile && (
+                            <>
+                                <div style={{
+                                    position: 'absolute', top: 70, left: 0, right: 0,
+                                    display: 'flex', justifyContent: 'center',
+                                    zIndex: 10,
+                                }}>
+                                    <span style={{
+                                        background: 'rgba(0,0,0,0.55)',
+                                        color: '#fff',
+                                        padding: '6px 14px',
+                                        borderRadius: 999,
+                                        fontSize: 13,
+                                        fontWeight: 600,
+                                    }}>
+                                        Use this photo?
+                                    </span>
+                                </div>
+
+                                <div style={{
+                                    position: 'absolute',
+                                    bottom: 32, left: 0, right: 0,
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    gap: 60,
+                                    zIndex: 10,
+                                }}>
+                                    {/* Retake (✕) */}
+                                    <button
+                                        onClick={handleRetake}
+                                        aria-label="Retake"
+                                        style={{
+                                            width: 64, height: 64,
+                                            borderRadius: '50%',
+                                            background: '#fff',
+                                            border: `3px solid ${COLORS.statusPending}`,
+                                            color: COLORS.statusPending,
+                                            fontSize: 28, fontWeight: 700,
+                                            cursor: 'pointer',
+                                            boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        }}
+                                    >
+                                        ✕
+                                    </button>
+
+                                    {/* Confirm (✓) */}
+                                    <button
+                                        onClick={handleConfirmCapture}
+                                        aria-label="Use photo"
+                                        style={{
+                                            width: 64, height: 64,
+                                            borderRadius: '50%',
+                                            background: COLORS.statusCompleted,
+                                            border: '3px solid #fff',
+                                            color: '#fff',
+                                            fontSize: 30, fontWeight: 700,
+                                            cursor: 'pointer',
+                                            boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        }}
+                                    >
+                                        ✓
+                                    </button>
+                                </div>
+                            </>
                         )}
 
                         {/* Hidden canvas for capture */}

@@ -32,6 +32,7 @@ const statsCards = [
         bg: COLORS.cardTotalClaims,
         border: `1px solid #004FE5`,
         textColor: '#FFFFFF',
+        route: ROUTES.TOTAL_CLAIMS,
     },
     {
         icon: surveyCompletedIcon,
@@ -40,6 +41,7 @@ const statsCards = [
         bg: COLORS.cardSurveyCompleted,
         border: `1px solid #009348`,
         textColor: '#009348',
+        route: ROUTES.SURVEY_COMPLETED,
     },
     {
         icon: pendingSurveyIcon,
@@ -48,6 +50,7 @@ const statsCards = [
         bg: COLORS.cardPendingSurvey,
         border: `1px solid #FA9D19`,
         textColor: '#fff',
+        route: ROUTES.PENDING_SURVEY,
     },
     {
         icon: searchClaimIcon,
@@ -56,6 +59,7 @@ const statsCards = [
         bg: COLORS.cardSearchClaim,
         border: `1px solid #5E33E1`,
         textColor: '#FFFFFF',
+        route: ROUTES.SEARCH_CLAIM,
     },
 ];
 
@@ -157,9 +161,11 @@ const DashboardPage = () => {
                     {/* Stats Cards Grid */}
                     <div className="grid grid-cols-2 gap-3 mb-4">
                         {statsCards.map((card, i) => (
-                            <div
+                            <button
                                 key={i}
-                                className="rounded-2xl px-4 py-4 flex items-center gap-3"
+                                type="button"
+                                onClick={() => navigate(card.route)}
+                                className="rounded-2xl px-4 py-4 flex items-center gap-3 text-left active:scale-95 transition-transform"
                                 style={{ background: card.bg, border: card.border }}
                             >
                                 <div
@@ -176,7 +182,7 @@ const DashboardPage = () => {
                                         {card.label}
                                     </p>
                                 </div>
-                            </div>
+                            </button>
                         ))}
                     </div>
 

@@ -12,9 +12,6 @@ import insuranceCompanyIcon from '../../assets/icons/InsuranceCompany.svg';
 import greenInsuredNameIcon from '../../assets/icons/GreenInsuredName.svg';
 import vehicleNumberIcon from '../../assets/icons/VehicleNumber.svg';
 import purpleClaimNumberIcon from '../../assets/icons/PurpleClaimNumber.svg';
-import policyNumberIcon from '../../assets/icons/PolicyNumber.svg';
-import emailAddressIcon from '../../assets/icons/EmailAddress.svg';
-import phoneNumberIcon from '../../assets/icons/PhoneNumber.svg';
 import autorateIcon from '../../assets/icons/autorate.svg';
 import gpsLocationIcon from '../../assets/icons/gpslocation.svg';
 import photos360Icon from '../../assets/icons/photos360.svg';
@@ -26,9 +23,6 @@ const inspectionData = [
     { icon: greenInsuredNameIcon, label: 'Insured Name', value: 'Rahul Sharma', iconBg: '#22C55E' },
     { icon: vehicleNumberIcon, label: 'Vehicle Number', value: 'MH 01 BS 1234', iconBg: '#EF4444' },
     { icon: purpleClaimNumberIcon, label: 'Claim Number', value: '1234567898765MAN', iconBg: '#7C3AED' },
-    { icon: policyNumberIcon, label: 'Policy Number', value: '1234 5678 9012', iconBg: '#22C55E' },
-    { icon: emailAddressIcon, label: 'Email Address', value: 'rahul.sharma@email.com', iconBg: '#F97316' },
-    { icon: phoneNumberIcon, label: 'Phone Number', value: '+91 1234567890', iconBg: '#EC4899' },
 ];
 
 const instructions = [
@@ -86,42 +80,45 @@ const InspectionDetailsPage = () => {
 
     const handleRotateAllow = () => {
         setShowRotate(false);
-        // Navigate to photo capture selection page
         navigate(ROUTES.PHOTO_CAPTURE_SELECTION);
     };
 
     return (
-        <div className="min-h-screen flex flex-col" >
+        <div className="h-dvh flex flex-col overflow-hidden">
             {/* Header */}
-            <AppHeader />
+            <div className="shrink-0">
+                <AppHeader />
+            </div>
 
             {/* Page Title */}
-            <PageTitleBar title="Inspection Details" />
+            <div className="shrink-0">
+                <PageTitleBar title="Inspection Details" />
+            </div>
 
-            {/* Content */}
-            <div className="flex-1 px-4 pt-4 pb-6 overflow-y-auto main-bg">
+            {/* Content — fills remaining height, no scroll */}
+            <div className="flex-1 min-h-0 flex flex-col px-3 pt-2 pb-2 main-bg overflow-hidden">
 
                 {/* Inspection Info Card */}
-                <div className="bg-white rounded-md overflow-hidden mb-5 px-4" style={{ border: `1px solid ${COLORS.borderInput}`, boxShadow: '0px 1px 4px 0px #00000040' }}>
+                <div
+                    className="bg-white rounded-md overflow-hidden mb-2 px-3 shrink-0"
+                    style={{ border: `1px solid ${COLORS.borderInput}`, boxShadow: '0px 1px 4px 0px #00000040' }}
+                >
                     {inspectionData.map((row, i) => (
                         <div
                             key={i}
-                            className="flex items-center gap-3 py-4"
+                            className="flex items-center gap-2 py-1.5"
                             style={{ borderBottom: i < inspectionData.length - 1 ? `1px solid ${COLORS.borderInput}` : 'none' }}
                         >
-                            {/* Icon */}
                             <div
-                                className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+                                className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
                                 style={{ background: row.iconBg + '22', border: `1.5px solid ${row.iconBg}` }}
                             >
-                                <span style={{ fontSize: 16 }}>
-                                    <img src={row.icon} alt={row.label} className="src" />
-                                </span>
+                                <img src={row.icon} alt={row.label} className="w-3.5 h-3.5" />
                             </div>
-                            {/* Label */}
-                            <span className="text-sm w-36 font-semibold" style={{ color: COLORS.textSecondary }}>{row.label}</span>
-                            {/* Value */}
-                            <span className="text-sm font-semibold flex-1" style={{ color: COLORS.textPrimary }}>
+                            <span className="text-xs w-32 font-semibold leading-tight" style={{ color: COLORS.textSecondary }}>
+                                {row.label}
+                            </span>
+                            <span className="text-xs font-semibold flex-1 leading-tight" style={{ color: COLORS.textPrimary }}>
                                 {row.value}
                             </span>
                         </div>
@@ -129,32 +126,39 @@ const InspectionDetailsPage = () => {
                 </div>
 
                 {/* Instructions Heading */}
-                <p className="text-md font-semibold mb-4" style={{ color: COLORS.textPrimary }}>
+                <p
+                    className="text-xs font-semibold mb-1 shrink-0 leading-snug"
+                    style={{ color: COLORS.textPrimary }}
+                >
                     Please read following important instructions before you start survey
                 </p>
 
-                {/* Instructions List */}
-                <div className="flex flex-col gap-4 mb-6">
+                {/* Instructions List — flex-1 so it shares remaining space */}
+                <div className="flex-1 min-h-0 flex flex-col justify-around overflow-hidden mb-2">
                     {instructions.map((ins, i) => (
-                        <div key={i} className="flex items-start gap-3">
+                        <div key={i} className="flex items-start gap-2">
                             <div
-                                className="w-9 h-9 rounded-sm flex items-center justify-center shrink-0"
+                                className="w-7 h-7 rounded-sm flex items-center justify-center shrink-0"
                                 style={{ background: ins.bg, border: `1.5px solid ${ins.color}` }}
                             >
-                                <span style={{ fontSize: 20 }}>
-                                    <img src={ins.emoji} alt={ins.title} srcset="" />
-                                </span>
+                                <img src={ins.emoji} alt={ins.title} className="w-4 h-4" />
                             </div>
-                            <div className="flex-1">
-                                <p className="text-sm font-semibold" style={{ color: ins.color }}>{ins.title}</p>
-                                <p className="text-xs mt-0.5" style={{ color: COLORS.textSecondary }}>{ins.desc}</p>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-[11px] font-semibold leading-tight" style={{ color: ins.color }}>
+                                    {ins.title}
+                                </p>
+                                <p className="text-[10px] leading-snug mt-0.5" style={{ color: COLORS.textSecondary }}>
+                                    {ins.desc}
+                                </p>
                             </div>
                         </div>
                     ))}
                 </div>
 
                 {/* Start Button */}
-                <BottomButton label="Start Taking Photos" onClick={handleStartPhotos} />
+                <div className="shrink-0">
+                    <BottomButton label="Start Taking Photos" onClick={handleStartPhotos} />
+                </div>
             </div>
 
             {/* Modals */}

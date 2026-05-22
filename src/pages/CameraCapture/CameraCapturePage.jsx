@@ -4,16 +4,11 @@ import { useSelector } from 'react-redux';
 import AppHeader from '../../components/common/AppHeader';
 import PageTitleBar from '../../components/common/PageTitleBar';
 import { COLORS } from '../../constants/theme';
-import { REQUIRED_ANGLES } from '../AddDamagePhotos/AddDamagePhotosPage';
 import { useCameraContext } from '../../contexts/CameraContext';
 import { usePageLoading } from '../../hooks/usePageLoading';
-import {
-    selectWorkflowOption,
-    WORKFLOW_SUBMIT_ROUTES,
-} from '../../store/workflowSlice';
 import { selectVehicleCategory } from '../../store/vehicleSlice';
 import { getAngleImage } from '../../constants/vehicleAssets';
-import { lockToPortrait, unlockOrientation } from '../../utils/orientation';
+import { unlockOrientation } from '../../utils/orientation';
 
 // Helper function to create a precise mask that fits the outline of the vehicle frame.
 // Uses a flood-fill algorithm from the edges to find the "outside" of the frame.
@@ -90,9 +85,6 @@ const CameraCapturePage = () => {
     const navigate = useNavigate();
     const routeLocation = useLocation();
     const { disableCamera, returnPath } = useCameraContext();
-    // Workflow option the user picked on the landing page — drives where
-    // Save & Continue takes them once all required angles are captured.
-    const workflowOption = useSelector(selectWorkflowOption);
     // Vehicle category from /owner-vehicle-details — picks the asset
     // folder (car / bike / truck) for the per-angle guide image.
     const vehicleCategory = useSelector(selectVehicleCategory);
@@ -364,30 +356,10 @@ const CameraCapturePage = () => {
             }
         }
 
-        const allDone = REQUIRED_ANGLES.every(a => stored[a]);
-
-        if (!allDone) {
-            // Still capturing — go back to the selection screen (or wherever
-            // the user came from) so they can pick the next angle.
-            const returnTo = routeLocation.state?.returnTo || '/photo-capture-selection';
-            navigate(returnTo);
-            return;
-        }
-
-        // All required photos captured → branch on the workflow option the
-        // user picked on the landing page (stored in Redux). The first 3
-        // landing buttons land here on /damage-review; the last 3 on
-        // /vehicle-information. If we somehow have no choice (e.g. user
-        // navigated in directly), fall back to the legacy review screen.
-        const submitRoute =
-            WORKFLOW_SUBMIT_ROUTES[workflowOption] || '/add-damage-photos';
-
-        // Going to a portrait-only review page — flip the phone for the
-        // user. Must fire from this click handler (user-gesture context)
-        // for requestFullscreen to be allowed. Best-effort.
-        lockToPortrait();
-
-        navigate(submitRoute);
+        // Always return to the selection screen — user advances explicitly
+        // via the "Next" button there once every angle has been captured.
+        const returnTo = routeLocation.state?.returnTo || '/photo-capture-selection';
+        navigate(returnTo);
     };
 
     const handleNavigateBack = () => {
@@ -417,8 +389,8 @@ const CameraCapturePage = () => {
     return (
         <div style={{ position: 'fixed', inset: 0, background: '#000', overflow: 'hidden' }}>
 
-            {/* Header — only when camera NOT live */}
-            {(!isCameraReady || capturedImage) && (
+            {/* Header — only during loading (hidden in live camera + captured preview) */}
+            {!isCameraReady && !capturedImage && (
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30 }}>
                     <AppHeader />
                     <PageTitleBar title={`Capture - ${formatAngleName(angle)}`} />
@@ -531,11 +503,11 @@ const CameraCapturePage = () => {
                         }}
                     />
 
-                    {/* ── TOP RIGHT — angle label (red, like reference) ── */}
+                    {/* ── TOP RIGHT — angle label ── */}
                     <div style={{
                         position: 'absolute', top: 16, right: 16,
-                        zIndex: 10, color: '#ef4444',
-                        fontSize: 15, fontWeight: 700,
+                        zIndex: 10, color: COLORS.btnPrimary,
+                        fontSize: 22, fontWeight: 700,
                         textShadow: '0 1px 4px rgba(0,0,0,0.6)',
                     }}>
                         {formatAngleName(angle)}
@@ -546,11 +518,11 @@ const CameraCapturePage = () => {
                         position: 'absolute', bottom: 20, left: 16,
                         zIndex: 10, display: 'flex', flexDirection: 'column', gap: 4,
                     }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ef4444', fontWeight: 700, fontSize: 10 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ef4444', fontWeight: 700, fontSize: 16 }}>
                             <span style={{ fontSize: 14 }}>📍</span>
                             <span style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>Location: {location}</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ef4444', fontWeight: 700, fontSize: 10 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ef4444', fontWeight: 700, fontSize: 16 }}>
                             <span style={{ fontSize: 14 }}>🕐</span>
                             <span style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>Date: {dateTime}</span>
                         </div>

@@ -1,27 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { CAMERA_ACCESS_KEY } from '../../routes/ProtectedCameraRoute';
 import { ROUTES } from '../../constants/routes';
 import { selectVehicleCategory } from '../../store/vehicleSlice';
+import { setOption, WORKFLOW_TYPES } from '../../store/workflowSlice';
 import { getCenterImage, isAngleSupported } from '../../constants/vehicleAssets';
 import { usePageLoading } from '../../hooks/usePageLoading';
+import { lockToPortrait } from '../../utils/orientation';
+import { COLORS } from '../../constants/theme';
 
 const PhotoCaptureSelectionPage = () => {
     usePageLoading();
     const navigate = useNavigate();
     const location = useLocation();
+    const dispatch = useDispatch();
     // Vehicle category (car / bike / truck) chosen on /owner-vehicle-details
     // — drives which silhouette + angle guides are shown.
     const vehicleCategory = useSelector(selectVehicleCategory);
     const [isLandscape, setIsLandscape] = useState(window.innerWidth > window.innerHeight);
     const [capturedPhotos, setCapturedPhotos] = useState({});
+    const [videoUrl, setVideoUrl] = useState('');
+    const [videoLoadError, setVideoLoadError] = useState(false);
 
-    // Load captured photos from localStorage
+    // Load captured photos + walk-around video status from localStorage
     const loadCapturedPhotos = () => {
         const stored = JSON.parse(localStorage.getItem('damage_photos') || '{}');
         setCapturedPhotos(stored);
+        const url = localStorage.getItem('walk_around_video_url') || '';
+        setVideoUrl(url);
+        if (url) setVideoLoadError(false);
     };
+
+    const hasVideo = !!videoUrl && !videoLoadError;
 
     // Check for landscape orientation on mount and orientation change
     useEffect(() => {
@@ -70,6 +81,23 @@ const PhotoCaptureSelectionPage = () => {
     ];
     const photoPoints = allPhotoPoints.filter(p => isAngleSupported(vehicleCategory, p.id));
     const centerImage = getCenterImage(vehicleCategory);
+
+    // All capture points (including the walk-around video) must be done
+    // before the Next button enables.
+    const allDone = photoPoints.every((p) =>
+        p.id === 'video' ? hasVideo : !!capturedPhotos[p.id]
+    );
+
+    const handleNext = () => {
+        if (!allDone) return;
+        // /damage-review is workflow-protected — make sure OPTION_GROUP_1
+        // is set so the route is allowed regardless of how the user got here.
+        dispatch(setOption(WORKFLOW_TYPES.OPTION_GROUP_1));
+        // Next page is portrait — flip the phone so the user doesn't have
+        // to manually rotate. Must fire from a user gesture (this click).
+        lockToPortrait();
+        navigate(ROUTES.DAMAGE_REVIEW);
+    };
 
     const handlePhotoPointClick = (point) => {
         // The "Video" point is a walk-around video flow, not a single-photo
@@ -199,6 +227,9 @@ const PhotoCaptureSelectionPage = () => {
                                 }
                             };
 
+                            const isVideoPoint = point.id === 'video';
+                            const isPointDone = isVideoPoint ? hasVideo : !!capturedImageUrl;
+
                             return (
                                 <div
                                     key={point.id}
@@ -225,7 +256,24 @@ const PhotoCaptureSelectionPage = () => {
                                         }}
                                         title={point.label}
                                     >
-                                        {capturedImageUrl ? (
+                                        {isVideoPoint && videoUrl && !videoLoadError ? (
+                                            <video
+                                                src={videoUrl}
+                                                muted
+                                                loop
+                                                autoPlay
+                                                playsInline
+                                                onError={() => setVideoLoadError(true)}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover',
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    left: 0,
+                                                }}
+                                            />
+                                        ) : capturedImageUrl ? (
                                             <img
                                                 src={capturedImageUrl}
                                                 alt={point.label}
@@ -239,7 +287,24 @@ const PhotoCaptureSelectionPage = () => {
                                                 }}
                                             />
                                         ) : (
-                                            <span style={{ fontSize: `${circleSize * 0.35}px` }}>📷</span>
+                                            <span style={{ fontSize: `${circleSize * 0.35}px` }}>
+                                                {isVideoPoint ? '🎬' : '📷'}
+                                            </span>
+                                        )}
+                                        {isPointDone && (
+                                            <span
+                                                style={{
+                                                    position: 'absolute',
+                                                    bottom: -2, right: -2,
+                                                    width: 18, height: 18, borderRadius: '50%',
+                                                    background: COLORS.statusCompleted,
+                                                    color: '#fff', fontSize: 11, fontWeight: 700,
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    border: '2px solid #fff',
+                                                }}
+                                            >
+                                                ✓
+                                            </span>
                                         )}
                                     </button>
 
@@ -251,6 +316,31 @@ const PhotoCaptureSelectionPage = () => {
                             );
                         })}
                     </div>
+
+                    {/* Next button — enabled only after every angle (including
+                        the walk-around video) has been captured. */}
+                    <button
+                        onClick={handleNext}
+                        disabled={!allDone}
+                        style={{
+                            position: 'absolute',
+                            bottom: 20,
+                            right: 20,
+                            padding: '12px 28px',
+                            background: allDone ? COLORS.btnPrimary : '#9CA3AF',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: 10,
+                            fontWeight: 700,
+                            fontSize: 16,
+                            cursor: allDone ? 'pointer' : 'not-allowed',
+                            opacity: allDone ? 1 : 0.6,
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+                            zIndex: 50,
+                        }}
+                    >
+                        Next →
+                    </button>
                 </div>
             )}
         </>

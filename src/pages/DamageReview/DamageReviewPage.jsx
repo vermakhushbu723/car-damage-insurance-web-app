@@ -53,21 +53,21 @@ const DetailRow = ({ icon, label, value, muted, last, isImg }) => (
         style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
-            paddingTop: 13,
-            paddingBottom: 13,
+            gap: 8,
+            paddingTop: 6,
+            paddingBottom: 6,
             borderBottom: last ? 'none' : '1px solid #E2E8F0',
         }}
     >
-        <div style={{ width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <div style={{ width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             {isImg
-                ? <img src={icon} alt={label} style={{ width: 26, height: 26, objectFit: 'contain' }} />
-                : <span style={{ fontSize: 20 }}>{icon}</span>}
+                ? <img src={icon} alt={label} style={{ width: 18, height: 18, objectFit: 'contain' }} />
+                : <span style={{ fontSize: 14 }}>{icon}</span>}
         </div>
         {/* Label with fixed width */}
-        <span style={{ width: 120, fontSize: 13, color: COLORS.textPrimary, fontWeight: 500 }}>{label}</span>
+        <span style={{ width: 100, fontSize: 11, color: COLORS.textPrimary, fontWeight: 500 }}>{label}</span>
         {/* Value left-aligned and flexible */}
-        <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: muted ? '#94A3B8' : COLORS.textPrimary }}>{value}</span>
+        <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: muted ? '#94A3B8' : COLORS.textPrimary }}>{value}</span>
     </div>
 );
 
@@ -113,43 +113,43 @@ const DamageReviewPage = () => {
             <AppHeader />
 
             {/* Title bar */}
-            <div style={{ background: COLORS.bgPageTitle, padding: '0 16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 10, paddingBottom: 4 }}>
+            <div style={{ background: COLORS.bgPageTitle, padding: '0 12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, paddingTop: 6, paddingBottom: 2 }}>
                     <button
                         onClick={() => navigate(-1)}
-                        style={{ background: 'none', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer', padding: 0, lineHeight: 1 }}
+                        style={{ background: 'none', border: 'none', color: '#fff', fontSize: 18, cursor: 'pointer', padding: 0, lineHeight: 1 }}
                     >
                         ‹
                     </button>
-                    <span style={{ color: '#fff', fontWeight: 800, fontSize: 22 }}>Vehicle Information</span>
+                    <span style={{ color: '#fff', fontWeight: 800, fontSize: 16 }}>Vehicle Information</span>
                 </div>
-                <p style={{ color: '#fff', fontSize: 13, fontWeight: 500, paddingBottom: 10, marginLeft: 32 }}>
+                <p style={{ color: '#fff', fontSize: 11, fontWeight: 500, paddingBottom: 6, marginLeft: 22 }}>
                     Upload All Reqired Documents
                 </p>
             </div>
 
             {/* Scrollable body */}
-            <div style={{ flex: 1, overflowY: 'auto', background: '#fff', paddingBottom: 12 }}>
+            <div style={{ flex: 1, overflowY: 'auto', background: '#fff', paddingBottom: 8 }}>
 
                 {/* ── Vehicle Photos ─── */}
-                <div style={{ padding: '14px 16px 0' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                        <span style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary }}>Vehicle Photos</span>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <button onClick={() => scrollPhotos(-1)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: COLORS.textSecondary, padding: '2px 4px' }}>‹</button>
-                            <button onClick={() => scrollPhotos(1)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: COLORS.textSecondary, padding: '2px 4px' }}>›</button>
-                            <span style={{ fontSize: 13, color: COLORS.textSecondary }}>Swipe</span>
+                <div style={{ padding: '8px 12px 0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.textPrimary }}>Vehicle Photos</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <button onClick={() => scrollPhotos(-1)} style={{ background: 'none', border: 'none', fontSize: 14, cursor: 'pointer', color: COLORS.textSecondary, padding: '2px 4px' }}>‹</button>
+                            <button onClick={() => scrollPhotos(1)} style={{ background: 'none', border: 'none', fontSize: 14, cursor: 'pointer', color: COLORS.textSecondary, padding: '2px 4px' }}>›</button>
+                            <span style={{ fontSize: 11, color: COLORS.textSecondary }}>Swipe</span>
                         </div>
                     </div>
                     <div
                         ref={scrollRef}
-                        style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 8 }}
+                        style={{ display: 'flex', gap: 6, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}
                     >
                         {vehiclePhotos.map((src, i) => (
                             <div
                                 key={i}
                                 style={{
-                                    minWidth: 100, height: 90, borderRadius: 10, overflow: 'hidden',
+                                    minWidth: 78, height: 70, borderRadius: 8, overflow: 'hidden',
                                     background: '#F1F5F9', flexShrink: 0,
                                     border: i === photoIndex ? `2px solid ${COLORS.primary}` : '2px solid transparent',
                                 }}
@@ -162,20 +162,20 @@ const DamageReviewPage = () => {
                 </div>
 
                 {/* ── Vehicle Details Card ─── */}
-                <div style={{ margin: '14px 14px 0', background: '#DAF0FE', borderRadius: 14, padding: '4px 14px 4px' }}>
-                    <p style={{ fontWeight: 700, fontSize: 15, color: COLORS.textPrimary, padding: '12px 0 4px' }}>Vehicle Details</p>
+                <div style={{ margin: '8px 10px 0', background: '#DAF0FE', borderRadius: 10, padding: '2px 10px 4px' }}>
+                    <p style={{ fontWeight: 700, fontSize: 12, color: COLORS.textPrimary, padding: '6px 0 2px' }}>Vehicle Details</p>
                     {VEHICLE_DETAILS.map((row, i) => (
                         <DetailRow key={i} {...row} last={i === VEHICLE_DETAILS.length - 1} isImg={false} />
                     ))}
                 </div>
 
                 {/* ── Insured Details Card ─── */}
-                <div style={{ margin: '14px 14px 0', background: '#DAF0FE', borderRadius: 14, padding: '4px 14px 4px' }}>
-                    <p style={{ fontWeight: 700, fontSize: 15, color: COLORS.textPrimary, padding: '12px 0 4px' }}>Insured Details</p>
-                    <div style={{ display: 'flex', gap: 4, marginBottom: 8 }}>
-                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: COLORS.textSecondary, marginTop: 4 }} />
-                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: COLORS.textSecondary, marginTop: 4 }} />
-                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: COLORS.textSecondary, marginTop: 4 }} />
+                <div style={{ margin: '8px 10px 0', background: '#DAF0FE', borderRadius: 10, padding: '2px 10px 4px' }}>
+                    <p style={{ fontWeight: 700, fontSize: 12, color: COLORS.textPrimary, padding: '6px 0 2px' }}>Insured Details</p>
+                    <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: COLORS.textSecondary, marginTop: 2 }} />
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: COLORS.textSecondary, marginTop: 2 }} />
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: COLORS.textSecondary, marginTop: 2 }} />
                     </div>
                     {INSURED_DETAILS.map((row, i) => (
                         <DetailRow key={i} {...row} last={i === INSURED_DETAILS.length - 1} isImg={true} />
@@ -186,23 +186,20 @@ const DamageReviewPage = () => {
             {/* ── Bottom Buttons ─── */}
             <div
                 style={{
-                    // position: 'fixed', bottom: 0, left: 0, right: 0,
                     background: '#fff',
-                    padding: '12px 16px',
-                    display: 'flex', gap: 10,
-                    // boxShadow: '0 -2px 12px rgba(0,0,0,0.1)',
+                    padding: '8px 12px',
+                    display: 'flex', gap: 8,
                     maxWidth: 448,
-                    // margin: '0 auto',
                 }}
             >
                 <button
                     onClick={handleRestart}
                     style={{
-                        flex: 1, padding: '14px 0',
+                        flex: 1, padding: '10px 0',
                         background: '#fff',
                         color: COLORS.textSecondary,
                         border: `1.5px solid ${COLORS.borderInput}`,
-                        borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer',
+                        borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer',
                     }}
                 >
                     Restart Survey
@@ -210,11 +207,11 @@ const DamageReviewPage = () => {
                 <button
                     onClick={handleSubmit}
                     style={{
-                        flex: 1, padding: '14px 0',
+                        flex: 1, padding: '10px 0',
                         background: COLORS.btnPrimary,
                         color: '#fff',
                         border: 'none',
-                        borderRadius: 10, fontSize: 15, fontWeight: 700, cursor: 'pointer',
+                        borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer',
                     }}
                 >
                     Submit Survey
