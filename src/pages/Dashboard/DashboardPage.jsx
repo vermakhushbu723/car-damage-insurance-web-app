@@ -1,152 +1,109 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SearchOutlined, CloseCircleFilled } from '@ant-design/icons';
 import AppHeader from '../../components/common/AppHeader';
+import ClaimListCard from '../../components/common/ClaimListCard';
 import { COLORS } from '../../constants/theme';
 import { ROUTES } from '../../constants/routes';
+import { DEMO_CLAIMS } from '../../constants/demoClaims';
 import { usePageLoading } from '../../hooks/usePageLoading';
-import {
-    FileTextOutlined,
-    CheckSquareOutlined,
-    ClockCircleOutlined,
-    BankOutlined,
-    SafetyOutlined,
-    CarOutlined,
-    UserOutlined,
-    FileOutlined,
-    RightOutlined,
-} from '@ant-design/icons';
 import totalClaimsIcon from '../../assets/icons/TotalClaims.svg';
 import surveyCompletedIcon from '../../assets/icons/SurveyCompleted.svg';
 import pendingSurveyIcon from '../../assets/icons/PendingSurvey.svg';
 import searchClaimIcon from '../../assets/icons/SearchClaim.svg';
-import insurerNameIcon from '../../assets/icons/insurerName.svg';
-import claimNumberIcon from '../../assets/icons/claimNumber.svg';
-import registrationNumberIcon from '../../assets/icons/registrationNumber.svg';
-import insuredNameIcon from '../../assets/icons/insuredName.svg';
 
-const statsCards = [
-    {
-        icon: totalClaimsIcon,
-        count: '20',
-        label: 'Total Claims',
-        bg: COLORS.cardTotalClaims,
-        border: `1px solid #004FE5`,
-        textColor: '#FFFFFF',
-        route: ROUTES.TOTAL_CLAIMS,
-    },
-    {
-        icon: surveyCompletedIcon,
-        count: '12',
-        label: 'Survey Completed',
-        bg: COLORS.cardSurveyCompleted,
-        border: `1px solid #009348`,
-        textColor: '#009348',
-        route: ROUTES.SURVEY_COMPLETED,
-    },
-    {
-        icon: pendingSurveyIcon,
-        count: '08',
-        label: 'Pending Survey',
-        bg: COLORS.cardPendingSurvey,
-        border: `1px solid #FA9D19`,
-        textColor: '#fff',
-        route: ROUTES.PENDING_SURVEY,
-    },
-    {
-        icon: searchClaimIcon,
-        count: '03',
-        label: 'Search Claim',
-        bg: COLORS.cardSearchClaim,
-        border: `1px solid #5E33E1`,
-        textColor: '#FFFFFF',
-        route: ROUTES.SEARCH_CLAIM,
-    },
-];
+const VIEW = {
+    TOTAL: 'total',
+    COMPLETED: 'completed',
+    PENDING: 'pending',
+    SEARCH: 'search',
+};
 
-const claimsList = [
-    {
-        insurerName: 'Name',
-        claimNumber: 'CLM1234567890',
-        registrationNumber: 'OD 02 AB 1234',
-        insuredName: 'User Name',
-        status: 'Pending',
-    },
-    {
-        insurerName: 'Name',
-        claimNumber: 'CLM1234567890',
-        registrationNumber: 'OD 02 AB 1234',
-        insuredName: 'User Name',
-        status: 'Pending',
-    },
-    {
-        insurerName: 'Name',
-        claimNumber: 'CLM1234567890',
-        registrationNumber: 'OD 02 AB 1234',
-        insuredName: 'User Name',
-        status: 'Pending',
-    },
-];
-
-const ClaimCard = ({ claim, onViewDetails }) => (
-    <div
-        className="mb-4 rounded-lg px-5 py-4"
-        style={{ background: '#DAF0FE' }}
-    >
-        {/* Status Badge */}
-        <div className="flex justify-end mb-3 ">
-            <span
-                className="px-4 py-1 rounded-lg text-xs font-semibold"
-                style={{
-                    background: '#F0000040',
-                    color: COLORS.statusPending,
-                    border: `1px solid ${COLORS.statusPending}`,
-                }}
-            >
-                {claim.status}
-            </span>
-        </div>
-
-        {/* Fields */}
-        {[
-            { icon: insurerNameIcon, label: 'Insurer Name', value: claim.insurerName },
-            { icon: claimNumberIcon, label: 'Claim Number', value: claim.claimNumber },
-            { icon: registrationNumberIcon, label: 'Registration Number', value: claim.registrationNumber },
-            { icon: insuredNameIcon, label: 'Insured Name', value: claim.insuredName },
-        ].map((row, i) => (
-            <div key={i} className="flex items-center gap-3 mb-2 ">
-                <span className="w-6 flex justify-center"><img src={row.icon} alt={row.label} className="src" /></span>
-                <span className="text-sm w-36 font-semibold" style={{ color: COLORS.textSecondary }}>{row.label}</span>
-                <span className="text-sm font-semibold flex-1" style={{ color: COLORS.textPrimary }}>{row.value}</span>
-            </div>
-        ))}
-
-        {/* Divider */}
-        <div className="my-3" style={{ borderTop: '1px solid #00000033' }} />
-
-        {/* View Details */}
-        <div className="flex justify-end">
-            <button
-                onClick={onViewDetails}
-                className="flex items-center gap-1 text-sm font-semibold"
-                style={{ color: COLORS.primary }}
-            >
-                View Details <RightOutlined style={{ fontSize: 12 }} />
-            </button>
-        </div>
-    </div>
-);
+const totalCount = DEMO_CLAIMS.length;
+const completedCount = DEMO_CLAIMS.filter((c) => c.status === 'Completed').length;
+const pendingCount = DEMO_CLAIMS.filter((c) => c.status === 'Pending').length;
 
 const DashboardPage = () => {
     usePageLoading();
     const navigate = useNavigate();
+    const [view, setView] = useState(VIEW.TOTAL);
+    const [query, setQuery] = useState('');
+
+    const statsCards = [
+        {
+            icon: totalClaimsIcon,
+            count: String(totalCount).padStart(2, '0'),
+            label: 'Total Claims',
+            bg: COLORS.cardTotalClaims,
+            border: `1px solid #004FE5`,
+            textColor: '#FFFFFF',
+            view: VIEW.TOTAL,
+        },
+        {
+            icon: surveyCompletedIcon,
+            count: String(completedCount).padStart(2, '0'),
+            label: 'Survey Completed',
+            bg: COLORS.cardSurveyCompleted,
+            border: `1px solid #009348`,
+            textColor: '#009348',
+            view: VIEW.COMPLETED,
+        },
+        {
+            icon: pendingSurveyIcon,
+            count: String(pendingCount).padStart(2, '0'),
+            label: 'Pending Survey',
+            bg: COLORS.cardPendingSurvey,
+            border: `1px solid #FA9D19`,
+            textColor: '#fff',
+            view: VIEW.PENDING,
+        },
+        {
+            icon: searchClaimIcon,
+            count: '',
+            label: 'Search Claim',
+            bg: COLORS.cardSearchClaim,
+            border: `1px solid #5E33E1`,
+            textColor: '#FFFFFF',
+            view: VIEW.SEARCH,
+        },
+    ];
+
+    const filteredClaims = useMemo(() => {
+        if (view === VIEW.COMPLETED) {
+            return DEMO_CLAIMS.filter((c) => c.status === 'Completed');
+        }
+        if (view === VIEW.PENDING) {
+            return DEMO_CLAIMS.filter((c) => c.status === 'Pending');
+        }
+        if (view === VIEW.SEARCH) {
+            const q = query.trim().toLowerCase();
+            if (!q) return DEMO_CLAIMS;
+            return DEMO_CLAIMS.filter((c) =>
+                [c.claimNumber, c.registrationNumber, c.insuredName, c.vehicle, c.location, c.insurerName]
+                    .filter(Boolean)
+                    .some((f) => f.toLowerCase().includes(q))
+            );
+        }
+        return DEMO_CLAIMS;
+    }, [view, query]);
+
+    const listConfig = {
+        [VIEW.TOTAL]: { title: 'All Claims', badgeBg: COLORS.primary },
+        [VIEW.COMPLETED]: { title: 'Completed Surveys', badgeBg: COLORS.statusCompleted },
+        [VIEW.PENDING]: { title: 'Pending Surveys', badgeBg: COLORS.statusPending },
+        [VIEW.SEARCH]: { title: query ? `${filteredClaims.length} result${filteredClaims.length !== 1 ? 's' : ''} found` : 'All Claims', badgeBg: COLORS.iconClaim },
+    }[view];
+
+    const handleCardClick = (cardView) => {
+        setView(cardView);
+        if (cardView !== VIEW.SEARCH) setQuery('');
+    };
 
     return (
         <div className="min-h-screen flex flex-col" >
-            {/* Header */}
             <AppHeader />
 
-            <div class="" style={{ background: COLORS.bgApp }}>
-                {/* Welcome Text */}
+            <div className="" style={{ background: COLORS.bgApp }}>
                 <div className="px-4 pt-2 pb-2">
                     <p className="text-base font-semibold" style={{ color: '#fff' }}>
                         Welcome{' '}
@@ -156,45 +113,97 @@ const DashboardPage = () => {
                     </p>
                 </div>
 
-                <div class="login-card" style={{ background: '#FFFFFF' }}>
+                <div className="login-card" style={{ background: '#FFFFFF' }}>
 
-                    {/* Stats Cards Grid */}
                     <div className="grid grid-cols-2 gap-3 mb-4">
-                        {statsCards.map((card, i) => (
-                            <button
-                                key={i}
-                                type="button"
-                                onClick={() => navigate(card.route)}
-                                className="rounded-2xl px-4 py-4 flex items-center gap-3 text-left active:scale-95 transition-transform"
-                                style={{ background: card.bg, border: card.border }}
-                            >
-                                <div
-                                    className="w-12 h-12 rounded-sm flex items-center justify-center shrink-0"
-                                    style={{ background: 'rgba(255,255,255,0.25)', border: `1px solid ${card.textColor}` }}
+                        {statsCards.map((card, i) => {
+                            const isActive = view === card.view;
+                            return (
+                                <button
+                                    key={i}
+                                    type="button"
+                                    onClick={() => handleCardClick(card.view)}
+                                    className="rounded-2xl px-4 py-4 flex items-center gap-3 text-left active:scale-95 transition-transform"
+                                    style={{
+                                        background: card.bg,
+                                        border: card.border,
+                                        boxShadow: isActive ? '0 0 0 2px #00A0FE' : 'none',
+                                    }}
                                 >
-                                    <img className='w-4 h-4' src={card.icon} alt={card.label} />
-                                </div>
-                                <div>
-                                    <p className="text-2xl font-bold leading-tight" style={{ color: card.textColor }}>
-                                        {card.count}
-                                    </p>
-                                    <p className="text-xs font-medium leading-tight" style={{ color: card.textColor }}>
-                                        {card.label}
-                                    </p>
-                                </div>
-                            </button>
-                        ))}
+                                    <div
+                                        className="w-12 h-12 rounded-sm flex items-center justify-center shrink-0"
+                                        style={{ background: 'rgba(255,255,255,0.25)', border: `1px solid ${card.textColor}` }}
+                                    >
+                                        <img className='w-4 h-4' src={card.icon} alt={card.label} />
+                                    </div>
+                                    <div>
+                                        {card.count && (
+                                            <p className="text-2xl font-bold leading-tight" style={{ color: card.textColor }}>
+                                                {card.count}
+                                            </p>
+                                        )}
+                                        <p className="text-xs font-medium leading-tight" style={{ color: card.textColor }}>
+                                            {card.label}
+                                        </p>
+                                    </div>
+                                </button>
+                            );
+                        })}
                     </div>
 
-                    {/* Claims List */}
+                    {view === VIEW.SEARCH && (
+                        <div className="pb-2">
+                            <div
+                                className="flex items-center gap-2 px-3 py-2 rounded-lg"
+                                style={{ background: COLORS.bgInput, border: `1px solid ${COLORS.borderInput}` }}
+                            >
+                                <SearchOutlined style={{ color: COLORS.textSecondary, fontSize: 16 }} />
+                                <input
+                                    type="text"
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    placeholder="Search claim number, reg. no., name…"
+                                    className="flex-1 bg-transparent outline-none text-sm"
+                                    style={{ color: COLORS.textPrimary }}
+                                />
+                                {query && (
+                                    <button onClick={() => setQuery('')}>
+                                        <CloseCircleFilled style={{ color: COLORS.textSecondary, fontSize: 16 }} />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="pt-2 pb-2 flex items-center justify-between">
+                        <p className="text-base font-bold" style={{ color: COLORS.textPrimary }}>
+                            {listConfig.title}
+                        </p>
+                        <span
+                            className="px-3 py-1 rounded-full text-xs font-semibold text-white"
+                            style={{ background: listConfig.badgeBg }}
+                        >
+                            {filteredClaims.length}
+                        </span>
+                    </div>
+
                     <div className="flex-1 pb-6">
-                        {claimsList.map((claim, i) => (
-                            <ClaimCard
-                                key={i}
-                                claim={claim}
-                                onViewDetails={() => navigate(ROUTES.CLAIM_START)}
-                            />
-                        ))}
+                        {filteredClaims.length === 0 ? (
+                            <div
+                                className="text-center py-10 rounded-lg"
+                                style={{ background: COLORS.bgCard, color: COLORS.textSecondary }}
+                            >
+                                <p className="text-sm font-medium">No claims match your search.</p>
+                            </div>
+                        ) : (
+                            filteredClaims.map((claim) => (
+                                <ClaimListCard
+                                    key={claim.id}
+                                    claim={claim}
+                                    onViewDetails={() => navigate(ROUTES.CLAIM_START)}
+                                />
+                            ))
+                        )}
                     </div>
                 </div>
 

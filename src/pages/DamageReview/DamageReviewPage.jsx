@@ -1,5 +1,16 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+    FaIndustry,
+    FaCar,
+    FaDna,
+    FaCarSide,
+    FaWarehouse,
+    FaIdCard,
+    FaStopwatch,
+    FaMapMarkerAlt,
+    FaCalendarAlt,
+} from 'react-icons/fa';
 import AppHeader from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
 import { usePageLoading } from '../../hooks/usePageLoading';
@@ -27,15 +38,15 @@ const DEFAULT_VEHICLE_PHOTOS = [
 ];
 
 const VEHICLE_DETAILS = [
-    { icon: '🏗️', label: 'Make', value: 'Volkswagen Polo' },
-    { icon: '🚗', label: 'Model', value: 'GT Tsi' },
-    { icon: '🧬', label: 'Variant', value: 'DSG Automatic' },
-    { icon: '🚙', label: 'Body Type', value: 'Hatch Back', muted: true },
-    { icon: '🏭', label: 'Mfg Year', value: '2017' },
-    { icon: '📋', label: 'Registration number', value: 'MH 49 DS 2345' },
-    { icon: '⏱️', label: 'Odometer', value: '141470 KMS' },
-    { icon: '📍', label: 'State', value: 'MH' },
-    { icon: '📅', label: 'Registration Date', value: '17/03/2017' },
+    { icon: <FaIndustry />, label: 'Make', value: 'Volkswagen Polo' },
+    { icon: <FaCar />, label: 'Model', value: 'GT Tsi' },
+    { icon: <FaDna />, label: 'Variant', value: 'DSG Automatic' },
+    { icon: <FaCarSide />, label: 'Body Type', value: 'Hatch Back', muted: true },
+    { icon: <FaWarehouse />, label: 'Mfg Year', value: '2017' },
+    { icon: <FaIdCard />, label: 'Registration number', value: 'MH 49 DS 2345' },
+    { icon: <FaStopwatch />, label: 'Odometer', value: '141470 KMS' },
+    { icon: <FaMapMarkerAlt />, label: 'State', value: 'MH' },
+    { icon: <FaCalendarAlt />, label: 'Registration Date', value: '17/03/2017' },
 ];
 
 const INSURED_DETAILS = [
@@ -62,7 +73,7 @@ const DetailRow = ({ icon, label, value, muted, last, isImg }) => (
         <div style={{ width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             {isImg
                 ? <img src={icon} alt={label} style={{ width: 18, height: 18, objectFit: 'contain' }} />
-                : <span style={{ fontSize: 14 }}>{icon}</span>}
+                : <span style={{ fontSize: 14, color: COLORS.textPrimary, display: 'flex' }}>{icon}</span>}
         </div>
         {/* Label with fixed width */}
         <span style={{ width: 100, fontSize: 11, color: COLORS.textPrimary, fontWeight: 500 }}>{label}</span>

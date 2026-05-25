@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { FaWrench, FaSearch, FaLink, FaUser, FaBuilding, FaGlobe } from 'react-icons/fa';
 import AppHeader from '../../components/common/AppHeader';
 import { ROUTES } from '../../constants/routes';
 import { COLORS } from '../../constants/theme';
@@ -22,7 +23,7 @@ const menuItems = [
         route: ROUTES.CLAIM_WORKSHOP_LOGIN,
         bg: 'linear-gradient(135deg, #E07B39 0%, #c95f1e 100%)',
         shadow: 'rgba(224,123,57,0.45)',
-        icon: '🔧',
+        icon: <FaWrench />,
         available: true,
     },
     {
@@ -31,7 +32,7 @@ const menuItems = [
         route: ROUTES.CLAIM_SURVEYOR_LOGIN,
         bg: 'linear-gradient(135deg, #01A0FE 0%, #0077cc 100%)',
         shadow: 'rgba(1,160,254,0.45)',
-        icon: '🔍',
+        icon: <FaSearch />,
         available: true,
     },
     {
@@ -39,7 +40,7 @@ const menuItems = [
         workflow: WORKFLOW_TYPES.OPTION_GROUP_1,
         bg: 'linear-gradient(135deg, #22C55E 0%, #15803d 100%)',
         shadow: 'rgba(34,197,94,0.45)',
-        icon: '🔗',
+        icon: <FaLink />,
         available: true,
         // Weblink buttons skip the login screen and go straight to the
         // claim-start flow.
@@ -50,7 +51,7 @@ const menuItems = [
         workflow: WORKFLOW_TYPES.OPTION_GROUP_2,
         bg: 'linear-gradient(135deg, #4F46E5 0%, #3730a3 100%)',
         shadow: 'rgba(79,70,229,0.45)',
-        icon: '👤',
+        icon: <FaUser />,
         available: true,
     },
     {
@@ -58,7 +59,7 @@ const menuItems = [
         workflow: WORKFLOW_TYPES.OPTION_GROUP_2,
         bg: 'linear-gradient(135deg, #A855F7 0%, #7e22ce 100%)',
         shadow: 'rgba(168,85,247,0.45)',
-        icon: '🏢',
+        icon: <FaBuilding />,
         available: true,
     },
     {
@@ -66,7 +67,7 @@ const menuItems = [
         workflow: WORKFLOW_TYPES.OPTION_GROUP_2,
         bg: 'linear-gradient(135deg, #F59E0B 0%, #b45309 100%)',
         shadow: 'rgba(245,158,11,0.45)',
-        icon: '🌐',
+        icon: <FaGlobe />,
         available: true,
         // Weblink buttons skip the login screen and go straight to the
         // claim-start flow.
@@ -135,7 +136,7 @@ const LandingPage = () => {
                     >
                         <div className="flex items-center justify-between px-5 w-full">
                             <div className="flex items-center gap-3">
-                                <span className="text-2xl">{item.icon}</span>
+                                <span className="text-2xl text-white flex items-center">{item.icon}</span>
                                 <span
                                     className="text-white font-bold text-left"
                                     style={{ fontSize: '13.5px', letterSpacing: '0.03em' }}

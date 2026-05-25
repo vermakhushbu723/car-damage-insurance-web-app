@@ -11,14 +11,14 @@ import { setProduct } from '../../store/vehicleSlice';
 import { usePageLoading } from '../../hooks/usePageLoading';
 
 // Reusable Input Field
-const InputField = ({ label, placeholder, value, onChange, type = 'text', prefix, onClick, readOnly }) => (
+const InputField = ({ label, placeholder, value, onChange, type = 'text', prefix, onClick, readOnly, error }) => (
     <div className="mb-4">
         <label className="block text-sm font-medium mb-1.5" style={{ color: COLORS.textPrimary }}>
             {label}
         </label>
         <div
             className="flex items-center gap-2 px-4 py-2 rounded-md border"
-            style={{ background: COLORS.bgInput, borderColor: COLORS.borderInput, cursor: onClick ? 'pointer' : 'auto' }}
+            style={{ background: COLORS.bgInput, borderColor: error ? COLORS.statusPending : COLORS.borderInput, cursor: onClick ? 'pointer' : 'auto' }}
             onClick={onClick}
         >
             {prefix && (
@@ -36,11 +36,14 @@ const InputField = ({ label, placeholder, value, onChange, type = 'text', prefix
                 style={{ color: value ? COLORS.textPrimary : COLORS.textSecondary, cursor: onClick ? 'pointer' : 'text' }}
             />
         </div>
+        {error && (
+            <p className="text-xs mt-1" style={{ color: COLORS.statusPending }}>{error}</p>
+        )}
     </div>
 );
 
 // Reusable Select Field - Custom Dropdown
-const SelectField = ({ label, placeholder, value, onChange, options = [] }) => {
+const SelectField = ({ label, placeholder, value, onChange, options = [], error }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = React.useRef(null);
 
@@ -63,7 +66,7 @@ const SelectField = ({ label, placeholder, value, onChange, options = [] }) => {
             <div style={{ position: 'relative' }} ref={dropdownRef}>
                 <div
                     className="flex items-center gap-2 px-4 py-2 rounded-md border cursor-pointer"
-                    style={{ background: COLORS.bgInput, borderColor: COLORS.borderInput }}
+                    style={{ background: COLORS.bgInput, borderColor: error ? COLORS.statusPending : COLORS.borderInput }}
                     onClick={() => setIsOpen(!isOpen)}
                 >
                     <span className="flex-1 text-sm" style={{ color: value ? COLORS.textPrimary : COLORS.textSecondary }}>
@@ -71,6 +74,10 @@ const SelectField = ({ label, placeholder, value, onChange, options = [] }) => {
                     </span>
                     <DownOutlined style={{ color: COLORS.textSecondary, fontSize: 12, transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
                 </div>
+
+                {error && !isOpen && (
+                    <p className="text-xs mt-1" style={{ color: COLORS.statusPending }}>{error}</p>
+                )}
 
                 {isOpen && (
                     <ul
@@ -124,6 +131,34 @@ const SelectField = ({ label, placeholder, value, onChange, options = [] }) => {
     );
 };
 
+const STORAGE_KEY = 'ownerVehicleDetails';
+
+const INITIAL_FORM = {
+    ownerName: '',
+    mobile: '',
+    email: '',
+    odometer: '',
+    registrationNumber: '',
+    state: '',
+    registrationDate: '',
+    product: '',
+    make: '',
+    model: '',
+    variant: '',
+    manufacturingYear: '',
+};
+
+const readPersistedForm = () => {
+    if (typeof window === 'undefined') return INITIAL_FORM;
+    try {
+        const raw = window.sessionStorage.getItem(STORAGE_KEY);
+        if (!raw) return INITIAL_FORM;
+        return { ...INITIAL_FORM, ...JSON.parse(raw) };
+    } catch {
+        return INITIAL_FORM;
+    }
+};
+
 const OwnerVehicleDetailsPage = () => {
     usePageLoading();
     const navigate = useNavigate();
@@ -131,22 +166,13 @@ const OwnerVehicleDetailsPage = () => {
     const dateInputRef = useRef(null);
     const monthYearInputRef = useRef(null);
 
-    const [form, setForm] = useState({
-        ownerName: '',
-        mobile: '',
-        email: '',
-        odometer: '',
-        registrationNumber: '',
-        state: '',
-        registrationDate: '',
-        product: '',
-        make: '',
-        model: '',
-        variant: '',
-        manufacturingYear: '',
-    });
+    const [form, setForm] = useState(readPersistedForm);
+    const [errors, setErrors] = useState({});
 
-    const set = (key) => (val) => setForm((p) => ({ ...p, [key]: val }));
+    const set = (key) => (val) => {
+        setForm((p) => ({ ...p, [key]: val }));
+        if (errors[key]) setErrors((p) => ({ ...p, [key]: undefined }));
+    };
 
     // All Indian States and Union Territories
     const indianStates = [
@@ -180,11 +206,38 @@ const OwnerVehicleDetailsPage = () => {
         }
     };
 
+    const validate = () => {
+        const next = {};
+        if (!form.ownerName.trim()) next.ownerName = 'Owner name is required';
+        if (!/^\d{10}$/.test(form.mobile.trim())) next.mobile = 'Enter a valid 10-digit mobile';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) next.email = 'Enter a valid email';
+        if (!form.odometer.trim()) next.odometer = 'Odometer reading is required';
+        if (!form.registrationNumber.trim()) next.registrationNumber = 'Registration number is required';
+        if (!form.state) next.state = 'Select a state';
+        if (!form.registrationDate) next.registrationDate = 'Select registration date';
+        if (!form.product) next.product = 'Select a product';
+        if (!form.make) next.make = 'Select a make';
+        if (!form.model) next.model = 'Select a model';
+        if (!form.variant) next.variant = 'Select a variant';
+        if (!form.manufacturingYear) next.manufacturingYear = 'Select manufacturing year';
+        setErrors(next);
+        return Object.keys(next).length === 0;
+    };
+
     const handleNext = () => {
+        if (!validate()) return;
+
+        try {
+            window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(form));
+        } catch {
+            /* ignore quota / disabled-storage errors */
+        }
+
         // Persist the chosen product so the camera flow downstream
         // (PhotoCaptureSelectionPage / CameraCapturePage) can pick the
         // matching silhouette + angle guides (car / bike / truck).
         dispatch(setProduct(form.product || null));
+        console.log('Owner & Vehicle Details submitted:', form);
         navigate(ROUTES.DOCUMENT_UPLOAD);
     };
 
@@ -203,6 +256,7 @@ const OwnerVehicleDetailsPage = () => {
                     placeholder="Enter owner name"
                     value={form.ownerName}
                     onChange={set('ownerName')}
+                    error={errors.ownerName}
                 />
 
                 <InputField
@@ -212,6 +266,7 @@ const OwnerVehicleDetailsPage = () => {
                     onChange={set('mobile')}
                     type="tel"
                     prefix="+91"
+                    error={errors.mobile}
                 />
 
                 <InputField
@@ -220,6 +275,7 @@ const OwnerVehicleDetailsPage = () => {
                     value={form.email}
                     onChange={set('email')}
                     type="email"
+                    error={errors.email}
                 />
 
                 <InputField
@@ -228,6 +284,7 @@ const OwnerVehicleDetailsPage = () => {
                     value={form.odometer}
                     onChange={set('odometer')}
                     type="number"
+                    error={errors.odometer}
                 />
 
                 <InputField
@@ -235,6 +292,7 @@ const OwnerVehicleDetailsPage = () => {
                     placeholder="Enter registration number"
                     value={form.registrationNumber}
                     onChange={set('registrationNumber')}
+                    error={errors.registrationNumber}
                 />
 
                 <SelectField
@@ -243,6 +301,7 @@ const OwnerVehicleDetailsPage = () => {
                     value={form.state}
                     onChange={set('state')}
                     options={indianStates}
+                    error={errors.state}
                 />
 
                 <div className="mb-4">
@@ -251,7 +310,7 @@ const OwnerVehicleDetailsPage = () => {
                     </label>
                     <div
                         className="flex items-center gap-2 px-4 py-2 rounded-md border cursor-pointer"
-                        style={{ background: COLORS.bgInput, borderColor: COLORS.borderInput }}
+                        style={{ background: COLORS.bgInput, borderColor: errors.registrationDate ? COLORS.statusPending : COLORS.borderInput }}
                         onClick={() => dateInputRef.current?.showPicker()}
                     >
                         <input
@@ -271,6 +330,9 @@ const OwnerVehicleDetailsPage = () => {
                             Selected: {form.registrationDate}
                         </p>
                     )}
+                    {errors.registrationDate && !form.registrationDate && (
+                        <p className="text-xs mt-1" style={{ color: COLORS.statusPending }}>{errors.registrationDate}</p>
+                    )}
                 </div>
 
                 <SelectField
@@ -279,6 +341,7 @@ const OwnerVehicleDetailsPage = () => {
                     value={form.product}
                     onChange={set('product')}
                     options={['Private Car', 'Two Wheeler', 'Commercial Vehicle', 'Taxi']}
+                    error={errors.product}
                 />
 
                 <SelectField
@@ -287,6 +350,7 @@ const OwnerVehicleDetailsPage = () => {
                     value={form.make}
                     onChange={set('make')}
                     options={['Mahindra', 'Maruti Suzuki', 'Hyundai', 'Tata', 'Honda', 'Toyota', 'Ford', 'Kia', 'Volkswagen', 'Skoda', 'Renault', 'Nissan', 'MG', 'Jeep']}
+                    error={errors.make}
                 />
 
                 <SelectField
@@ -295,6 +359,7 @@ const OwnerVehicleDetailsPage = () => {
                     value={form.model}
                     onChange={set('model')}
                     options={['Scorpio-N', 'XUV 700', 'Thar', 'Bolero', 'XUV 300']}
+                    error={errors.model}
                 />
 
                 <SelectField
@@ -303,6 +368,7 @@ const OwnerVehicleDetailsPage = () => {
                     value={form.variant}
                     onChange={set('variant')}
                     options={['Z2', 'Z4', 'Z6', 'Z8', 'Z8L']}
+                    error={errors.variant}
                 />
 
                 <div className="mb-4">
@@ -311,7 +377,7 @@ const OwnerVehicleDetailsPage = () => {
                     </label>
                     <div
                         className="flex items-center gap-2 px-4 py-2 rounded-md border cursor-pointer"
-                        style={{ background: COLORS.bgInput, borderColor: COLORS.borderInput }}
+                        style={{ background: COLORS.bgInput, borderColor: errors.manufacturingYear ? COLORS.statusPending : COLORS.borderInput }}
                         onClick={() => monthYearInputRef.current?.showPicker()}
                     >
                         <input
@@ -331,9 +397,12 @@ const OwnerVehicleDetailsPage = () => {
                             Selected: {form.manufacturingYear}
                         </p>
                     )}
+                    {errors.manufacturingYear && !form.manufacturingYear && (
+                        <p className="text-xs mt-1" style={{ color: COLORS.statusPending }}>{errors.manufacturingYear}</p>
+                    )}
                 </div>
 
-                <BottomButton label="Next" onClick={handleNext} />
+                <BottomButton label="Submit" onClick={handleNext} />
             </div>
         </div>
     );

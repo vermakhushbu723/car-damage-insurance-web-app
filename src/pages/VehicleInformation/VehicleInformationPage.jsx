@@ -1,5 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+    FaCamera,
+    FaCar,
+    FaBullseye,
+    FaPalette,
+    FaBox,
+    FaWrench,
+    FaIdCard,
+    FaMapMarkedAlt,
+    FaCalendarAlt,
+    FaUser,
+    FaMobileAlt,
+    FaEnvelope,
+    FaFileAlt,
+    FaBuilding,
+    FaEdit,
+    FaCheck,
+    FaStopwatch,
+} from 'react-icons/fa';
 import AppHeader from '../../components/common/AppHeader';
 import SignaturePad from '../../components/common/SignaturePad';
 import { COLORS } from '../../constants/theme';
@@ -338,7 +357,7 @@ const VehicleInformationPage = () => {
                                             fontSize: 20,
                                         }}
                                     >
-                                        📷
+                                        <FaCamera />
                                     </div>
                                 )}
                             </div>
@@ -359,15 +378,15 @@ const VehicleInformationPage = () => {
                     <p style={{ fontSize: 13, fontWeight: 600, color: COLORS.textSecondary, marginBottom: 12 }}>
                         Vehicle Details
                     </p>
-                    <InformationRow icon="🚗" label="Make" value={formData.make} />
-                    <InformationRow icon="🎯" label="Model" value={formData.model} />
-                    <InformationRow icon="🎨" label="Variant" value={formData.Variant} />
-                    <InformationRow icon="📦" label="Body Type" value={formData.bodyType} />
-                    <InformationRow icon="🔧" label="Mfg Year" value={formData.MfgYear} />
-                    <InformationRow icon="📋" label="Registration Number" value={formData.registrationNumber} />
-                    <InformationRow icon="⏱️" label="Odometer" value={formData.odometer} />
-                    <InformationRow icon="🗺️" label="State" value={formData.State} />
-                    <InformationRow icon="📅" label="Registration Date" value={formData.registrationDate} />
+                    <InformationRow icon={<FaCar />} label="Make" value={formData.make} />
+                    <InformationRow icon={<FaBullseye />} label="Model" value={formData.model} />
+                    <InformationRow icon={<FaPalette />} label="Variant" value={formData.Variant} />
+                    <InformationRow icon={<FaBox />} label="Body Type" value={formData.bodyType} />
+                    <InformationRow icon={<FaWrench />} label="Mfg Year" value={formData.MfgYear} />
+                    <InformationRow icon={<FaIdCard />} label="Registration Number" value={formData.registrationNumber} />
+                    <InformationRow icon={<FaStopwatch />} label="Odometer" value={formData.odometer} />
+                    <InformationRow icon={<FaMapMarkedAlt />} label="State" value={formData.State} />
+                    <InformationRow icon={<FaCalendarAlt />} label="Registration Date" value={formData.registrationDate} />
                 </div>
 
                 {/* Insured Details Section */}
@@ -383,11 +402,11 @@ const VehicleInformationPage = () => {
                     <p style={{ fontSize: 13, fontWeight: 600, color: COLORS.textSecondary, marginBottom: 12 }}>
                         Insured Details
                     </p>
-                    <InformationRow icon="👤" label="Insured Name" value={formData.insuredName} />
-                    <InformationRow icon="📱" label="Mobile Number" value={formData.mobileNumber} />
-                    <InformationRow icon="📧" label="Email Address" value={formData.emailAddress} />
-                    <InformationRow icon="📄" label="PI Ref.Number" value={formData.piRefNumber} />
-                    <InformationRow icon="🏢" label="Insurance Co" value={formData.insuranceCompany} />
+                    <InformationRow icon={<FaUser />} label="Insured Name" value={formData.insuredName} />
+                    <InformationRow icon={<FaMobileAlt />} label="Mobile Number" value={formData.mobileNumber} />
+                    <InformationRow icon={<FaEnvelope />} label="Email Address" value={formData.emailAddress} />
+                    <InformationRow icon={<FaFileAlt />} label="PI Ref.Number" value={formData.piRefNumber} />
+                    <InformationRow icon={<FaBuilding />} label="Insurance Co" value={formData.insuranceCompany} />
                 </div>
 
                 <SignatureSection
@@ -397,7 +416,7 @@ const VehicleInformationPage = () => {
                     value={formData.customerSignature}
                     placeholder="Please sign in the box below"
                     declarationLabel="Customer Declaration"
-                    icon={{ symbol: '👤', background: '#DBEAFE', color: '#1D4ED8' }}
+                    icon={{ symbol: <FaUser />, background: '#DBEAFE', color: '#1D4ED8' }}
                 />
 
                 <SignatureSection
@@ -407,7 +426,7 @@ const VehicleInformationPage = () => {
                     value={formData.inspectionAgentSignature}
                     placeholder="Please sign in the box below"
                     declarationLabel="Inspector Declaration"
-                    icon={{ symbol: '📝', background: '#FEF3C7', color: '#B45309' }}
+                    icon={{ symbol: <FaEdit />, background: '#FEF3C7', color: '#B45309' }}
                 />
 
                 <div
@@ -443,11 +462,11 @@ const VehicleInformationPage = () => {
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         color: '#fff',
-                                        fontSize: 18,
+                                        fontSize: 14,
                                         fontWeight: 700,
                                     }}
                                 >
-                                    ✓
+                                    <FaCheck />
                                 </div>
                             </div>
                             <div>

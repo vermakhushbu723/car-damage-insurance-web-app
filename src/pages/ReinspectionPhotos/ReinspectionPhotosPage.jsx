@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaCheckCircle, FaFileAlt } from 'react-icons/fa';
 import AppHeader from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
 import { usePageLoading } from '../../hooks/usePageLoading';
@@ -205,7 +206,7 @@ const ReinspectionPhotosPage = () => {
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ color: '#22C55E', fontSize: 20 }}>✅</span>
+                            <FaCheckCircle style={{ color: '#22C55E', fontSize: 18 }} />
                             <span style={{ fontWeight: 600, fontSize: 14, color: COLORS.textPrimary }}>
                                 Under repair/Reinspection photo
                             </span>
@@ -308,8 +309,8 @@ const ReinspectionPhotosPage = () => {
 
                     {/* File preview */}
                     {billFile && typeof billFile === 'string' && !billFile.startsWith('data:') && (
-                        <div style={{ marginBottom: 10, padding: '8px 12px', background: '#fff', borderRadius: 8, fontSize: 13, color: COLORS.textSecondary }}>
-                            📄 {billFile}
+                        <div style={{ marginBottom: 10, padding: '8px 12px', background: '#fff', borderRadius: 8, fontSize: 13, color: COLORS.textSecondary, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <FaFileAlt /> {billFile}
                         </div>
                     )}
                     {billFile && typeof billFile === 'string' && billFile.startsWith('data:image') && (

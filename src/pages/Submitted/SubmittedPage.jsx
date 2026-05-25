@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaCheck } from 'react-icons/fa';
 import { COLORS } from '../../constants/theme';
 import { usePageLoading } from '../../hooks/usePageLoading';
 
@@ -40,7 +41,7 @@ const SubmittedPage = () => {
                         boxShadow: '0 4px 16px rgba(34,197,94,0.35)',
                     }}
                 >
-                    <span style={{ color: '#fff', fontSize: 36, lineHeight: 1 }}>✓</span>
+                    <FaCheck style={{ color: '#fff', fontSize: 32, lineHeight: 1 }} />
                 </div>
 
                 {/* Title */}

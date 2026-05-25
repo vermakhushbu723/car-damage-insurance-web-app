@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { FaMobileAlt, FaSyncAlt, FaCamera, FaMapMarkerAlt, FaClock } from 'react-icons/fa';
 import AppHeader from '../../components/common/AppHeader';
 import PageTitleBar from '../../components/common/PageTitleBar';
 import { COLORS } from '../../constants/theme';
@@ -11,7 +12,10 @@ import { getAngleImage } from '../../constants/vehicleAssets';
 import { unlockOrientation } from '../../utils/orientation';
 
 // Helper function to create a precise mask that fits the outline of the vehicle frame.
-// Uses a flood-fill algorithm from the edges to find the "outside" of the frame.
+// Uses a flood-fill algorithm from the edges to find the "outside" of the frame,
+// then erodes the "outside" region so the cleared zone extends a few pixels past
+// the outline. Without this padding, sub-pixel rounding clips the red border of
+// the silhouette when the mask is rescaled to the rendered DOM size.
 const createMaskFromOutline = (imageUrl) => {
     return new Promise((resolve) => {
         const img = new Image();
@@ -26,51 +30,82 @@ const createMaskFromOutline = (imageUrl) => {
             const data = imageData.data;
             const width = canvas.width;
             const height = canvas.height;
-            
+
+            // Lower threshold catches even faint anti-aliased outline pixels —
+            // the flood-fill stops at the outer edge of the anti-alias halo
+            // instead of walking into it.
+            const OUTLINE_ALPHA_THRESHOLD = 4;
+            // Pull the "outside" boundary back just 1 pixel from the outline —
+            // enough breathing room that the red border is never clipped by
+            // sub-pixel rounding, but tight enough that no visible gap appears
+            // between the outline and where the blur begins.
+            const DILATION_PASSES = 1;
+
             const visited = new Uint8Array(width * height);
             let stackPtr = 0;
             const stackX = new Int32Array(width * height);
             const stackY = new Int32Array(width * height);
-            
+
             const push = (x, y) => {
                 if (x < 0 || x >= width || y < 0 || y >= height) return;
                 const idx = y * width + x;
                 if (visited[idx]) return;
-                // Outline is red, transparent background. Stop at anything non-transparent.
-                if (data[idx * 4 + 3] > 20) return;
+                if (data[idx * 4 + 3] > OUTLINE_ALPHA_THRESHOLD) return;
                 visited[idx] = 1;
                 stackX[stackPtr] = x;
                 stackY[stackPtr] = y;
                 stackPtr++;
             };
-            
-            for(let x=0; x<width; x++) { push(x, 0); push(x, height-1); }
-            for(let y=0; y<height; y++) { push(0, y); push(width-1, y); }
-            
-            while(stackPtr > 0) {
+
+            for (let x = 0; x < width; x++) { push(x, 0); push(x, height - 1); }
+            for (let y = 0; y < height; y++) { push(0, y); push(width - 1, y); }
+
+            while (stackPtr > 0) {
                 stackPtr--;
                 const x = stackX[stackPtr];
                 const y = stackY[stackPtr];
-                push(x+1, y);
-                push(x-1, y);
-                push(x, y+1);
-                push(x, y-1);
+                push(x + 1, y);
+                push(x - 1, y);
+                push(x, y + 1);
+                push(x, y - 1);
             }
-            
+
+            // Erode the "outside" region: any visited pixel adjacent to a
+            // non-visited pixel becomes non-visited. Repeating this N times
+            // pulls the boundary back N pixels, growing the clear zone so
+            // the silhouette outline sits safely inside it.
+            let current = visited;
+            for (let pass = 0; pass < DILATION_PASSES; pass++) {
+                const next = new Uint8Array(current);
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        const idx = y * width + x;
+                        if (!current[idx]) continue;
+                        const up = y > 0 ? current[idx - width] : 0;
+                        const down = y < height - 1 ? current[idx + width] : 0;
+                        const left = x > 0 ? current[idx - 1] : 0;
+                        const right = x < width - 1 ? current[idx + 1] : 0;
+                        if (!up || !down || !left || !right) next[idx] = 0;
+                    }
+                }
+                current = next;
+            }
+
             const maskData = ctx.createImageData(width, height);
-            for(let i = 0; i < width * height; i++) {
-                if (visited[i]) {
-                    maskData.data[i*4] = 0;
-                    maskData.data[i*4+1] = 0;
-                    maskData.data[i*4+2] = 0;
-                    maskData.data[i*4+3] = 255;
+            for (let i = 0; i < width * height; i++) {
+                if (current[i]) {
+                    maskData.data[i * 4] = 0;
+                    maskData.data[i * 4 + 1] = 0;
+                    maskData.data[i * 4 + 2] = 0;
+                    maskData.data[i * 4 + 3] = 255;
                 } else {
-                    maskData.data[i*4] = 0;
-                    maskData.data[i*4+1] = 0;
-                    maskData.data[i*4+2] = 0;
-                    maskData.data[i*4+3] = 0;
+                    maskData.data[i * 4] = 0;
+                    maskData.data[i * 4 + 1] = 0;
+                    maskData.data[i * 4 + 2] = 0;
+                    maskData.data[i * 4 + 3] = 0;
                 }
             }
+
             ctx.putImageData(maskData, 0, 0);
             resolve(canvas.toDataURL('image/png'));
         };
@@ -206,7 +241,7 @@ const CameraCapturePage = () => {
 
     const getErrorMessage = (err) => {
         if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')
-            return 'Camera permission denied. Tap the 🔒 lock icon → set Camera to Allow → Try Again.';
+            return 'Camera permission denied. Tap the lock icon → set Camera to Allow → Try Again.';
         if (err.name === 'NotFoundError') return 'No camera found on this device.';
         if (err.name === 'NotReadableError') return 'Camera busy. Close other camera apps and try again.';
         if (err.name === 'NotSupportedError') return 'Camera not supported. Try Chrome or Samsung Internet.';
@@ -375,12 +410,12 @@ const CameraCapturePage = () => {
         return (
             <div className="w-screen h-screen flex items-center justify-center" style={{ background: '#3B82F6' }}>
                 <div className="flex flex-col items-center justify-center text-center px-6">
-                    <div className="text-6xl mb-6">📱</div>
+                    <FaMobileAlt className="text-white mb-6" style={{ fontSize: 64 }} />
                     <h2 className="text-2xl font-bold text-white mb-4">Rotate Device</h2>
                     <p className="text-white text-lg mb-8">
                         Please rotate your device to landscape mode to capture vehicle photos
                     </p>
-                    <div className="text-5xl animate-spin">↻</div>
+                    <FaSyncAlt className="text-white animate-spin" style={{ fontSize: 48 }} />
                 </div>
             </div>
         );
@@ -419,7 +454,7 @@ const CameraCapturePage = () => {
             {/* ── Loading ── */}
             {!isCameraReady && !capturedImage && !error && (
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-                    <div style={{ fontSize: 40, marginBottom: 12 }}>📷</div>
+                    <FaCamera style={{ fontSize: 40, marginBottom: 12 }} />
                     <p style={{ fontSize: 16 }}>Opening camera...</p>
                 </div>
             )}
@@ -428,7 +463,7 @@ const CameraCapturePage = () => {
             {error && (
                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.88)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 20, padding: 16 }}>
                     <div style={{ background: '#fff', borderRadius: 16, padding: 24, textAlign: 'center', maxWidth: 360, width: '100%' }}>
-                        <div style={{ fontSize: 48, marginBottom: 8 }}>📷</div>
+                        <FaCamera style={{ fontSize: 48, marginBottom: 8, color: '#dc2626' }} />
                         <p style={{ color: '#dc2626', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Camera Access Required</p>
                         <p style={{ color: '#374151', fontSize: 13, marginBottom: 16, lineHeight: 1.6 }}>{error}</p>
                         <button onClick={handleRetryCamera}
@@ -519,11 +554,11 @@ const CameraCapturePage = () => {
                         zIndex: 10, display: 'flex', flexDirection: 'column', gap: 4,
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ef4444', fontWeight: 700, fontSize: 16 }}>
-                            <span style={{ fontSize: 14 }}>📍</span>
+                            <FaMapMarkerAlt style={{ fontSize: 14 }} />
                             <span style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>Location: {location}</span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ef4444', fontWeight: 700, fontSize: 16 }}>
-                            <span style={{ fontSize: 14 }}>🕐</span>
+                            <FaClock style={{ fontSize: 14 }} />
                             <span style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>Date: {dateTime}</span>
                         </div>
                     </div>

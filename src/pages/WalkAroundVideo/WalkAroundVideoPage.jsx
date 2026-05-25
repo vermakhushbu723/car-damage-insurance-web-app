@@ -1,5 +1,17 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+    FaVideo,
+    FaCamera,
+    FaPlay,
+    FaPause,
+    FaRedo,
+    FaVolumeMute,
+    FaVolumeUp,
+    FaExpand,
+    FaStop,
+    FaTimes,
+} from 'react-icons/fa';
 import { COLORS } from '../../constants/theme';
 import rightLogo from '../../assets/rightlogo.svg';
 import { usePageLoading } from '../../hooks/usePageLoading';
@@ -84,6 +96,7 @@ const WalkAroundVideoPage = () => {
     usePageLoading();
     const navigate = useNavigate();
     const videoRef = useRef(null);
+    const playbackRef = useRef(null);
     const streamRef = useRef(null);
     const recorderRef = useRef(null);
     const chunksRef = useRef([]);
@@ -98,6 +111,13 @@ const WalkAroundVideoPage = () => {
     const [dateTime, setDateTime] = useState('');
     const [geoTag, setGeoTag] = useState('Location: Not available');
     const [isRecording, setIsRecording] = useState(false);
+
+    // ── Custom playback controls state ─────────────────────────────────────
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [isMuted, setIsMuted] = useState(false);
+    const [volume, setVolume] = useState(1);
 
     // ── Live clock for the bottom-right timestamp ──────────────────────────
     useEffect(() => {
@@ -331,10 +351,47 @@ const WalkAroundVideoPage = () => {
             {/* ── Recorded playback ──────────────────────────────────────── */}
             {isFinished && (
                 <video
+                    ref={playbackRef}
                     src={recordedUrl}
-                    controls
                     autoPlay
-                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', background: '#000' }}
+                    playsInline
+                    onPlay={() => setIsPlaying(true)}
+                    onPause={() => setIsPlaying(false)}
+                    onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                    onLoadedMetadata={(e) => {
+                        const v = e.currentTarget;
+                        setVolume(v.volume);
+                        setIsMuted(v.muted);
+                        // MediaRecorder's webm blobs don't embed duration in the
+                        // header, so HTMLMediaElement reports Infinity. Force the
+                        // browser to scan the file by seeking past the end.
+                        if (!Number.isFinite(v.duration)) {
+                            const onSeeked = () => {
+                                setDuration(v.duration || 0);
+                                v.currentTime = 0;
+                                v.removeEventListener('seeked', onSeeked);
+                            };
+                            v.addEventListener('seeked', onSeeked);
+                            try { v.currentTime = 1e10; } catch { /* ignore */ }
+                        } else {
+                            setDuration(v.duration || 0);
+                        }
+                    }}
+                    onDurationChange={(e) => {
+                        const d = e.currentTarget.duration;
+                        if (Number.isFinite(d)) setDuration(d);
+                    }}
+                    onVolumeChange={(e) => {
+                        setVolume(e.currentTarget.volume);
+                        setIsMuted(e.currentTarget.muted);
+                    }}
+                    onEnded={() => setIsPlaying(false)}
+                    onClick={() => {
+                        const v = playbackRef.current;
+                        if (!v) return;
+                        if (v.paused) v.play(); else v.pause();
+                    }}
+                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', background: '#000', cursor: 'pointer' }}
                 />
             )}
 
@@ -345,7 +402,7 @@ const WalkAroundVideoPage = () => {
                     display: 'flex', flexDirection: 'column',
                     alignItems: 'center', justifyContent: 'center', color: '#fff',
                 }}>
-                    <div style={{ fontSize: 40, marginBottom: 12 }}>🎬</div>
+                    <FaVideo style={{ fontSize: 40, marginBottom: 12 }} />
                     <p style={{ fontSize: 16 }}>Opening camera...</p>
                 </div>
             )}
@@ -359,7 +416,7 @@ const WalkAroundVideoPage = () => {
                     padding: 16, zIndex: 30,
                 }}>
                     <div style={{ background: '#fff', borderRadius: 16, padding: 24, textAlign: 'center', maxWidth: 360, width: '100%' }}>
-                        <div style={{ fontSize: 48, marginBottom: 8 }}>📷</div>
+                        <FaCamera style={{ fontSize: 48, marginBottom: 8, color: '#dc2626' }} />
                         <p style={{ color: '#dc2626', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Camera Access Required</p>
                         <p style={{ color: '#374151', fontSize: 13, marginBottom: 16, lineHeight: 1.6 }}>{cameraError}</p>
                         <button
@@ -396,7 +453,7 @@ const WalkAroundVideoPage = () => {
                         <div style={{
                             background: '#EF4444', color: '#fff',
                             padding: '6px 14px', borderRadius: 10,
-                            fontWeight: 700, fontSize: 16,
+                            fontWeight: 700, fontSize: 14,
                             display: 'flex', alignItems: 'center', gap: 6,
                             boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
                         }}>
@@ -411,7 +468,7 @@ const WalkAroundVideoPage = () => {
                         <div style={{
                             background: 'rgba(60,60,60,0.85)', color: '#fff',
                             padding: '6px 14px', borderRadius: 10,
-                            fontWeight: 700, fontSize: 16,
+                            fontWeight: 700, fontSize: 14,
                             fontVariantNumeric: 'tabular-nums',
                             boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
                         }}>
@@ -425,12 +482,12 @@ const WalkAroundVideoPage = () => {
                         textAlign: 'right', color: '#fff',
                         textShadow: '0 1px 6px rgba(0,0,0,0.7)',
                     }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, opacity: 0.9, letterSpacing: 0.5 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.9, letterSpacing: 0.5 }}>
                             {stepLabel}
                         </div>
                         <div style={{
                             marginTop: 6,
-                            fontSize: 20, fontWeight: 800,
+                            fontSize: 16, fontWeight: 800,
                             padding: '4px 10px',
                             border: '1.5px solid rgba(255,255,255,0.85)',
                             borderRadius: 6,
@@ -453,23 +510,23 @@ const WalkAroundVideoPage = () => {
                             fontSize: 14, display: 'none', // hidden; back is on the bottom bar instead
                         }}
                     >
-                        ✕
+                        <FaTimes />
                     </button>
 
                     {/* ── Bottom bar: instruction text + timestamp/geo ── */}
                     <div style={{
                         position: 'absolute', left: 0, right: 0, bottom: 0,
                         background: '#000',
-                        padding: '16px 20px',
+                        padding: '8px 14px',
                         display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',
-                        gap: 16, zIndex: 10,
+                        gap: 12, zIndex: 10,
                     }}>
-                        <div style={{ color: '#fff', fontSize: 18, fontWeight: 700, lineHeight: 1.35, maxWidth: '70%' }}>
+                        <div style={{ color: '#fff', fontSize: 14, fontWeight: 600, lineHeight: 1.3, maxWidth: '70%' }}>
                             {current.desc}
                         </div>
                         <div style={{ color: '#fff', textAlign: 'right', flexShrink: 0 }}>
-                            <div style={{ fontSize: 14, fontWeight: 500, opacity: 0.95 }}>Date: {dateTime}</div>
-                            <div style={{ fontSize: 14, fontWeight: 700, marginTop: 6 }}>{geoTag}</div>
+                            <div style={{ fontSize: 10, fontWeight: 500, opacity: 0.95 }}>Date: {dateTime}</div>
+                            <div style={{ fontSize: 10, fontWeight: 700, marginTop: 2 }}>{geoTag}</div>
                         </div>
                     </div>
 
@@ -482,8 +539,8 @@ const WalkAroundVideoPage = () => {
                                 left: '50%',
                                 transform: 'translateX(-50%)',
                                 zIndex: 12,
-                                width: 70,
-                                height: 70,
+                                width: 60,
+                                height: 60,
                                 borderRadius: '50%',
                                 background: '#fff',
                                 border: '5px solid #EF4444',
@@ -496,19 +553,141 @@ const WalkAroundVideoPage = () => {
                     {/* ── Finish Now (small floating button) ── */}
                     <button
                         onClick={handleFinishNow}
+                        disabled={!isRecording}
                         style={{
+                            display: isRecording ? 'flex' : 'none',
+                            justifyContent: 'center', alignItems: 'center',
                             position: 'absolute', bottom: 90, right: 20, zIndex: 12,
-                            background: '#EF4444', color: '#fff',
+                            background: isRecording ? '#EF4444' : '#9CA3AF',
+                            color: '#fff',
                             border: 'none', borderRadius: 999,
-                            padding: '10px 18px',
+                            padding: '8px 10px',
                             fontWeight: 700, fontSize: 14,
-                            cursor: 'pointer',
+                            cursor: isRecording ? 'pointer' : 'not-allowed',
+                            opacity: isRecording ? 1 : 0.6,
                             boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
                         }}
                     >
-                        ■ Stop & Finish
+                        <FaStop style={{ verticalAlign: 'middle', marginRight: 6 }} /> Stop & Finish
                     </button>
                 </>
+            )}
+
+            {/* ── Custom video controls (replaces native white bar) ──────── */}
+            {isFinished && (
+                <div style={{
+                    position: 'absolute', left: 16, right: 16, bottom: 96,
+                    background: 'rgba(0,0,0,0.65)', borderRadius: 12,
+                    padding: '10px 14px', zIndex: 11,
+                    display: 'flex', flexDirection: 'column', gap: 8,
+                }}>
+                    {/* Seek bar */}
+                    <input
+                        type="range"
+                        min={0}
+                        max={duration || 0}
+                        step={0.01}
+                        value={Math.min(currentTime, duration || 0)}
+                        onChange={(e) => {
+                            const v = playbackRef.current;
+                            if (!v) return;
+                            const t = Number(e.target.value);
+                            v.currentTime = t;
+                            setCurrentTime(t);
+                        }}
+                        style={{ width: '100%', accentColor: COLORS.btnPrimary, cursor: 'pointer' }}
+                    />
+
+                    {/* Buttons row */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: '#fff' }}>
+                        <button
+                            onClick={() => {
+                                const v = playbackRef.current;
+                                if (!v) return;
+                                if (v.paused) v.play(); else v.pause();
+                            }}
+                            style={{
+                                background: 'transparent', border: 'none', color: '#fff',
+                                fontSize: 22, cursor: 'pointer', lineHeight: 1, padding: '2px 4px',
+                            }}
+                            title={isPlaying ? 'Pause' : 'Play'}
+                        >
+                            {isPlaying ? <FaPause /> : <FaPlay />}
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                const v = playbackRef.current;
+                                if (!v) return;
+                                v.currentTime = 0;
+                                v.play();
+                            }}
+                            style={{
+                                background: 'transparent', border: 'none', color: '#fff',
+                                fontSize: 18, cursor: 'pointer', lineHeight: 1, padding: '2px 4px',
+                            }}
+                            title="Restart"
+                        >
+                            <FaRedo />
+                        </button>
+
+                        <span style={{ fontSize: 12, fontVariantNumeric: 'tabular-nums', minWidth: 80 }}>
+                            {formatClock(Math.floor(currentTime))} / {Number.isFinite(duration) && duration > 0 ? formatClock(Math.floor(duration)) : '--:--'}
+                        </span>
+
+                        <div style={{ flex: 1 }} />
+
+                        <button
+                            onClick={() => {
+                                const v = playbackRef.current;
+                                if (!v) return;
+                                v.muted = !v.muted;
+                                setIsMuted(v.muted);
+                            }}
+                            style={{
+                                background: 'transparent', border: 'none', color: '#fff',
+                                fontSize: 18, cursor: 'pointer', lineHeight: 1, padding: '2px 4px',
+                            }}
+                            title={isMuted ? 'Unmute' : 'Mute'}
+                        >
+                            {isMuted || volume === 0 ? <FaVolumeMute /> : <FaVolumeUp />}
+                        </button>
+
+                        <input
+                            type="range"
+                            min={0}
+                            max={1}
+                            step={0.05}
+                            value={isMuted ? 0 : volume}
+                            onChange={(e) => {
+                                const v = playbackRef.current;
+                                if (!v) return;
+                                const val = Number(e.target.value);
+                                v.volume = val;
+                                v.muted = val === 0;
+                                setVolume(val);
+                                setIsMuted(val === 0);
+                            }}
+                            style={{ width: 80, accentColor: COLORS.btnPrimary, cursor: 'pointer' }}
+                        />
+
+                        <button
+                            onClick={() => {
+                                const v = playbackRef.current;
+                                if (!v) return;
+                                if (document.fullscreenElement) document.exitFullscreen?.();
+                                else v.requestFullscreen?.();
+                            }}
+                            style={{
+                                background: 'transparent', border: 'none', color: '#fff',
+                                fontSize: 16, cursor: 'pointer', lineHeight: 1, padding: '2px 4px',
+                            }}
+                            title="Fullscreen"
+                        >
+                            <FaExpand />
+                        </button>
+                    </div>
+                </div>
             )}
 
             {/* ── Post-recording controls ────────────────────────────────── */}

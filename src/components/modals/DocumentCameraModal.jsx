@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { FaTimes, FaCheck, FaCamera, FaArrowLeft } from 'react-icons/fa';
 import { COLORS } from '../../constants/theme';
 import cameraIcon from '../../assets/icons/camera.svg';
 
@@ -344,7 +345,7 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
                                 className="w-7 h-7 rounded-full border flex items-center justify-center"
                                 style={{ borderColor: COLORS.borderLight, }}
                             >
-                                <span style={{ color: COLORS.textPrimary, fontSize: 14 }}>✕</span>
+                                <FaTimes style={{ color: COLORS.textPrimary, fontSize: 14 }} />
                             </button>
                         </div>
 
@@ -444,7 +445,7 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
                                 display: 'flex', flexDirection: 'column',
                                 alignItems: 'center', justifyContent: 'center', color: '#fff'
                             }}>
-                                <div style={{ fontSize: 40, marginBottom: 12 }}>📷</div>
+                                <FaCamera style={{ fontSize: 40, marginBottom: 12 }} />
                                 <p style={{ fontSize: 16 }}>Opening camera...</p>
                             </div>
                         )}
@@ -458,7 +459,7 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
                                 padding: 16, zIndex: 20,
                             }}>
                                 <div style={{ background: '#fff', borderRadius: 16, padding: 24, textAlign: 'center', maxWidth: 360, width: '100%' }}>
-                                    <div style={{ fontSize: 48, marginBottom: 8 }}>📷</div>
+                                    <FaCamera style={{ fontSize: 48, marginBottom: 8, color: '#dc2626' }} />
                                     <p style={{ color: '#dc2626', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Camera Access Required</p>
                                     <p style={{ color: '#374151', fontSize: 13, marginBottom: 16, lineHeight: 1.6 }}>{cameraError}</p>
                                     <button onClick={handleBackToSelection}
@@ -483,9 +484,10 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
                                     borderRadius: '50%',
                                     width: 40, height: 40,
                                     color: '#fff', fontSize: 18, cursor: 'pointer',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 }}
                             >
-                                ←
+                                <FaArrowLeft />
                             </button>
                             <span style={{
                                 color: '#fff', fontWeight: 700, fontSize: 15,
@@ -501,9 +503,10 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
                                     borderRadius: '50%',
                                     width: 40, height: 40,
                                     color: '#fff', fontSize: 16, cursor: 'pointer',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 }}
                             >
-                                ✕
+                                <FaTimes />
                             </button>
                         </div>
 
@@ -568,13 +571,13 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
                                             background: '#fff',
                                             border: `3px solid ${COLORS.statusPending}`,
                                             color: COLORS.statusPending,
-                                            fontSize: 28, fontWeight: 700,
+                                            fontSize: 24, fontWeight: 700,
                                             cursor: 'pointer',
                                             boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                                         }}
                                     >
-                                        ✕
+                                        <FaTimes />
                                     </button>
 
                                     {/* Confirm (✓) */}
@@ -587,13 +590,13 @@ const DocumentCameraModal = ({ visible, docName, source = 'camera', onClose, onC
                                             background: COLORS.statusCompleted,
                                             border: '3px solid #fff',
                                             color: '#fff',
-                                            fontSize: 30, fontWeight: 700,
+                                            fontSize: 24, fontWeight: 700,
                                             cursor: 'pointer',
                                             boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                                         }}
                                     >
-                                        ✓
+                                        <FaCheck />
                                     </button>
                                 </div>
                             </>

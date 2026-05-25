@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { FaCheck } from 'react-icons/fa';
 import AppHeader from '../../components/common/AppHeader';
 import { ROUTES } from '../../constants/routes';
 import { COLORS } from '../../constants/theme';
@@ -281,12 +282,12 @@ const AddDamagePhotosPage = () => {
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'center',
-                                                    fontSize: 11,
+                                                    fontSize: 10,
                                                     color: '#fff',
                                                     fontWeight: 700,
                                                 }}
                                             >
-                                                ✓
+                                                <FaCheck />
                                             </div>
                                         )}
                                     </div>
@@ -378,12 +379,12 @@ const AddDamagePhotosPage = () => {
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'center',
-                                                    fontSize: 11,
+                                                    fontSize: 10,
                                                     color: '#fff',
                                                     fontWeight: 700,
                                                 }}
                                             >
-                                                ✓
+                                                <FaCheck />
                                             </div>
                                         </>
                                     )}

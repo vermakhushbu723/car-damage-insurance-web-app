@@ -4,10 +4,6 @@ import { ROUTES } from '../constants/routes';
 import LandingPage from '../pages/Landing/LandingPage';
 import LoginPage from '../pages/Login/LoginPage';
 import DashboardPage from '../pages/Dashboard/DashboardPage';
-import TotalClaimsPage from '../pages/TotalClaims/TotalClaimsPage';
-import SurveyCompletedPage from '../pages/SurveyCompleted/SurveyCompletedPage';
-import PendingSurveyPage from '../pages/PendingSurvey/PendingSurveyPage';
-import SearchClaimPage from '../pages/SearchClaim/SearchClaimPage';
 import ClaimStartPage from '../pages/ClaimStart/ClaimStartPage';
 import OwnerVehicleDetailsPage from '../pages/OwnerVehicleDetails/OwnerVehicleDetailsPage';
 import DocumentUploadPage from '../pages/DocumentUpload/DocumentUploadPage';
@@ -49,10 +45,6 @@ const publicRoutes = [
     { path: ROUTES.CLAIM_WORKSHOP_LOGIN, element: <LoginPage /> },
     { path: ROUTES.CLAIM_SURVEYOR_LOGIN, element: <LoginPage /> },
     { path: ROUTES.DASHBOARD, element: <DashboardPage /> },
-    { path: ROUTES.TOTAL_CLAIMS, element: <TotalClaimsPage /> },
-    { path: ROUTES.SURVEY_COMPLETED, element: <SurveyCompletedPage /> },
-    { path: ROUTES.PENDING_SURVEY, element: <PendingSurveyPage /> },
-    { path: ROUTES.SEARCH_CLAIM, element: <SearchClaimPage /> },
     { path: ROUTES.CLAIM_START, element: <ClaimStartPage /> },
     { path: ROUTES.OWNER_VEHICLE_DETAILS, element: <OwnerVehicleDetailsPage /> },
     { path: ROUTES.DOCUMENT_UPLOAD, element: <DocumentUploadPage /> },

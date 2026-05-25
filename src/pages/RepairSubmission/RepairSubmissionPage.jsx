@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaCheckCircle } from 'react-icons/fa';
 import AppHeader from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
 import { usePageLoading } from '../../hooks/usePageLoading';
@@ -139,7 +140,7 @@ const RepairSubmissionPage = () => {
                     {/* Row: icon + label + badge */}
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <span style={{ fontSize: 22, color: '#22C55E', lineHeight: 1 }}>✅</span>
+                            <FaCheckCircle style={{ fontSize: 20, color: '#22C55E' }} />
                             <span style={{ fontWeight: 700, fontSize: 15, color: COLORS.textPrimary }}>
                                 Under repair/Reinspection photo
                             </span>
@@ -220,7 +221,7 @@ const RepairSubmissionPage = () => {
                 }}>
                     {/* Row: green tick + badge */}
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
-                        <span style={{ fontSize: 22, color: '#22C55E', lineHeight: 1 }}>✅</span>
+                        <FaCheckCircle style={{ fontSize: 20, color: '#22C55E' }} />
                         <Badge status={billStatus} />
                     </div>
 

@@ -4,10 +4,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { CAMERA_ACCESS_KEY } from '../../routes/ProtectedCameraRoute';
 import { ROUTES } from '../../constants/routes';
 import { selectVehicleCategory } from '../../store/vehicleSlice';
-import { setOption, WORKFLOW_TYPES } from '../../store/workflowSlice';
+import {
+    setOption,
+    WORKFLOW_TYPES,
+    selectWorkflowOption,
+    selectSubmitRoute,
+} from '../../store/workflowSlice';
 import { getCenterImage, isAngleSupported } from '../../constants/vehicleAssets';
 import { usePageLoading } from '../../hooks/usePageLoading';
-import { lockToPortrait } from '../../utils/orientation';
+import { FaMobileAlt, FaSyncAlt, FaVideo, FaCamera, FaCheck } from 'react-icons/fa';
 import { COLORS } from '../../constants/theme';
 
 const PhotoCaptureSelectionPage = () => {
@@ -18,6 +23,10 @@ const PhotoCaptureSelectionPage = () => {
     // Vehicle category (car / bike / truck) chosen on /owner-vehicle-details
     // — drives which silhouette + angle guides are shown.
     const vehicleCategory = useSelector(selectVehicleCategory);
+    // Which workflow the user chose on the landing page — picks the
+    // post-capture destination (damage-review vs vehicle-information).
+    const workflowOption = useSelector(selectWorkflowOption);
+    const submitRoute = useSelector(selectSubmitRoute);
     const [isLandscape, setIsLandscape] = useState(window.innerWidth > window.innerHeight);
     const [capturedPhotos, setCapturedPhotos] = useState({});
     const [videoUrl, setVideoUrl] = useState('');
@@ -77,7 +86,7 @@ const PhotoCaptureSelectionPage = () => {
         { id: 'chassis-number', label: 'Chassis Number', top: '85%', left: '50%', labelPosition: 'bottom' },
         { id: 'front-lh', label: 'Front LH', top: '80%', left: '65%', labelPosition: 'bottom' },
         { id: 'lh-side', label: 'LH Side', top: '55%', left: '80%', labelPosition: 'right' },
-        { id: 'video', label: 'Video', top: '90%', left: '88%', labelPosition: 'right' },
+        { id: 'video', label: 'Video', top: '90%', left: '12%', labelPosition: 'left' },
     ];
     const photoPoints = allPhotoPoints.filter(p => isAngleSupported(vehicleCategory, p.id));
     const centerImage = getCenterImage(vehicleCategory);
@@ -90,13 +99,18 @@ const PhotoCaptureSelectionPage = () => {
 
     const handleNext = () => {
         if (!allDone) return;
-        // /damage-review is workflow-protected — make sure OPTION_GROUP_1
-        // is set so the route is allowed regardless of how the user got here.
-        dispatch(setOption(WORKFLOW_TYPES.OPTION_GROUP_1));
-        // Next page is portrait — flip the phone so the user doesn't have
-        // to manually rotate. Must fire from a user gesture (this click).
-        lockToPortrait();
-        navigate(ROUTES.DAMAGE_REVIEW);
+        // Respect the workflow the user picked on the landing page:
+        //   OPTION_GROUP_1 (claim flows)        → /damage-review
+        //   OPTION_GROUP_2 (preinspection flows) → /vehicle-information
+        // If somehow no workflow is set (deep-link / refresh), default to
+        // claim-flow so /damage-review stays accessible.
+        const effectiveOption = workflowOption || WORKFLOW_TYPES.OPTION_GROUP_1;
+        if (!workflowOption) dispatch(setOption(effectiveOption));
+        const destination = submitRoute
+            || (effectiveOption === WORKFLOW_TYPES.OPTION_GROUP_2
+                ? ROUTES.VEHICLE_INFORMATION
+                : ROUTES.DAMAGE_REVIEW);
+        navigate(destination);
     };
 
     const handlePhotoPointClick = (point) => {
@@ -127,12 +141,12 @@ const PhotoCaptureSelectionPage = () => {
                 // Portrait Mode - Show rotate message
                 <div className="w-screen h-screen flex items-center justify-center" style={{ background: '#3B82F6' }}>
                     <div className="flex flex-col items-center justify-center text-center px-6">
-                        <div className="text-6xl mb-6">📱</div>
+                        <FaMobileAlt className="text-white mb-6" style={{ fontSize: 64 }} />
                         <h2 className="text-2xl font-bold text-white mb-4">Rotate Device</h2>
                         <p className="text-white text-lg mb-8">
                             Please rotate your device to landscape mode to capture vehicle photos
                         </p>
-                        <div className="text-5xl animate-spin">↻</div>
+                        <FaSyncAlt className="text-white animate-spin" style={{ fontSize: 48 }} />
                     </div>
                 </div>
             ) : (
@@ -287,8 +301,8 @@ const PhotoCaptureSelectionPage = () => {
                                                 }}
                                             />
                                         ) : (
-                                            <span style={{ fontSize: `${circleSize * 0.35}px` }}>
-                                                {isVideoPoint ? '🎬' : '📷'}
+                                            <span style={{ fontSize: `${circleSize * 0.35}px`, color: '#EF4444', display: 'flex' }}>
+                                                {isVideoPoint ? <FaVideo /> : <FaCamera />}
                                             </span>
                                         )}
                                         {isPointDone && (
@@ -298,12 +312,12 @@ const PhotoCaptureSelectionPage = () => {
                                                     bottom: -2, right: -2,
                                                     width: 18, height: 18, borderRadius: '50%',
                                                     background: COLORS.statusCompleted,
-                                                    color: '#fff', fontSize: 11, fontWeight: 700,
+                                                    color: '#fff', fontSize: 10, fontWeight: 700,
                                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                     border: '2px solid #fff',
                                                 }}
                                             >
-                                                ✓
+                                                <FaCheck />
                                             </span>
                                         )}
                                     </button>
@@ -326,7 +340,7 @@ const PhotoCaptureSelectionPage = () => {
                             position: 'absolute',
                             bottom: 20,
                             right: 20,
-                            padding: '12px 28px',
+                            padding: '8px 10px',
                             background: allDone ? COLORS.btnPrimary : '#9CA3AF',
                             color: '#fff',
                             border: 'none',
