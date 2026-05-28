@@ -37,6 +37,10 @@ export const ROUTES = {
         SETTINGS: '/admin/settings',
         SUPPORT: '/admin/support',
         USER_CREATION: '/admin/user-creation',
+        INSURER: '/admin/insurer',
+        BROKER: '/admin/broker',
+        SURVEYOR: '/admin/surveyor',
+        WORKSHOP: '/admin/workshop',
     },
 
     // ── Intimation Management System ──────────────────────────────────

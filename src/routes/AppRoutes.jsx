@@ -25,6 +25,9 @@ import AdminDashboardPage from '../pages/admin/AdminDashboard/AdminDashboardPage
 import AdminClaimPage from '../pages/admin/AdminClaim/AdminClaimPage';
 import AdminPlaceholderPage from '../pages/admin/AdminPlaceholder/AdminPlaceholderPage';
 import AdminUserCreationPage from '../pages/admin/AdminUserCreation/AdminUserCreationPage';
+import InsurerPage from '../pages/admin/Insurer/InsurerPage';
+import BrokerPage from '../pages/admin/Broker/BrokerPage';
+import SurveyorPage from '../pages/admin/Surveyor/SurveyorPage';
 import IntimationLayout from '../pages/admin/intimation/IntimationLayout';
 import IntimationPage from '../pages/admin/intimation/pages/IntimationPage';
 import ClaimHandlerPage from '../pages/admin/intimation/pages/ClaimHandlerPage';
@@ -78,6 +81,10 @@ const adminLayoutChildren = [
     { path: 'settings', element: <AdminPlaceholderPage title="Settings" /> },
     { path: 'support', element: <AdminPlaceholderPage title="Support" /> },
     { path: 'user-creation', element: <AdminUserCreationPage /> },
+    { path: 'insurer', element: <InsurerPage /> },
+    { path: 'broker', element: <BrokerPage /> },
+    { path: 'surveyor', element: <SurveyorPage /> },
+    { path: 'workshop', element: <AdminPlaceholderPage title="Workshop" /> },
 ];
 
 const AppRoutes = () => {

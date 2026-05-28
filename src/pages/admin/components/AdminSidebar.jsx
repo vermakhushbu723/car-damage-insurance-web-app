@@ -3,19 +3,24 @@ import { NavLink } from 'react-router-dom';
 import { PALETTE } from '../adminTheme';
 import {
     DashboardIcon,
-    DocIcon,
     SettingsIcon,
     HeadphonesIcon,
-    UserPlusIcon,
+    InternalUserIcon,
+    InsurerIcon,
+    BrokerIcon,
+    SurveyorIcon,
+    WorkshopIcon,
 } from './AdminIcons';
 import { ROUTES } from '../../../constants/routes';
 
 // ── Sidebar nav config ─────────────────────────────────────────────────
 const PRIMARY_NAV = [
     { id: 'dashboard', label: 'Dashboard', Icon: DashboardIcon, path: ROUTES.ADMIN.DASHBOARD },
-    { id: 'claim', label: 'Claim insure', Icon: DocIcon, path: ROUTES.ADMIN.CLAIM },
-    { id: 'preinspection', label: 'Preinspection', Icon: DocIcon, path: ROUTES.ADMIN.PREINSPECTION },
-    { id: 'user-creation', label: 'User Creation', Icon: UserPlusIcon, path: ROUTES.ADMIN.USER_CREATION },
+    { id: 'internal-user', label: 'Internal User', Icon: InternalUserIcon, path: ROUTES.ADMIN.USER_CREATION },
+    { id: 'insurer', label: 'Insurer', Icon: InsurerIcon, path: ROUTES.ADMIN.INSURER },
+    { id: 'broker', label: 'Broker', Icon: BrokerIcon, path: ROUTES.ADMIN.BROKER },
+    { id: 'surveyor', label: 'Surveyor', Icon: SurveyorIcon, path: ROUTES.ADMIN.SURVEYOR },
+    { id: 'workshop', label: 'Workshop', Icon: WorkshopIcon, path: ROUTES.ADMIN.WORKSHOP },
 ];
 
 const SECONDARY_NAV = [

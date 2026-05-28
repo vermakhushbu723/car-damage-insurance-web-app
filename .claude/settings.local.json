@@ -24,7 +24,10 @@
       "Bash(node test-camera-save.js)",
       "Bash(node test-two-saves.js)",
       "Bash(node test-orientation.js)",
-      "Bash(node test-orient-conditional.js)"
+      "Bash(node test-orient-conditional.js)",
+      "Bash(Get-ChildItem -Path \"d:\\\\Project\\\\demoDeepak\\\\car-insorence\\\\car-damage-insurance-web-app\" -Depth 3)",
+      "Bash(Select-Object -Property FullName)",
+      "Bash(Format-Table -AutoSize)"
     ],
     "additionalDirectories": [
       "/tmp/doc-upload-test",
