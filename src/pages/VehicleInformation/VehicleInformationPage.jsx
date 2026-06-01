@@ -263,42 +263,6 @@ const VehicleInformationPage = () => {
                     Vehicle Information
                 </span>
             </div>
-            <div style={{ padding: '16px', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                <button
-                    type="button"
-                    onClick={() => navigate(ROUTES.CUSTOMER_DECLARATION)}
-                    style={{
-                        flex: 1,
-                        minWidth: 170,
-                        padding: '12px 14px',
-                        background: '#FFFFFF',
-                        color: '#0F172A',
-                        border: '1px solid #CBD5E1',
-                        borderRadius: 12,
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                    }}
-                >
-                    Customer Declaration
-                </button>
-                <button
-                    type="button"
-                    onClick={() => navigate(ROUTES.INSPECTOR_DECLARATION)}
-                    style={{
-                        flex: 1,
-                        minWidth: 170,
-                        padding: '12px 14px',
-                        background: '#FFFFFF',
-                        color: '#0F172A',
-                        border: '1px solid #CBD5E1',
-                        borderRadius: 12,
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                    }}
-                >
-                    Inspector Declaration
-                </button>
-            </div>
 
             {/* Scrollable Content */}
             <div

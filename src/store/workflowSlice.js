@@ -17,6 +17,7 @@ export const WORKFLOW_ROUTES = Object.freeze({
         '/repair-submission',
     ],
     [WORKFLOW_TYPES.OPTION_GROUP_2]: [
+        '/add-others-photos',
         '/vehicle-information',
     ],
 });
@@ -26,7 +27,7 @@ export const WORKFLOW_ROUTES = Object.freeze({
 // re-derive routing rules.
 export const WORKFLOW_SUBMIT_ROUTES = Object.freeze({
     [WORKFLOW_TYPES.OPTION_GROUP_1]: '/damage-review',
-    [WORKFLOW_TYPES.OPTION_GROUP_2]: '/vehicle-information',
+    [WORKFLOW_TYPES.OPTION_GROUP_2]: '/add-others-photos',
 });
 
 const PERSIST_KEY = 'selectedWorkflow';

@@ -101,14 +101,14 @@ const PhotoCaptureSelectionPage = () => {
         if (!allDone) return;
         // Respect the workflow the user picked on the landing page:
         //   OPTION_GROUP_1 (claim flows)        → /damage-review
-        //   OPTION_GROUP_2 (preinspection flows) → /vehicle-information
+        //   OPTION_GROUP_2 (preinspection flows) → /add-others-photos
         // If somehow no workflow is set (deep-link / refresh), default to
         // claim-flow so /damage-review stays accessible.
         const effectiveOption = workflowOption || WORKFLOW_TYPES.OPTION_GROUP_1;
         if (!workflowOption) dispatch(setOption(effectiveOption));
         const destination = submitRoute
             || (effectiveOption === WORKFLOW_TYPES.OPTION_GROUP_2
-                ? ROUTES.VEHICLE_INFORMATION
+                ? ROUTES.ADD_OTHERS_PHOTOS
                 : ROUTES.DAMAGE_REVIEW);
         navigate(destination);
     };

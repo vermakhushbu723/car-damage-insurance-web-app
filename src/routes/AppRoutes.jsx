@@ -12,6 +12,7 @@ import PhotoCaptureSelectionPage from '../pages/PhotoCaptureSelection/PhotoCaptu
 import CameraCapturePage from '../pages/CameraCapture/CameraCapturePage';
 import WalkAroundVideoPage from '../pages/WalkAroundVideo/WalkAroundVideoPage';
 import AddDamagePhotosPage from '../pages/AddDamagePhotos/AddDamagePhotosPage';
+import AddOthersPhotosPage from '../pages/AddOthersPhotos/AddOthersPhotosPage';
 import DamageReviewPage from '../pages/DamageReview/DamageReviewPage';
 import SubmittedPage from '../pages/Submitted/SubmittedPage';
 import ReinspectionPhotosPage from '../pages/ReinspectionPhotos/ReinspectionPhotosPage';
@@ -69,6 +70,7 @@ const workflowGroup1Routes = [
 
 // Routes that need workflow protection (Option Group 2)
 const workflowGroup2Routes = [
+    { path: ROUTES.ADD_OTHERS_PHOTOS, element: <AddOthersPhotosPage /> },
     { path: ROUTES.VEHICLE_INFORMATION, element: <VehicleInformationPage /> },
 ];
 

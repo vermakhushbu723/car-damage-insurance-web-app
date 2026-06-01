@@ -17,6 +17,7 @@ export const ROUTES = {
     CAMERA_CAPTURE: '/camera-capture/:angle',
     WALK_AROUND_VIDEO: '/walk-around-video',
     ADD_DAMAGE_PHOTOS: '/add-damage-photos',
+    ADD_OTHERS_PHOTOS: '/add-others-photos',
     CUSTOMER_DECLARATION: '/customer-declaration',
     INSPECTOR_DECLARATION: '/inspector-declaration',
     DAMAGE_REVIEW: '/damage-review',
