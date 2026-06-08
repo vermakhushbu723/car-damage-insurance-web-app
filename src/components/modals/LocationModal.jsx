@@ -118,7 +118,7 @@ const LocationModal = ({ visible, onAllow }) => {
 
                 {isOff && (
                     <ul
-                        className="text-xs leading-snug mb-4 text-left list-disc pl-5"
+                        className="text-sm leading-snug mb-4 text-left list-disc pl-5"
                         style={{ color: COLORS.textSecondary }}
                     >
                         <li>Open your phone Settings.</li>
@@ -129,7 +129,7 @@ const LocationModal = ({ visible, onAllow }) => {
 
                 {isDenied && (
                     <ul
-                        className="text-xs leading-snug mb-4 text-left list-disc pl-5"
+                        className="text-sm leading-snug mb-4 text-left list-disc pl-5"
                         style={{ color: COLORS.textSecondary }}
                     >
                         <li>Open this site's permissions in your browser.</li>
@@ -140,7 +140,7 @@ const LocationModal = ({ visible, onAllow }) => {
 
                 {!isError && !isChecking && (
                     <p
-                        className="text-xs leading-snug mb-4"
+                        className="text-sm leading-snug mb-4"
                         style={{ color: COLORS.textSecondary }}
                     >
                         Location is mandatory to verify inspection time and place.

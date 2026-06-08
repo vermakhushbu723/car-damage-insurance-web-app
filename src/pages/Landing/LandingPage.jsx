@@ -8,19 +8,18 @@ import { COLORS } from '../../constants/theme';
 import { setOption, WORKFLOW_TYPES } from '../../store/workflowSlice';
 import { setLoading } from '../../store/loadingSlice';
 
-// Each entry tags which workflow group the user has implicitly chosen by
-// clicking that button. The first 3 buttons belong to OPTION_GROUP_1
-// (Damage Review flow) and the last 3 to OPTION_GROUP_2 (Vehicle
-// Information flow). The choice is dispatched into the Redux workflow
-// slice and consumed later — when the user clicks "Save & Continue" on
-// /camera-capture/:angle after the final photo — to decide whether to
-// navigate to /damage-review or /vehicle-information. The button itself
-// still routes everyone to the login page, just like before.
+// Each button routes into its own self-contained flow (prefixed routes +
+// dedicated page components under src/pages/flows/*). The first 3 buttons
+// are the CLAIM flows (flows/claim/*) and the last 3 are the PREINSPECTION
+// flows (flows/preinspection/*). `workflow` still tags the OPTION_GROUP for
+// the Redux slice (kept for backwards-compat), but navigation now goes to
+// each flow's entry route. LOGIN flows land on their login screen; WEBLINK
+// flows skip login and go straight to claim-start.
 const menuItems = [
     {
         label: 'CLAIM-WORKSHOP LOGIN',
         workflow: WORKFLOW_TYPES.OPTION_GROUP_1,
-        route: ROUTES.CLAIM_WORKSHOP_LOGIN,
+        route: '/claim-workshop/login',
         bg: 'linear-gradient(135deg, #E07B39 0%, #c95f1e 100%)',
         shadow: 'rgba(224,123,57,0.45)',
         icon: <FaWrench />,
@@ -29,7 +28,7 @@ const menuItems = [
     {
         label: 'CLAIM-SURVEYOR LOGIN',
         workflow: WORKFLOW_TYPES.OPTION_GROUP_1,
-        route: ROUTES.CLAIM_SURVEYOR_LOGIN,
+        route: '/claim-surveyor/login',
         bg: 'linear-gradient(135deg, #01A0FE 0%, #0077cc 100%)',
         shadow: 'rgba(1,160,254,0.45)',
         icon: <FaSearch />,
@@ -43,12 +42,13 @@ const menuItems = [
         icon: <FaLink />,
         available: true,
         // Weblink buttons skip the login screen and go straight to the
-        // claim-start flow.
-        route: ROUTES.CLAIM_START,
+        // flow's claim-start page.
+        route: '/claim-weblink/claim-start',
     },
     {
         label: 'PREINSPECTION-AGENT LOGIN',
         workflow: WORKFLOW_TYPES.OPTION_GROUP_2,
+        route: '/preinspection-agent/login',
         bg: 'linear-gradient(135deg, #4F46E5 0%, #3730a3 100%)',
         shadow: 'rgba(79,70,229,0.45)',
         icon: <FaUser />,
@@ -57,6 +57,7 @@ const menuItems = [
     {
         label: 'PREINSPECTION-SURVEYOR LOGIN WORKSHOP',
         workflow: WORKFLOW_TYPES.OPTION_GROUP_2,
+        route: '/preinspection-surveyor/login',
         bg: 'linear-gradient(135deg, #A855F7 0%, #7e22ce 100%)',
         shadow: 'rgba(168,85,247,0.45)',
         icon: <FaBuilding />,
@@ -70,8 +71,8 @@ const menuItems = [
         icon: <FaGlobe />,
         available: true,
         // Weblink buttons skip the login screen and go straight to the
-        // claim-start flow.
-        route: ROUTES.CLAIM_START,
+        // flow's claim-start page.
+        route: '/preinspection-weblink/claim-start',
     },
 ];
 

@@ -37,7 +37,7 @@ const InputField = ({ label, placeholder, value, onChange, type = 'text', prefix
             />
         </div>
         {error && (
-            <p className="text-xs mt-1" style={{ color: COLORS.statusPending }}>{error}</p>
+            <p className="text-sm mt-1" style={{ color: COLORS.statusPending }}>{error}</p>
         )}
     </div>
 );
@@ -76,7 +76,7 @@ const SelectField = ({ label, placeholder, value, onChange, options = [], error 
                 </div>
 
                 {error && !isOpen && (
-                    <p className="text-xs mt-1" style={{ color: COLORS.statusPending }}>{error}</p>
+                    <p className="text-sm mt-1" style={{ color: COLORS.statusPending }}>{error}</p>
                 )}
 
                 {isOpen && (
@@ -326,12 +326,12 @@ const OwnerVehicleDetailsPage = () => {
                         <CalendarOutlined style={{ color: COLORS.textSecondary, fontSize: 16 }} />
                     </div>
                     {form.registrationDate && (
-                        <p className="text-xs mt-1" style={{ color: COLORS.textSecondary }}>
+                        <p className="text-sm mt-1" style={{ color: COLORS.textSecondary }}>
                             Selected: {form.registrationDate}
                         </p>
                     )}
                     {errors.registrationDate && !form.registrationDate && (
-                        <p className="text-xs mt-1" style={{ color: COLORS.statusPending }}>{errors.registrationDate}</p>
+                        <p className="text-sm mt-1" style={{ color: COLORS.statusPending }}>{errors.registrationDate}</p>
                     )}
                 </div>
 
@@ -393,12 +393,12 @@ const OwnerVehicleDetailsPage = () => {
                         <CalendarOutlined style={{ color: COLORS.textSecondary, fontSize: 16 }} />
                     </div>
                     {form.manufacturingYear && (
-                        <p className="text-xs mt-1" style={{ color: COLORS.textSecondary }}>
+                        <p className="text-sm mt-1" style={{ color: COLORS.textSecondary }}>
                             Selected: {form.manufacturingYear}
                         </p>
                     )}
                     {errors.manufacturingYear && !form.manufacturingYear && (
-                        <p className="text-xs mt-1" style={{ color: COLORS.statusPending }}>{errors.manufacturingYear}</p>
+                        <p className="text-sm mt-1" style={{ color: COLORS.statusPending }}>{errors.manufacturingYear}</p>
                     )}
                 </div>
 

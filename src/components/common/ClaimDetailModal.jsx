@@ -45,7 +45,7 @@ const ClaimDetailModal = ({ claim, onClose }) => {
 
                 <div className="flex justify-end mb-3">
                     <span
-                        className="px-4 py-1 rounded-lg text-xs font-semibold"
+                        className="px-4 py-1 rounded-lg text-sm font-semibold"
                         style={{
                             background: badgeBg,
                             color: badgeColor,

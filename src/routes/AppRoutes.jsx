@@ -43,6 +43,29 @@ import DmsPreInspectionPage from '../pages/admin/intimation/pages/DmsPreInspecti
 import ProtectedCameraRoute from './ProtectedCameraRoute';
 import ProtectedWorkflowRoute from './ProtectedWorkflowRoute';
 
+// ── Self-contained per-flow route configs ──────────────────────────────
+// Each flow owns a prefixed set of routes (e.g. /claim-workshop/*,
+// /preinspection-agent/*) and its own page components, so flows never
+// collide. The 3 claim flows reuse the shared page UI; the 3 preinspection
+// flows have their own components with preinspection-specific content.
+import claimWorkshopRoutes from '../pages/flows/claim/ClaimWorkshop/routesConfig';
+import claimSurveyorRoutes from '../pages/flows/claim/ClaimSurveyor/routesConfig';
+import claimWeblinkRoutes from '../pages/flows/claim/ClaimWeblink/routesConfig';
+import preinspectionAgentRoutes from '../pages/flows/preinspection/PreinspectionAgent/routesConfig';
+import preinspectionSurveyorRoutes from '../pages/flows/preinspection/PreinspectionSurveyor/routesConfig';
+import preinspectionWeblinkRoutes from '../pages/flows/preinspection/PreinspectionWeblink/routesConfig';
+
+// All six flows' routes flattened into a single list. Every path is unique
+// because of its flow prefix, so they can be rendered side-by-side.
+const flowRoutes = [
+    ...claimWorkshopRoutes,
+    ...claimSurveyorRoutes,
+    ...claimWeblinkRoutes,
+    ...preinspectionAgentRoutes,
+    ...preinspectionSurveyorRoutes,
+    ...preinspectionWeblinkRoutes,
+];
+
 // Routes that don't need workflow protection
 const publicRoutes = [
     { path: ROUTES.LANDING, element: <LandingPage /> },
@@ -94,6 +117,11 @@ const AppRoutes = () => {
         <Routes>
             {/* Public routes */}
             {publicRoutes.map((route) => (
+                <Route key={route.path} path={route.path} element={route.element} />
+            ))}
+
+            {/* Per-flow routes (claim/* and preinspection/* prefixes) */}
+            {flowRoutes.map((route) => (
                 <Route key={route.path} path={route.path} element={route.element} />
             ))}
 

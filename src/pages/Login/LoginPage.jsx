@@ -104,7 +104,7 @@ const LoginPage = () => {
                             style={{ color: COLORS.textPrimary }}
                         />
                     </div>
-                    {errors.username && <p className="text-xs -mt-3" style={{ color: COLORS.textRed }}>{errors.username}</p>}
+                    {errors.username && <p className="text-sm -mt-3" style={{ color: COLORS.textRed }}>{errors.username}</p>}
 
                     <div className="flex items-center gap-3 px-5" style={{ background: COLORS.bgCard, height: '53px', borderRadius: '7px', border: '1px solid #C5C5C5', opacity: 1 }}>
                         <input
@@ -121,7 +121,7 @@ const LoginPage = () => {
                                 : <img src="/images/icons/passwordicon.png" alt="show password" style={{ width: 22, height: 22, objectFit: 'contain' }} />}
                         </button>
                     </div>
-                    {errors.password && <p className="text-xs -mt-3" style={{ color: COLORS.textRed }}>{errors.password}</p>}
+                    {errors.password && <p className="text-sm -mt-3" style={{ color: COLORS.textRed }}>{errors.password}</p>}
 
                     <div className="flex items-center gap-4 px-3">
                         <div className="flex items-center gap-1">
@@ -146,7 +146,7 @@ const LoginPage = () => {
                             style={{ color: COLORS.textPrimary }}
                         />
                     </div>
-                    {errors.captcha && <p className="text-xs -mt-3" style={{ color: COLORS.textRed }}>{errors.captcha}</p>}
+                    {errors.captcha && <p className="text-sm -mt-3" style={{ color: COLORS.textRed }}>{errors.captcha}</p>}
 
                     <div className="mt-3">
                         <BottomButton label="Login" onClick={handleLogin} />
@@ -155,8 +155,8 @@ const LoginPage = () => {
 
                 <div className="px-5 pt-2 pb-4 text-left" style={{ color: COLORS.textPrimary }}>
                     <p className="text-sm">Powered by <strong style={{ color: COLORS.textPrimary }}>VROOMSYNC EXPERTISE PRIVATE LIMITED</strong></p>
-                    <p className="text-xs mt-1 leading-relaxed">All Rights Reserved 2025. CIN: U62099CT2025PTC017274</p>
-                    <p className="text-xs mt-1 leading-relaxed">Insurance is subject matter of solicitation. Images used on the website and the mobile photographed, in them are for representative purpose only and are not indicative of anyone's thought.</p>
+                    <p className="text-sm mt-1 leading-relaxed">All Rights Reserved 2025. CIN: U62099CT2025PTC017274</p>
+                    <p className="text-sm mt-1 leading-relaxed">Insurance is subject matter of solicitation. Images used on the website and the mobile photographed, in them are for representative purpose only and are not indicative of anyone's thought.</p>
                 </div>
             </div>
 

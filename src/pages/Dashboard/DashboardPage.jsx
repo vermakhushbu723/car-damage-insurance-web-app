@@ -142,7 +142,7 @@ const DashboardPage = () => {
                                                 {card.count}
                                             </p>
                                         )}
-                                        <p className="text-xs font-medium leading-tight" style={{ color: card.textColor }}>
+                                        <p className="text-sm font-medium leading-tight" style={{ color: card.textColor }}>
                                             {card.label}
                                         </p>
                                     </div>
@@ -180,7 +180,7 @@ const DashboardPage = () => {
                             {listConfig.title}
                         </p>
                         <span
-                            className="px-3 py-1 rounded-full text-xs font-semibold text-white"
+                            className="px-3 py-1 rounded-full text-sm font-semibold text-white"
                             style={{ background: listConfig.badgeBg }}
                         >
                             {filteredClaims.length}

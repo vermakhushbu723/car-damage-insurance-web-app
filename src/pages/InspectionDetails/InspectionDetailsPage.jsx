@@ -110,7 +110,7 @@ const InspectionDetailsPage = () => {
                             style={{ borderBottom: i < inspectionData.length - 1 ? `1px solid ${COLORS.borderInput}` : 'none' }}
                         >
                             <div
-                                className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                                className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
                                 style={{ background: row.iconBg + '22', border: `1.5px solid ${row.iconBg}` }}
                             >
                                 <img src={row.icon} alt={row.label} className="w-3.5 h-3.5" />

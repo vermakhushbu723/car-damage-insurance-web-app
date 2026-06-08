@@ -27,7 +27,20 @@
       "Bash(node test-orient-conditional.js)",
       "Bash(Get-ChildItem -Path \"d:\\\\Project\\\\demoDeepak\\\\car-insorence\\\\car-damage-insurance-web-app\" -Depth 3)",
       "Bash(Select-Object -Property FullName)",
-      "Bash(Format-Table -AutoSize)"
+      "Bash(Format-Table -AutoSize)",
+      "Bash(grep -rho \"\\\\.\\\\./\\\\.\\\\./\\\\.\\\\./[a-zA-Z]*\" src/pages/flows)",
+      "Bash(grep -rno \"from '\\\\.\\\\./\\\\.\\\\./[a-zA-Z]\" src/pages/flows)",
+      "Bash(grep -rno \"\\\\.\\\\./\\\\.\\\\./\\\\.\\\\./\\\\.\\\\./\" src/pages/flows)",
+      "Bash(cp src/pages/flows/preinspection/PreinspectionAgent/DashboardPage.jsx src/pages/flows/preinspection/PreinspectionSurveyor/DashboardPage.jsx)",
+      "Bash(cp src/pages/flows/preinspection/PreinspectionAgent/DashboardPage.jsx src/pages/flows/preinspection/PreinspectionWeblink/DashboardPage.jsx)",
+      "Bash(cp src/pages/flows/preinspection/PreinspectionAgent/OwnerVehicleDetailsPage.jsx src/pages/flows/preinspection/PreinspectionSurveyor/OwnerVehicleDetailsPage.jsx)",
+      "Bash(cp src/pages/flows/preinspection/PreinspectionAgent/OwnerVehicleDetailsPage.jsx src/pages/flows/preinspection/PreinspectionWeblink/OwnerVehicleDetailsPage.jsx)",
+      "Bash(cp src/pages/flows/preinspection/PreinspectionAgent/DocumentUploadPage.jsx src/pages/flows/preinspection/PreinspectionSurveyor/DocumentUploadPage.jsx)",
+      "Bash(cp src/pages/flows/preinspection/PreinspectionAgent/DocumentUploadPage.jsx src/pages/flows/preinspection/PreinspectionWeblink/DocumentUploadPage.jsx)",
+      "Bash(cp src/pages/flows/preinspection/PreinspectionAgent/InspectionDetailsPage.jsx src/pages/flows/preinspection/PreinspectionSurveyor/InspectionDetailsPage.jsx)",
+      "Bash(cp src/pages/flows/preinspection/PreinspectionAgent/InspectionDetailsPage.jsx src/pages/flows/preinspection/PreinspectionWeblink/InspectionDetailsPage.jsx)",
+      "Bash(cp src/pages/flows/claim/ClaimWorkshop/InspectionDetailsPage.jsx src/pages/flows/claim/ClaimSurveyor/InspectionDetailsPage.jsx)",
+      "Bash(cp src/pages/flows/claim/ClaimWorkshop/InspectionDetailsPage.jsx src/pages/flows/claim/ClaimWeblink/InspectionDetailsPage.jsx)"
     ],
     "additionalDirectories": [
       "/tmp/doc-upload-test",

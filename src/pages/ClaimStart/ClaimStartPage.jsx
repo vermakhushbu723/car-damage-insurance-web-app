@@ -80,7 +80,7 @@ const ClaimStartPage = () => {
                     className="mx-3 mt-3 mb-2 rounded-md px-4 py-2 text-center bg-white border border-[#C5C5C5] shrink-0"
                 >
                     <p
-                        className="text-xs leading-snug"
+                        className="text-sm leading-snug"
                         style={{ color: COLORS.textPrimary }}
                     >
                         Before you click the "Start" button, please keep following documents handy; as essential to proceed further in survey
@@ -101,7 +101,7 @@ const ClaimStartPage = () => {
                             {/* Label */}
                             <div className="flex-1 flex items-center">
                                 <p
-                                    className="text-xs font-medium leading-snug"
+                                    className="text-sm font-medium leading-snug"
                                     style={{ color: COLORS.textPrimary }}
                                 >
                                     {doc.label}

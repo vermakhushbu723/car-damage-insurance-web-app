@@ -16,7 +16,7 @@ const ClaimListCard = ({ claim, onViewDetails }) => {
             {/* Status Badge */}
             <div className="flex justify-end mb-1">
                 <span
-                    className="px-3 py-0.5 rounded-md text-xs font-semibold"
+                    className="px-3 py-0.5 rounded-md text-sm font-semibold"
                     style={{
                         background: badgeBg,
                         color: badgeColor,

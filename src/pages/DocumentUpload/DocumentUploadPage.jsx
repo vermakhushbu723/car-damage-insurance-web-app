@@ -83,10 +83,10 @@ const DocumentUploadPage = () => {
                             style={{ width: `${progressPercent}%`, background: COLORS.primary }}
                         />
                     </div>
-                    <p className="text-xs" style={{ color: COLORS.textPrimary }}>
+                    <p className="text-sm" style={{ color: COLORS.textPrimary }}>
                         {completedCount} Of {totalCount} Completed
                     </p>
-                    <p className="text-xs" style={{ color: COLORS.textPrimary }}>
+                    <p className="text-sm" style={{ color: COLORS.textPrimary }}>
                         {requiredCount} Required {optionalCount} Optional
                     </p>
                 </div>
@@ -113,7 +113,7 @@ const DocumentUploadPage = () => {
                                         )}
                                     </div>
                                     <span
-                                        className="text-xs px-2 py-0.5 rounded-full border"
+                                        className="text-sm px-2 py-0.5 rounded-full border"
                                         style={{
                                             color: doc.required ? COLORS.textGreen : COLORS.statusPending,
                                             borderColor: doc.required ? COLORS.statusCompleted : doc.statusCompleted,
@@ -123,7 +123,7 @@ const DocumentUploadPage = () => {
                                         {doc.required ? 'Submited' : 'pending'}
                                     </span>
                                 </div>
-                                <p className="text-xs mb-3 ml-7" style={{ color: COLORS.textPrimary }}>{doc.desc}</p>
+                                <p className="text-sm mb-3 ml-7" style={{ color: COLORS.textPrimary }}>{doc.desc}</p>
 
                                 {/* Action Buttons */}
                                 <div className="flex gap-3">
