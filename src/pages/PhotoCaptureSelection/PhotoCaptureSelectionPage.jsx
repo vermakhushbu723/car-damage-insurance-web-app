@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { CAMERA_ACCESS_KEY } from '../../routes/ProtectedCameraRoute';
@@ -28,6 +28,11 @@ const PhotoCaptureSelectionPage = () => {
     const workflowOption = useSelector(selectWorkflowOption);
     const submitRoute = useSelector(selectSubmitRoute);
     const [isLandscape, setIsLandscape] = useState(window.innerWidth > window.innerHeight);
+    // Pixel size of the car container — used to draw direction arrows that
+    // point from each capture point toward the car, with correct angles
+    // despite the container's non-square aspect ratio.
+    const carContainerRef = useRef(null);
+    const [containerDims, setContainerDims] = useState({ w: 0, h: 0 });
     const [capturedPhotos, setCapturedPhotos] = useState({});
     const [videoUrl, setVideoUrl] = useState('');
     const [videoLoadError, setVideoLoadError] = useState(false);
@@ -59,6 +64,18 @@ const PhotoCaptureSelectionPage = () => {
         };
     }, []);
 
+    // Track the car container's pixel size so arrow angles stay accurate
+    // across resizes / orientation changes.
+    useEffect(() => {
+        const el = carContainerRef.current;
+        if (!el) return;
+        const measure = () => setContainerDims({ w: el.clientWidth, h: el.clientHeight });
+        measure();
+        const ro = new ResizeObserver(measure);
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, [isLandscape]);
+
     // Load photos on mount and every time we come back to this page
     useEffect(() => {
         loadCapturedPhotos();
@@ -75,18 +92,20 @@ const PhotoCaptureSelectionPage = () => {
     // Photo capture points positioned around the silhouette. Points whose
     // angle has no guide image for the current vehicle category are
     // filtered out below (e.g. chassis-number for bikes).
+    // Points evenly placed on an oval ring around the car (clockwise from the
+    // top), so the layout reads as a clean circle like the reference diagram.
     const allPhotoPoints = [
-        { id: 'rear-rh-side', label: 'Rear RH Side', top: '12%', left: '55%', labelPosition: 'top' },
-        { id: 'rear-side', label: 'Rear Side', top: '12%', left: '70%', labelPosition: 'top' },
-        { id: 'rear-lh-side', label: 'Rear LH Side', top: '30%', left: '80%', labelPosition: 'top' },
-        { id: 'rh-side', label: 'RH Side', top: '20%', left: '30%', labelPosition: 'left' },
-        { id: 'front-rh-side', label: 'Front RH Side', top: '40%', left: '20%', labelPosition: 'left' },
-        { id: 'odometer', label: 'Odometer', top: '70%', left: '22%', labelPosition: 'bottom' },
-        { id: 'front-side', label: 'Front Side', top: '80%', left: '35%', labelPosition: 'bottom' },
-        { id: 'chassis-number', label: 'Chassis Number', top: '85%', left: '50%', labelPosition: 'bottom' },
-        { id: 'front-lh', label: 'Front LH', top: '80%', left: '65%', labelPosition: 'bottom' },
-        { id: 'lh-side', label: 'LH Side', top: '55%', left: '80%', labelPosition: 'right' },
-        { id: 'video', label: 'Video', top: '90%', left: '12%', labelPosition: 'left' },
+        { id: 'rear-rh-side', label: 'Rear RH Side', top: '13%', left: '50%', labelPosition: 'top' },
+        { id: 'rear-side', label: 'Rear Side', top: '19%', left: '72%', labelPosition: 'top' },
+        { id: 'rear-lh-side', label: 'Rear LH Side', top: '35%', left: '86%', labelPosition: 'right' },
+        { id: 'lh-side', label: 'LH Side', top: '55%', left: '90%', labelPosition: 'right' },
+        { id: 'front-lh', label: 'Front LH', top: '74%', left: '80%', labelPosition: 'right' },
+        { id: 'chassis-number', label: 'Chassis Number', top: '86%', left: '61%', labelPosition: 'bottom' },
+        { id: 'front-side', label: 'Front Side', top: '86%', left: '39%', labelPosition: 'bottom' },
+        { id: 'odometer', label: 'Odometer', top: '74%', left: '20%', labelPosition: 'left' },
+        { id: 'video', label: 'Video', top: '55%', left: '10%', labelPosition: 'left' },
+        { id: 'front-rh-side', label: 'Front RH Side', top: '35%', left: '14%', labelPosition: 'left' },
+        { id: 'rh-side', label: 'RH Side', top: '19%', left: '28%', labelPosition: 'top' },
     ];
     const photoPoints = allPhotoPoints.filter(p => isAngleSupported(vehicleCategory, p.id));
     const centerImage = getCenterImage(vehicleCategory);
@@ -151,9 +170,10 @@ const PhotoCaptureSelectionPage = () => {
                 </div>
             ) : (
                 // Landscape Mode - Show car with photo points
-                <div className="w-screen h-screen flex items-center justify-center overflow-hidden" style={{ background: '#9CA3AF', padding: '20px' }}>
+                <div className="w-screen h-screen flex items-center justify-center overflow-hidden" style={{ background: '#FFFFFF', padding: '20px' }}>
                     {/* Car Container */}
                     <div
+                        ref={carContainerRef}
                         className="relative w-full h-full flex items-center justify-center"
                         style={{
                             maxWidth: '95vw',
@@ -182,8 +202,33 @@ const PhotoCaptureSelectionPage = () => {
                             const capturedImageUrl = capturedPhotos[point.id];
 
                             // Calculate responsive circle size based on viewport
-                            const circleSize = Math.min(Math.max(window.innerWidth * 0.055, 45), 65);
-                            const fontSize = Math.min(Math.max(window.innerWidth * 0.012, 10), 12);
+                            const circleSize = Math.min(Math.max(window.innerWidth * 0.062, 58), 82);
+                            const fontSize = Math.min(Math.max(window.innerWidth * 0.016, 13), 18);
+
+                            const isVideoPoint = point.id === 'video';
+                            const isPointDone = isVideoPoint ? hasVideo : !!capturedImageUrl;
+
+                            // Blue before capture, green once captured.
+                            const POINT_BLUE = '#3B82F6';
+                            const POINT_GREEN = '#22C55E';
+                            const pointColor = isPointDone ? POINT_GREEN : POINT_BLUE;
+
+                            // Clean arrow that simply points from this capture
+                            // point toward the car center (like the reference
+                            // diagram). Computed in pixels so the angle isn't
+                            // skewed by the container's wide aspect ratio.
+                            const W = containerDims.w || 1;
+                            const H = containerDims.h || 1;
+                            const px = parseFloat(point.left);
+                            const py = parseFloat(point.top);
+                            // Vector from car center to this point (pixels).
+                            const cx = ((px - 50) / 100) * W;
+                            const cy = ((py - 50) / 100) * H;
+                            const distPx = Math.hypot(cx, cy) || 1;
+                            // Arrow points from the point back toward the center.
+                            const arrowAngle = Math.atan2(-cy, -cx) * (180 / Math.PI);
+                            // Small, clean arrow sitting between the point and the car.
+                            const arrowLen = Math.min(Math.max(distPx * 0.12, 12), 28);
 
                             // Determine label position styles based on photo direction
                             const getLabelStyles = () => {
@@ -191,9 +236,11 @@ const PhotoCaptureSelectionPage = () => {
                                     position: 'absolute',
                                     whiteSpace: 'nowrap',
                                     textAlign: 'center',
-                                    fontWeight: 600,
+                                    fontWeight: 700,
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.3px',
                                     pointerEvents: 'none',
-                                    color: '#EF4444',
+                                    color: pointColor,
                                     fontSize: `${fontSize}px`,
                                 };
 
@@ -241,9 +288,6 @@ const PhotoCaptureSelectionPage = () => {
                                 }
                             };
 
-                            const isVideoPoint = point.id === 'video';
-                            const isPointDone = isVideoPoint ? hasVideo : !!capturedImageUrl;
-
                             return (
                                 <div
                                     key={point.id}
@@ -254,6 +298,47 @@ const PhotoCaptureSelectionPage = () => {
                                         transform: 'translate(-50%, -50%)',
                                     }}
                                 >
+                                    {/* Direction arrow — starts at the button edge
+                                        and points toward the car. */}
+                                    <div
+                                        style={{
+                                            position: 'absolute',
+                                            left: '50%',
+                                            top: '50%',
+                                            height: 0,
+                                            transform: `rotate(${arrowAngle}deg)`,
+                                            transformOrigin: '0 0',
+                                            pointerEvents: 'none',
+                                            zIndex: 0,
+                                        }}
+                                    >
+                                        {/* line */}
+                                        <div
+                                            style={{
+                                                position: 'absolute',
+                                                left: `${circleSize / 2 + 2}px`,
+                                                top: '-2px',
+                                                width: `${arrowLen}px`,
+                                                height: '4px',
+                                                background: pointColor,
+                                                borderRadius: 2,
+                                            }}
+                                        />
+                                        {/* arrowhead */}
+                                        <div
+                                            style={{
+                                                position: 'absolute',
+                                                left: `${circleSize / 2 + 2 + arrowLen}px`,
+                                                top: '-7px',
+                                                width: 0,
+                                                height: 0,
+                                                borderTop: '7px solid transparent',
+                                                borderBottom: '7px solid transparent',
+                                                borderLeft: `11px solid ${pointColor}`,
+                                            }}
+                                        />
+                                    </div>
+
                                     {/* Camera Icon Button */}
                                     <button
                                         onClick={() => handlePhotoPointClick(point)}
@@ -261,8 +346,10 @@ const PhotoCaptureSelectionPage = () => {
                                         style={{
                                             width: `${circleSize}px`,
                                             height: `${circleSize}px`,
-                                            border: '2px solid #EF4444',
-                                            background: capturedImageUrl ? 'transparent' : 'rgba(239, 68, 68, 0.1)',
+                                            border: `2px solid ${pointColor}`,
+                                            background: capturedImageUrl
+                                                ? 'transparent'
+                                                : (isPointDone ? 'rgba(34, 197, 94, 0.1)' : 'rgba(59, 130, 246, 0.1)'),
                                             cursor: 'pointer',
                                             position: 'relative',
                                             minWidth: '50px',
@@ -301,7 +388,7 @@ const PhotoCaptureSelectionPage = () => {
                                                 }}
                                             />
                                         ) : (
-                                            <span style={{ fontSize: `${circleSize * 0.35}px`, color: '#EF4444', display: 'flex' }}>
+                                            <span style={{ fontSize: `${circleSize * 0.35}px`, color: pointColor, display: 'flex' }}>
                                                 {isVideoPoint ? <FaVideo /> : <FaCamera />}
                                             </span>
                                         )}

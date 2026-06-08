@@ -106,7 +106,7 @@ const InspectionDetailsPage = () => {
                     {inspectionData.map((row, i) => (
                         <div
                             key={i}
-                            className="flex items-center gap-2 py-1.5"
+                            className="flex items-center gap-2 py-1"
                             style={{ borderBottom: i < inspectionData.length - 1 ? `1px solid ${COLORS.borderInput}` : 'none' }}
                         >
                             <div
@@ -115,10 +115,10 @@ const InspectionDetailsPage = () => {
                             >
                                 <img src={row.icon} alt={row.label} className="w-3.5 h-3.5" />
                             </div>
-                            <span className="text-xs w-32 font-semibold leading-tight" style={{ color: COLORS.textSecondary }}>
+                            <span className="text-[13px] w-32 font-semibold leading-tight" style={{ color: COLORS.textSecondary }}>
                                 {row.label}
                             </span>
-                            <span className="text-xs font-semibold flex-1 leading-tight" style={{ color: COLORS.textPrimary }}>
+                            <span className="text-[13px] font-semibold flex-1 leading-tight" style={{ color: COLORS.textPrimary }}>
                                 {row.value}
                             </span>
                         </div>
@@ -127,14 +127,14 @@ const InspectionDetailsPage = () => {
 
                 {/* Instructions Heading */}
                 <p
-                    className="text-xs font-semibold mb-1 shrink-0 leading-snug"
+                    className="text-[13px] font-semibold mb-1 shrink-0 leading-snug"
                     style={{ color: COLORS.textPrimary }}
                 >
                     Please read following important instructions before you start survey
                 </p>
 
                 {/* Instructions List — flex-1 so it shares remaining space */}
-                <div className="flex-1 min-h-0 flex flex-col justify-around overflow-hidden mb-2">
+                <div className="flex-1 min-h-0 flex flex-col justify-start gap-1.5 overflow-y-auto mb-2">
                     {instructions.map((ins, i) => (
                         <div key={i} className="flex items-start gap-2">
                             <div
@@ -144,10 +144,10 @@ const InspectionDetailsPage = () => {
                                 <img src={ins.emoji} alt={ins.title} className="w-4 h-4" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-[11px] font-semibold leading-tight" style={{ color: ins.color }}>
+                                <p className="text-[13px] font-semibold leading-tight" style={{ color: ins.color }}>
                                     {ins.title}
                                 </p>
-                                <p className="text-[10px] leading-snug mt-0.5" style={{ color: COLORS.textSecondary }}>
+                                <p className="text-[11px] leading-snug mt-0.5" style={{ color: COLORS.textSecondary }}>
                                     {ins.desc}
                                 </p>
                             </div>

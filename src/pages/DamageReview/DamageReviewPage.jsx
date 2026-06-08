@@ -1,16 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-    FaIndustry,
-    FaCar,
-    FaDna,
-    FaCarSide,
-    FaWarehouse,
-    FaIdCard,
-    FaStopwatch,
-    FaMapMarkerAlt,
-    FaCalendarAlt,
-} from 'react-icons/fa';
 import AppHeader from '../../components/common/AppHeader';
 import { COLORS } from '../../constants/theme';
 import { usePageLoading } from '../../hooks/usePageLoading';
@@ -38,15 +27,15 @@ const DEFAULT_VEHICLE_PHOTOS = [
 ];
 
 const VEHICLE_DETAILS = [
-    { icon: <FaIndustry />, label: 'Make', value: 'Volkswagen Polo' },
-    { icon: <FaCar />, label: 'Model', value: 'GT Tsi' },
-    { icon: <FaDna />, label: 'Variant', value: 'DSG Automatic' },
-    { icon: <FaCarSide />, label: 'Body Type', value: 'Hatch Back', muted: true },
-    { icon: <FaWarehouse />, label: 'Mfg Year', value: '2017' },
-    { icon: <FaIdCard />, label: 'Registration number', value: 'MH 49 DS 2345' },
-    { icon: <FaStopwatch />, label: 'Odometer', value: '141470 KMS' },
-    { icon: <FaMapMarkerAlt />, label: 'State', value: 'MH' },
-    { icon: <FaCalendarAlt />, label: 'Registration Date', value: '17/03/2017' },
+    { icon: '🏢', label: 'Make', value: 'Volkswagen Polo' },
+    { icon: '🚗', label: 'Model', value: 'GT Tsi' },
+    { icon: '🧬', label: 'Variant', value: 'DSG Automatic' },
+    { icon: '🚙', label: 'Body Type', value: 'Hatch Back', muted: true },
+    { icon: '🏭', label: 'Mfg Year', value: '2017' },
+    { icon: '📄', label: 'Registration number', value: 'MH 49 DS 2345' },
+    { icon: '⏲️', label: 'Odometer', value: '141470 KMS' },
+    { icon: '📍', label: 'State', value: 'MH' },
+    { icon: '📅', label: 'Registration Date', value: '17/03/2017' },
 ];
 
 const INSURED_DETAILS = [
@@ -70,15 +59,15 @@ const DetailRow = ({ icon, label, value, muted, last, isImg }) => (
             borderBottom: last ? 'none' : '1px solid #E2E8F0',
         }}
     >
-        <div style={{ width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <div style={{ width: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             {isImg
-                ? <img src={icon} alt={label} style={{ width: 18, height: 18, objectFit: 'contain' }} />
-                : <span style={{ fontSize: 14, color: COLORS.textPrimary, display: 'flex' }}>{icon}</span>}
+                ? <img src={icon} alt={label} style={{ width: 22, height: 22, objectFit: 'contain' }} />
+                : <span style={{ fontSize: 19, lineHeight: 1, display: 'flex' }}>{icon}</span>}
         </div>
         {/* Label with fixed width */}
-        <span style={{ width: 100, fontSize: 11, color: COLORS.textPrimary, fontWeight: 500 }}>{label}</span>
+        <span style={{ width: 118, fontSize: 13, color: COLORS.textPrimary, fontWeight: 500 }}>{label}</span>
         {/* Value left-aligned and flexible */}
-        <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: muted ? '#94A3B8' : COLORS.textPrimary }}>{value}</span>
+        <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: muted ? '#94A3B8' : COLORS.textPrimary }}>{value}</span>
     </div>
 );
 
@@ -145,7 +134,7 @@ const DamageReviewPage = () => {
                 {/* ── Vehicle Photos ─── */}
                 <div style={{ padding: '8px 12px 0' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                        <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.textPrimary }}>Vehicle Photos</span>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: COLORS.textPrimary }}>Vehicle Photos</span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                             <button onClick={() => scrollPhotos(-1)} style={{ background: 'none', border: 'none', fontSize: 14, cursor: 'pointer', color: COLORS.textSecondary, padding: '2px 4px' }}>‹</button>
                             <button onClick={() => scrollPhotos(1)} style={{ background: 'none', border: 'none', fontSize: 14, cursor: 'pointer', color: COLORS.textSecondary, padding: '2px 4px' }}>›</button>
@@ -174,7 +163,7 @@ const DamageReviewPage = () => {
 
                 {/* ── Vehicle Details Card ─── */}
                 <div style={{ margin: '8px 10px 0', background: '#DAF0FE', borderRadius: 10, padding: '2px 10px 4px' }}>
-                    <p style={{ fontWeight: 700, fontSize: 12, color: COLORS.textPrimary, padding: '6px 0 2px' }}>Vehicle Details</p>
+                    <p style={{ fontWeight: 700, fontSize: 14, color: COLORS.textPrimary, padding: '6px 0 2px' }}>Vehicle Details</p>
                     {VEHICLE_DETAILS.map((row, i) => (
                         <DetailRow key={i} {...row} last={i === VEHICLE_DETAILS.length - 1} isImg={false} />
                     ))}
@@ -182,7 +171,7 @@ const DamageReviewPage = () => {
 
                 {/* ── Insured Details Card ─── */}
                 <div style={{ margin: '8px 10px 0', background: '#DAF0FE', borderRadius: 10, padding: '2px 10px 4px' }}>
-                    <p style={{ fontWeight: 700, fontSize: 12, color: COLORS.textPrimary, padding: '6px 0 2px' }}>Insured Details</p>
+                    <p style={{ fontWeight: 700, fontSize: 14, color: COLORS.textPrimary, padding: '6px 0 2px' }}>Insured Details</p>
                     <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
                         <span style={{ width: 6, height: 6, borderRadius: '50%', background: COLORS.textSecondary, marginTop: 2 }} />
                         <span style={{ width: 6, height: 6, borderRadius: '50%', background: COLORS.textSecondary, marginTop: 2 }} />

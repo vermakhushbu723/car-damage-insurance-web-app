@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node scripts/genFlows.mjs)",
+      "Bash(grep -n \"navigate\\(\\\\|from './routes'\\\\|from '\\\\.\\\\./\\\\.\\\\./\\\\.\\\\./\" DamageReviewPage.jsx)",
+      "Bash(grep -n \"returnTo\\\\|from '\\\\.\\\\./\\\\.\\\\./\\\\.\\\\./routes/Protected\" CameraCapturePage.jsx)",
+      "Bash(cd \"C:/Users/Lenovo/.claude/projects/d--Project-demoDeepak-car-insorence-car-damage-insurance-web-app/memory\" && if [ -f MEMORY.md ]; then echo \"exists\"; cat MEMORY.md; else echo \"creating\"; fi)",
+      "Read(//c/Users/Lenovo/.claude/projects/d--Project-demoDeepak-car-insorence-car-damage-insurance-web-app/memory/**)"
+    ]
+  }
+}
