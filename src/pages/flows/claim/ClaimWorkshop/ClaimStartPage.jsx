@@ -88,7 +88,7 @@ const ClaimStartPage = () => {
                 </div>
 
                 {/* Documents List — flex-1 so it shares remaining space */}
-                <div className="flex-1 min-h-0 px-4 py-1 flex flex-col justify-around overflow-hidden">
+                <div className="flex-1 min-h-0 px-4 py-1 flex flex-col gap-5 overflow-hidden">
                     {documents.map((doc, i) => (
                         <div key={i} className="flex items-center gap-3">
                             {/* Icon Box */}

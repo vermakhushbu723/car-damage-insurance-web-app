@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { FaWrench, FaSearch, FaLink, FaUser, FaBuilding, FaGlobe } from 'react-icons/fa';
 import AppHeader from '../../components/common/AppHeader';
-import { ROUTES } from '../../constants/routes';
 import { COLORS } from '../../constants/theme';
 import { setOption, WORKFLOW_TYPES } from '../../store/workflowSlice';
 import { setLoading } from '../../store/loadingSlice';
@@ -88,7 +87,7 @@ const LandingPage = () => {
         // items that declare an explicit `route` (e.g. the *-WEBLINK
         // buttons) jump straight there instead.
         dispatch(setOption(item.workflow));
-        navigate(item.route || ROUTES.CLAIM_WORKSHOP_LOGIN);
+        navigate(item.route || '/claim-workshop/login');
     };
 
     return (
@@ -99,7 +98,7 @@ const LandingPage = () => {
             <AppHeader />
 
             {/* Title */}
-            <div className="flex flex-col items-center mt-16 mb-6 px-4">
+            <div className="flex flex-col items-center mt-5 mb-6 px-4">
                 <h1
                     className="text-white font-bold text-2xl text-center tracking-wide drop-shadow"
                     style={{ letterSpacing: '0.04em' }}
