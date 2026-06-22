@@ -1,5 +1,16 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+    FaCar,
+    FaBullseye,
+    FaPalette,
+    FaBox,
+    FaIndustry,
+    FaIdCard,
+    FaStopwatch,
+    FaMapMarkerAlt,
+    FaCalendarAlt,
+} from 'react-icons/fa';
 import AppHeader from '../../../../components/common/AppHeader';
 import { COLORS } from '../../../../constants/theme';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
@@ -27,15 +38,15 @@ const DEFAULT_VEHICLE_PHOTOS = [
 ];
 
 const VEHICLE_DETAILS = [
-    { icon: '🏢', label: 'Make', value: 'Volkswagen Polo' },
-    { icon: '🚗', label: 'Model', value: 'GT Tsi' },
-    { icon: '🧬', label: 'Variant', value: 'DSG Automatic' },
-    { icon: '🚙', label: 'Body Type', value: 'Hatch Back', muted: true },
-    { icon: '🏭', label: 'Mfg Year', value: '2017' },
-    { icon: '📄', label: 'Registration number', value: 'MH 49 DS 2345' },
-    { icon: '⏲️', label: 'Odometer', value: '141470 KMS' },
-    { icon: '📍', label: 'State', value: 'MH' },
-    { icon: '📅', label: 'Registration Date', value: '17/03/2017' },
+    { icon: <FaCar />, color: '#2563EB', label: 'Make', value: 'Volkswagen Polo' },
+    { icon: <FaBullseye />, color: '#DB2777', label: 'Model', value: 'GT Tsi' },
+    { icon: <FaPalette />, color: '#7C3AED', label: 'Variant', value: 'DSG Automatic' },
+    { icon: <FaBox />, color: '#EA580C', label: 'Body Type', value: 'Hatch Back', muted: true },
+    { icon: <FaIndustry />, color: '#0891B2', label: 'Mfg Year', value: '2017' },
+    { icon: <FaIdCard />, color: '#16A34A', label: 'Registration number', value: 'MH 49 DS 2345' },
+    { icon: <FaStopwatch />, color: '#DC2626', label: 'Odometer', value: '141470 KMS' },
+    { icon: <FaMapMarkerAlt />, color: '#0D9488', label: 'State', value: 'MH' },
+    { icon: <FaCalendarAlt />, color: '#4F46E5', label: 'Registration Date', value: '17/03/2017' },
 ];
 
 const INSURED_DETAILS = [
@@ -48,7 +59,7 @@ const INSURED_DETAILS = [
 ];
 
 // ── Row component ─────────────────────────────────────────────────────────
-const DetailRow = ({ icon, label, value, muted, last, isImg }) => (
+const DetailRow = ({ icon, label, value, muted, last, isImg, color }) => (
     <div
         style={{
             display: 'flex',
@@ -62,7 +73,7 @@ const DetailRow = ({ icon, label, value, muted, last, isImg }) => (
         <div style={{ width: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             {isImg
                 ? <img src={icon} alt={label} style={{ width: 22, height: 22, objectFit: 'contain' }} />
-                : <span style={{ fontSize: 19, lineHeight: 1, display: 'flex' }}>{icon}</span>}
+                : <span style={{ fontSize: 18, lineHeight: 1, display: 'flex', color }}>{icon}</span>}
         </div>
         {/* Label with fixed width */}
         <span style={{ width: 118, fontSize: 13, color: COLORS.textPrimary, fontWeight: 500 }}>{label}</span>

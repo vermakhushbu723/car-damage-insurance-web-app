@@ -10,37 +10,57 @@ import { ROUTES } from './routes';
 import { setProduct } from '../../../../store/vehicleSlice';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
 
+// Per-field input filters — strip disallowed characters as the user types,
+// and hint the correct on-screen keyboard via inputMode.
+//   letters → only A–Z / a–z and spaces (names)
+//   numbers → only digits (mobile, odometer)
+//   plate   → alphanumeric + spaces, auto-uppercased (registration number)
+const FIELD_FILTERS = {
+    letters: (v) => v.replace(/[^A-Za-z ]/g, ''),
+    numbers: (v) => v.replace(/[^0-9]/g, ''),
+    plate: (v) => v.replace(/[^A-Za-z0-9 ]/g, '').toUpperCase(),
+};
+const FIELD_INPUT_MODES = { letters: 'text', numbers: 'numeric', plate: 'text' };
+
 // Reusable Input Field
-const InputField = ({ label, placeholder, value, onChange, type = 'text', prefix, onClick, readOnly, error }) => (
-    <div className="mb-4">
-        <label className="block text-sm font-medium mb-1.5" style={{ color: COLORS.textPrimary }}>
-            {label}
-        </label>
-        <div
-            className="flex items-center gap-2 px-4 py-2 rounded-md border"
-            style={{ background: COLORS.bgInput, borderColor: error ? COLORS.statusPending : COLORS.borderInput, cursor: onClick ? 'pointer' : 'auto' }}
-            onClick={onClick}
-        >
-            {prefix && (
-                <span className="text-sm font-semibold shrink-0" style={{ color: COLORS.textSecondary }}>
-                    {prefix}
-                </span>
+const InputField = ({ label, placeholder, value, onChange, type = 'text', prefix, onClick, readOnly, error, validate, maxLength }) => {
+    const handleChange = (e) => {
+        const raw = e.target.value;
+        onChange(validate && FIELD_FILTERS[validate] ? FIELD_FILTERS[validate](raw) : raw);
+    };
+    return (
+        <div className="mb-4">
+            <label className="block text-sm font-medium mb-1.5" style={{ color: COLORS.textPrimary }}>
+                {label}
+            </label>
+            <div
+                className="flex items-center gap-2 px-4 py-2 rounded-md border"
+                style={{ background: COLORS.bgInput, borderColor: error ? COLORS.statusPending : COLORS.borderInput, cursor: onClick ? 'pointer' : 'auto' }}
+                onClick={onClick}
+            >
+                {prefix && (
+                    <span className="text-sm font-semibold shrink-0" style={{ color: COLORS.textSecondary }}>
+                        {prefix}
+                    </span>
+                )}
+                <input
+                    type={type}
+                    inputMode={validate ? FIELD_INPUT_MODES[validate] : undefined}
+                    maxLength={maxLength}
+                    placeholder={placeholder}
+                    value={value}
+                    onChange={readOnly || onClick ? undefined : handleChange}
+                    readOnly={readOnly || !!onClick}
+                    className="flex-1 outline-none text-sm bg-transparent"
+                    style={{ color: value ? COLORS.textPrimary : COLORS.textSecondary, cursor: onClick ? 'pointer' : 'text' }}
+                />
+            </div>
+            {error && (
+                <p className="text-sm mt-1" style={{ color: COLORS.statusPending }}>{error}</p>
             )}
-            <input
-                type={type}
-                placeholder={placeholder}
-                value={value}
-                onChange={readOnly || onClick ? undefined : (e) => onChange(e.target.value)}
-                readOnly={readOnly || !!onClick}
-                className="flex-1 outline-none text-sm bg-transparent"
-                style={{ color: value ? COLORS.textPrimary : COLORS.textSecondary, cursor: onClick ? 'pointer' : 'text' }}
-            />
         </div>
-        {error && (
-            <p className="text-sm mt-1" style={{ color: COLORS.statusPending }}>{error}</p>
-        )}
-    </div>
-);
+    );
+};
 
 // Reusable Select Field - Custom Dropdown
 const SelectField = ({ label, placeholder, value, onChange, options = [], error }) => {
@@ -256,6 +276,7 @@ const OwnerVehicleDetailsPage = () => {
                     placeholder="Enter owner name"
                     value={form.ownerName}
                     onChange={set('ownerName')}
+                    validate="letters"
                     error={errors.ownerName}
                 />
 
@@ -266,6 +287,8 @@ const OwnerVehicleDetailsPage = () => {
                     onChange={set('mobile')}
                     type="tel"
                     prefix="+91"
+                    validate="numbers"
+                    maxLength={10}
                     error={errors.mobile}
                 />
 
@@ -283,7 +306,7 @@ const OwnerVehicleDetailsPage = () => {
                     placeholder="Enter odometer reading"
                     value={form.odometer}
                     onChange={set('odometer')}
-                    type="number"
+                    validate="numbers"
                     error={errors.odometer}
                 />
 
@@ -292,6 +315,7 @@ const OwnerVehicleDetailsPage = () => {
                     placeholder="Enter registration number"
                     value={form.registrationNumber}
                     onChange={set('registrationNumber')}
+                    validate="plate"
                     error={errors.registrationNumber}
                 />
 

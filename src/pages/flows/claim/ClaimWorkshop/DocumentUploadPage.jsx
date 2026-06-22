@@ -21,13 +21,19 @@ import phoneIcon from '../../../../assets/icons/phone.svg';
 
 const DOC_LIST = [
     { id: 'claim_form', icon: claimFormIcon, bgColor: '#8A64FF40', borderColor: '#8A64FF', label: 'Claim Form', desc: 'Insurance Claim Application Form', required: true },
-    { id: 'driving_license', icon: drivingLicenseIcon, bgColor: '#FF787040', borderColor: '#FF7870', label: 'Driving License', desc: 'DL Of Driver At the time of accident', required: true },
-    { id: 'rc', icon: registrationCertificateIcon, bgColor: '#00934840', borderColor: '#009348', label: 'Registration Certificate', desc: 'Registration Certificate of insured vehicle', required: true },
+    { id: 'driving_license', icon: drivingLicenseIcon, bgColor: '#FF787040', borderColor: '#FF7870', label: 'Driving License', desc: 'DL Of Driver At the time of accident', required: true, frontBack: true },
+    { id: 'rc', icon: registrationCertificateIcon, bgColor: '#00934840', borderColor: '#009348', label: 'Registration Certificate', desc: 'Registration Certificate of insured vehicle', required: true, frontBack: true },
     { id: 'repair_estimate', icon: repairEstimateIcon, bgColor: '#DB6F3740', borderColor: '#DB6F37', label: 'Repair Estimate', desc: 'Repair estimate of insured vehicle', required: false },
-    { id: 'aadhar', icon: kycIcon, bgColor: '#1FA0D940', borderColor: '#1FA0D9', label: 'Aadhar Card', desc: 'Aadhar of the insured Person', required: false },
-    { id: 'pan', icon: kycIcon, bgColor: '#1FA0D940', borderColor: '#1FA0D9', label: 'Pan Card', desc: 'Pan of the insured person', required: true },
-    { id: 'others', icon: phoneIcon, bgColor: '#01A0FE40', borderColor: '#01A0FE', label: 'Others', desc: 'PUC, Fitness, Police papers & any other documents required in support of claim', required: false },
+    { id: 'aadhar', icon: kycIcon, bgColor: '#1FA0D940', borderColor: '#1FA0D9', label: 'Aadhar Card', desc: 'Aadhar of the insured Person', required: false, frontBack: true },
+    { id: 'pan', icon: kycIcon, bgColor: '#1FA0D940', borderColor: '#1FA0D9', label: 'Pan Card', desc: 'Pan of the insured person', required: true, frontBack: true },
+    { id: 'others', icon: phoneIcon, bgColor: '#01A0FE40', borderColor: '#01A0FE', label: 'Others', desc: 'PUC, Fitness, Police papers & any other documents required in support of claim', required: false, isOther: true },
 ];
+
+// Which modal layout each document uses:
+//   isOther   → 'other'     (multiple images + editable name)
+//   frontBack → 'frontBack' (Front Side / Back Side)
+//   otherwise → 'multiple'  (multiple images, fixed name)
+const docModeFor = (doc) => (doc?.isOther ? 'other' : doc?.frontBack ? 'frontBack' : 'multiple');
 
 const DocumentUploadPage = () => {
     usePageLoading();
@@ -59,6 +65,22 @@ const DocumentUploadPage = () => {
                 },
             }));
         }
+    };
+
+    // Multi-image save. 'Other' accumulates a list of named documents (the card
+    // lists their names); a fixed-name multi doc just keeps its latest images.
+    const handleSaveOther = (name, files) => {
+        if (!activeDoc) return;
+        const urls = files.map((f) => URL.createObjectURL(f));
+        const label = name || activeDoc.label;
+        setUploaded((p) => {
+            if (activeDoc.isOther) {
+                const prevDocs = p[activeDoc.id]?.documents || [];
+                const documents = [...prevDocs, { name: label, urls, count: files.length }];
+                return { ...p, [activeDoc.id]: { documents, count: documents.length } };
+            }
+            return { ...p, [activeDoc.id]: { name: label, files, urls, count: files.length } };
+        });
     };
 
     const handleNext = () => {
@@ -125,6 +147,19 @@ const DocumentUploadPage = () => {
                                 </div>
                                 <p className="text-sm mb-3 ml-7" style={{ color: COLORS.textPrimary }}>{doc.desc}</p>
 
+                                {/* Others → list of entered document names. */}
+                                {doc.isOther && uploaded[doc.id]?.documents?.length > 0 ? (
+                                    <div className="flex flex-col gap-1 mb-3 ml-7">
+                                        {uploaded[doc.id].documents.map((d, i) => (
+                                            <div key={i} className="flex items-center gap-2">
+                                                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: COLORS.primary }} />
+                                                <span className="text-sm font-semibold" style={{ color: COLORS.textPrimary }}>{d.name}</span>
+                                                <span className="text-xs" style={{ color: COLORS.textSecondary }}>({d.count} image{d.count !== 1 ? 's' : ''})</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : null}
+
                                 {/* Action Buttons */}
                                 <div className="flex gap-3">
                                     <PrimaryButton
@@ -152,8 +187,10 @@ const DocumentUploadPage = () => {
                     visible={modalVisible}
                     docName={activeDoc?.label}
                     source={pickerSource}
+                    mode={docModeFor(activeDoc)}
                     onClose={() => setModalVisible(false)}
                     onCapture={handleCapture}
+                    onSaveOther={handleSaveOther}
                 />
             </div>
         </div>

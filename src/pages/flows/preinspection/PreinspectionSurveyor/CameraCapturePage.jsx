@@ -2,13 +2,11 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { FaMobileAlt, FaSyncAlt, FaCamera, FaMapMarkerAlt, FaClock } from 'react-icons/fa';
-import AppHeader from '../../../../components/common/AppHeader';
-import PageTitleBar from '../../../../components/common/PageTitleBar';
 import { COLORS } from '../../../../constants/theme';
 import { useCameraContext } from '../../../../contexts/CameraContext';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
 import { selectVehicleCategory } from '../../../../store/vehicleSlice';
-import { getAngleImage } from '../../../../constants/vehicleAssets';
+import { getAngleImage, isAngleSupported } from '../../../../constants/vehicleAssets';
 import { unlockOrientation } from '../../../../utils/orientation';
 
 // Helper function to create a precise mask that fits the outline of the vehicle frame.
@@ -151,7 +149,17 @@ const CameraCapturePage = () => {
     // category's asset folder. Falls back to the centre silhouette if
     // the requested angle isn't available for that category (e.g.
     // chassis-number on a bike).
-    const guideImage = getAngleImage(vehicleCategory, angle);
+    // Strip a trailing -N (extra capture slot) so e.g. 'front-side-2' still
+    // shows the 'front-side' guide; unknown angles stay null (clean camera).
+    const baseAngle = angle.replace(/-\d+$/, '');
+    // "Add Others" photos (dashboard, selfie, windshield, tyres, doors-open …)
+    // are free-form shots — never overlay the 360° vehicle silhouette there,
+    // regardless of which angle key they reuse.
+    const fromOthersFlow =
+        ['add-others-photos', 'add-damage-photos'].some((p) => (routeLocation.state?.returnTo || '').includes(p));
+    const guideImage = !fromOthersFlow && isAngleSupported(vehicleCategory, baseAngle)
+        ? getAngleImage(vehicleCategory, baseAngle)
+        : null;
 
     // ── Orientation watcher ────────────────────────────────────────────────
     // Mirrors PhotoCaptureSelectionPage so the camera flow is consistent —
@@ -424,14 +432,6 @@ const CameraCapturePage = () => {
     return (
         <div style={{ position: 'fixed', inset: 0, background: '#000', overflow: 'hidden' }}>
 
-            {/* Header — only during loading (hidden in live camera + captured preview) */}
-            {!isCameraReady && !capturedImage && (
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30 }}>
-                    <AppHeader />
-                    <PageTitleBar title={`Capture - ${formatAngleName(angle)}`} />
-                </div>
-            )}
-
             {/* ── Live video — always in DOM ── */}
             <video
                 ref={videoRef}
@@ -490,6 +490,7 @@ const CameraCapturePage = () => {
                         edges (overlay visible → blurred view). The size
                         is tuned to match the silhouette's `maxWidth/Height`
                         of 75% × 95%. ── */}
+                    {guideImage && (<>
                     <div
                         aria-hidden="true"
                         style={{
@@ -537,13 +538,14 @@ const CameraCapturePage = () => {
                             WebkitClipPath: 'inset(4px)'
                         }}
                     />
+                    </>)}
 
                     {/* ── TOP RIGHT — angle label ── */}
                     <div style={{
                         position: 'absolute', top: 16, right: 16,
                         zIndex: 10, color: COLORS.btnPrimary,
                         fontSize: 22, fontWeight: 700,
-                        textShadow: '0 1px 4px rgba(0,0,0,0.6)',
+                        
                     }}>
                         {formatAngleName(angle)}
                     </div>
@@ -553,13 +555,13 @@ const CameraCapturePage = () => {
                         position: 'absolute', bottom: 20, left: 16,
                         zIndex: 10, display: 'flex', flexDirection: 'column', gap: 4,
                     }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ef4444', fontWeight: 700, fontSize: 16 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: COLORS.btnPrimary, fontWeight: 700, fontSize: 16 }}>
                             <FaMapMarkerAlt style={{ fontSize: 14 }} />
-                            <span style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>Location: {location}</span>
+                            <span >Location: {location}</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ef4444', fontWeight: 700, fontSize: 16 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: COLORS.btnPrimary, fontWeight: 700, fontSize: 16 }}>
                             <FaClock style={{ fontSize: 14 }} />
-                            <span style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>Date: {dateTime}</span>
+                            <span >Date: {dateTime}</span>
                         </div>
                     </div>
 

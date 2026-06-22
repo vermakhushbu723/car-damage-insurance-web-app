@@ -15,6 +15,23 @@ import { usePageLoading } from '../../../../hooks/usePageLoading';
 import { FaMobileAlt, FaSyncAlt, FaVideo, FaCamera, FaCheck } from 'react-icons/fa';
 import { COLORS } from '../../../../constants/theme';
 
+// Where each capture angle sits on the vehicle, as fractions of the rendered
+// silhouette box (fx: 0 = front/left … 1 = rear/right; fy: 0 = top … 1 = bottom).
+// All silhouettes face left, so FRONT angles use small fx, REAR angles large fx.
+const PART_FRACTIONS = {
+    'front-side': { fx: 0.07, fy: 0.62 },
+    'front-rh-side': { fx: 0.15, fy: 0.32 },
+    'front-lh': { fx: 0.15, fy: 0.9 },
+    'rear-side': { fx: 0.93, fy: 0.5 },
+    'rear-rh-side': { fx: 0.85, fy: 0.3 },
+    'rear-lh-side': { fx: 0.85, fy: 0.82 },
+    'lh-side': { fx: 0.5, fy: 0.9 },
+    'rh-side': { fx: 0.5, fy: 0.18 },
+    'odometer': { fx: 0.26, fy: 0.3 },
+    'chassis-number': { fx: 0.58, fy: 0.85 },
+    'video': { fx: 0.4, fy: 0.5 },
+};
+
 const PhotoCaptureSelectionPage = () => {
     usePageLoading();
     const navigate = useNavigate();
@@ -32,7 +49,11 @@ const PhotoCaptureSelectionPage = () => {
     // point from each capture point toward the car, with correct angles
     // despite the container's non-square aspect ratio.
     const carContainerRef = useRef(null);
+    const vehicleImgRef = useRef(null);
     const [containerDims, setContainerDims] = useState({ w: 0, h: 0 });
+    // Rendered vehicle-image rect (relative to the container) so arrow targets
+    // track the actual car / bike / truck size & position.
+    const [vehicleRect, setVehicleRect] = useState(null);
     const [capturedPhotos, setCapturedPhotos] = useState({});
     const [videoUrl, setVideoUrl] = useState('');
     const [videoLoadError, setVideoLoadError] = useState(false);
@@ -76,6 +97,25 @@ const PhotoCaptureSelectionPage = () => {
         return () => ro.disconnect();
     }, [isLandscape]);
 
+    // Measure the silhouette's rendered rectangle so each arrow can aim at the
+    // real vehicle regardless of its size / aspect ratio.
+    useEffect(() => {
+        const measureVehicle = () => {
+            const cont = carContainerRef.current;
+            const img = vehicleImgRef.current;
+            if (!cont || !img) return;
+            const c = cont.getBoundingClientRect();
+            const r = img.getBoundingClientRect();
+            setVehicleRect({ left: r.left - c.left, top: r.top - c.top, width: r.width, height: r.height });
+        };
+        measureVehicle();
+        const ro = new ResizeObserver(measureVehicle);
+        if (carContainerRef.current) ro.observe(carContainerRef.current);
+        if (vehicleImgRef.current) ro.observe(vehicleImgRef.current);
+        window.addEventListener('resize', measureVehicle);
+        return () => { ro.disconnect(); window.removeEventListener('resize', measureVehicle); };
+    }, [isLandscape, vehicleCategory]);
+
     // Load photos on mount and every time we come back to this page
     useEffect(() => {
         loadCapturedPhotos();
@@ -89,23 +129,24 @@ const PhotoCaptureSelectionPage = () => {
         };
     }, [location]); // re-run when navigating back to this page
 
-    // Photo capture points positioned around the silhouette. Points whose
-    // angle has no guide image for the current vehicle category are
-    // filtered out below (e.g. chassis-number for bikes).
-    // Points evenly placed on an oval ring around the car (clockwise from the
-    // top), so the layout reads as a clean circle like the reference diagram.
+    // Button positions arranged per the user's reference diagram. Arrow
+    // directions still come from the measured vehicle rect (PART_FRACTIONS),
+    // so they stay accurate for any vehicle.
     const allPhotoPoints = [
-        { id: 'rear-rh-side', label: 'Rear RH Side', top: '13%', left: '50%', labelPosition: 'top' },
-        { id: 'rear-side', label: 'Rear Side', top: '19%', left: '72%', labelPosition: 'top' },
-        { id: 'rear-lh-side', label: 'Rear LH Side', top: '35%', left: '86%', labelPosition: 'right' },
-        { id: 'lh-side', label: 'LH Side', top: '55%', left: '90%', labelPosition: 'right' },
-        { id: 'front-lh', label: 'Front LH', top: '74%', left: '80%', labelPosition: 'right' },
-        { id: 'chassis-number', label: 'Chassis Number', top: '86%', left: '61%', labelPosition: 'bottom' },
-        { id: 'front-side', label: 'Front Side', top: '86%', left: '39%', labelPosition: 'bottom' },
-        { id: 'odometer', label: 'Odometer', top: '74%', left: '20%', labelPosition: 'left' },
-        { id: 'video', label: 'Video', top: '55%', left: '10%', labelPosition: 'left' },
-        { id: 'front-rh-side', label: 'Front RH Side', top: '35%', left: '14%', labelPosition: 'left' },
-        { id: 'rh-side', label: 'RH Side', top: '19%', left: '28%', labelPosition: 'top' },
+        // Evenly spaced around the vehicle: front shots hug the left (front faces
+        // left), rear shots the right, RH the top, LH the bottom. Arrow directions
+        // still come from the measured vehicle rect, so they stay accurate.
+        { id: 'rh-side', label: 'RH Side', top: '10%', left: '42%', labelPosition: 'top' },
+        { id: 'rear-rh-side', label: 'Rear RH Side', top: '20%', left: '72%', labelPosition: 'top' },
+        { id: 'rear-side', label: 'Rear Side', top: '46%', left: '87%', labelPosition: 'right' },
+        { id: 'rear-lh-side', label: 'Rear LH Side', top: '72%', left: '80%', labelPosition: 'right' },
+        { id: 'lh-side', label: 'LH Side', top: '90%', left: '63%', labelPosition: 'bottom' },
+        { id: 'front-lh', label: 'Front LH', top: '92%', left: '46%', labelPosition: 'bottom' },
+        { id: 'chassis-number', label: 'Chassis Number', top: '90%', left: '30%', labelPosition: 'bottom' },
+        { id: 'front-side', label: 'Front Side', top: '74%', left: '15%', labelPosition: 'bottom' },
+        { id: 'odometer', label: 'Odometer', top: '50%', left: '10%', labelPosition: 'left' },
+        { id: 'front-rh-side', label: 'Front RH Side', top: '26%', left: '15%', labelPosition: 'left' },
+        { id: 'video', label: 'Video', top: '90%', left: '3%', labelPosition: 'top' },
     ];
     const photoPoints = allPhotoPoints.filter(p => isAngleSupported(vehicleCategory, p.id));
     const centerImage = getCenterImage(vehicleCategory);
@@ -185,6 +226,7 @@ const PhotoCaptureSelectionPage = () => {
                             based on the "Select Product" choice on
                             /owner-vehicle-details. */}
                         <img
+                            ref={vehicleImgRef}
                             src={centerImage}
                             alt="Vehicle"
                             className="object-contain"
@@ -213,20 +255,23 @@ const PhotoCaptureSelectionPage = () => {
                             const POINT_GREEN = '#22C55E';
                             const pointColor = isPointDone ? POINT_GREEN : POINT_BLUE;
 
-                            // Clean arrow that simply points from this capture
-                            // point toward the car center (like the reference
-                            // diagram). Computed in pixels so the angle isn't
-                            // skewed by the container's wide aspect ratio.
+                            // Aim the arrow at the actual rendered vehicle: place the
+                            // target inside the measured silhouette rect using this
+                            // part's fractions. Accurate for any vehicle size/aspect.
                             const W = containerDims.w || 1;
                             const H = containerDims.h || 1;
                             const px = parseFloat(point.left);
                             const py = parseFloat(point.top);
-                            // Vector from car center to this point (pixels).
-                            const cx = ((px - 50) / 100) * W;
-                            const cy = ((py - 50) / 100) * H;
-                            const distPx = Math.hypot(cx, cy) || 1;
-                            // Arrow points from the point back toward the center.
-                            const arrowAngle = Math.atan2(-cy, -cx) * (180 / Math.PI);
+                            const buttonX = (px / 100) * W;
+                            const buttonY = (py / 100) * H;
+                            const frac = PART_FRACTIONS[point.id] || { fx: 0.5, fy: 0.5 };
+                            const vr = vehicleRect || { left: W * 0.3, top: H * 0.3, width: W * 0.4, height: H * 0.4 };
+                            const partX = vr.left + frac.fx * vr.width;
+                            const partY = vr.top + frac.fy * vr.height;
+                            const tx = partX - buttonX;
+                            const ty = partY - buttonY;
+                            const distPx = Math.hypot(tx, ty) || 1;
+                            const arrowAngle = Math.atan2(ty, tx) * (180 / Math.PI);
                             // Small, clean arrow sitting between the point and the car.
                             const arrowLen = Math.min(Math.max(distPx * 0.12, 12), 28);
 

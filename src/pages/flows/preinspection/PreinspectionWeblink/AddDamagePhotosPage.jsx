@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FaCheck } from 'react-icons/fa';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 import AppHeader from '../../../../components/common/AppHeader';
 import { ROUTES } from './routes';
 import { COLORS } from '../../../../constants/theme';
@@ -91,6 +91,45 @@ const AddDamagePhotosPage = () => {
     const completedCount = PHOTO_SECTIONS.filter(s => capturedPhotos[s.captureAngle]).length;
     const totalCount = PHOTO_SECTIONS.length + 1; // +1 for additional damage section
     const progress = Math.round((completedCount / totalCount) * 100);
+
+    // Group every captured photo by the angle's primary direction, so all
+    // "front" angles (front-side, front-rh-side, front-lh) show in the Front
+    // section, all "rear" in Rear, "rh-side" in Right, "lh-side" in Left.
+    const sideImagesFor = (captureAngle) => {
+        const side = captureAngle.split('-')[0];
+        return Object.keys(capturedPhotos)
+            .filter((k) => capturedPhotos[k] && k.split('-')[0] === side)
+            .sort((a, b) => a.localeCompare(b));
+    };
+
+    // Next free capture slot for a side: base angle first, then -1, -2, ...
+    const nextSideSlot = (captureAngle) => {
+        if (!capturedPhotos[captureAngle]) return captureAngle;
+        let n = 1;
+        while (capturedPhotos[captureAngle + '-' + n]) n++;
+        return captureAngle + '-' + n;
+    };
+
+    // Additional damage photos — capture as many as needed. Each capture lands
+    // in a fresh additional-damage-N slot so they never overwrite each other.
+    const additionalKeys = Object.keys(capturedPhotos)
+        .filter((k) => k.startsWith('additional-damage-') && capturedPhotos[k])
+        .sort((a, b) => Number(a.slice('additional-damage-'.length)) - Number(b.slice('additional-damage-'.length)));
+    let nextAdditionalIndex = 0;
+    while (capturedPhotos['additional-damage-' + nextAdditionalIndex]) nextAdditionalIndex++;
+
+    const removeAdditional = (key) => {
+        setCapturedPhotos((prev) => {
+            const next = { ...prev };
+            delete next[key];
+            try {
+                const stored = JSON.parse(localStorage.getItem('damage_photos') || '{}');
+                delete stored[key];
+                localStorage.setItem('damage_photos', JSON.stringify(stored));
+            } catch { /* ignore */ }
+            return next;
+        });
+    };
 
     const handleCapture = (captureAngle) => {
         // Hand the camera route a durable access ticket — survives
@@ -214,7 +253,8 @@ const AddDamagePhotosPage = () => {
 
                 {/* ── Photo Sections ─────────────────────────────────── */}
                 {PHOTO_SECTIONS.map((section) => {
-                    const captured = capturedPhotos[section.captureAngle];
+                    const sideKeys = sideImagesFor(section.captureAngle);
+                    const captured = sideKeys.length > 0;
                     return (
                         <div
                             key={section.id}
@@ -226,7 +266,6 @@ const AddDamagePhotosPage = () => {
                                 boxShadow: '0 1px 6px rgba(0,0,0,0.08)',
                             }}
                         >
-                            {/* Section label */}
                             <p
                                 style={{
                                     color: COLORS.textSecondary,
@@ -238,19 +277,13 @@ const AddDamagePhotosPage = () => {
                                 {section.label}
                             </p>
 
-                            {/* Thumbnails row */}
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    gap: 6,
-                                    marginBottom: 12,
-                                }}
-                            >
-                                {section.thumbnails.map((img, i) => (
+                            {/* All captured photos for this side, then guide outlines */}
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+                                {sideKeys.map((key) => (
                                     <div
-                                        key={i}
+                                        key={key}
                                         style={{
-                                            flex: 1,
+                                            width: 'calc((100% - 18px) / 4)',
                                             aspectRatio: '1',
                                             background: '#F1F5F9',
                                             borderRadius: 8,
@@ -258,45 +291,38 @@ const AddDamagePhotosPage = () => {
                                             position: 'relative',
                                         }}
                                     >
-                                        <img
-                                            src={captured && i === 0 ? captured : img}
-                                            alt={section.label}
+                                        <img src={capturedPhotos[key]} alt={section.label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        <div
                                             style={{
-                                                width: '100%',
-                                                height: '100%',
-                                                objectFit: captured && i === 0 ? 'cover' : 'contain',
-                                                padding: captured && i === 0 ? 0 : 4,
+                                                position: 'absolute', top: 4, right: 4,
+                                                background: '#22C55E', borderRadius: '50%',
+                                                width: 16, height: 16,
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                fontSize: 9, color: '#fff',
                                             }}
-                                        />
-                                        {/* Captured tick badge */}
-                                        {captured && i === 0 && (
-                                            <div
-                                                style={{
-                                                    position: 'absolute',
-                                                    top: 4,
-                                                    right: 4,
-                                                    background: '#22C55E',
-                                                    borderRadius: '50%',
-                                                    width: 18,
-                                                    height: 18,
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    fontSize: 10,
-                                                    color: '#fff',
-                                                    fontWeight: 700,
-                                                }}
-                                            >
-                                                <FaCheck />
-                                            </div>
-                                        )}
+                                        >
+                                            <FaCheck />
+                                        </div>
+                                        <button
+                                            onClick={() => removeAdditional(key)}
+                                            aria-label="Remove"
+                                            style={{
+                                                position: 'absolute', top: 4, left: 4,
+                                                background: '#EF4444', borderRadius: '50%',
+                                                width: 16, height: 16, border: 'none', cursor: 'pointer',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                fontSize: 8, color: '#fff',
+                                            }}
+                                        >
+                                            <FaTimes />
+                                        </button>
                                     </div>
                                 ))}
                             </div>
 
-                            {/* Capture button */}
+                            {/* Capture button — capture as many photos per side as needed */}
                             <button
-                                onClick={() => handleCapture(section.captureAngle)}
+                                onClick={() => handleCapture(nextSideSlot(section.captureAngle))}
                                 style={{
                                     width: '100%',
                                     padding: '13px 0',
@@ -310,7 +336,7 @@ const AddDamagePhotosPage = () => {
                                     letterSpacing: 0.2,
                                 }}
                             >
-                                {captured ? 'Recapture' : 'Capture'}
+                                {captured ? '+ Add Photo' : 'Capture'}
                             </button>
                         </div>
                     );
@@ -337,64 +363,42 @@ const AddDamagePhotosPage = () => {
                         Additional Photos Of Damage
                     </p>
 
-                    {/* Empty gray slots */}
-                    <div
-                        style={{
-                            display: 'flex',
-                            gap: 6,
-                            marginBottom: 12,
-                        }}
-                    >
-                        {[0, 1, 2].map((i) => {
-                            const extraKey = `additional-damage-${i}`;
-                            const captured = capturedPhotos[extraKey];
-                            return (
+                    {/* Captured additional photos — capture as many as needed */}
+                    {additionalKeys.length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+                            {additionalKeys.map((key) => (
                                 <div
-                                    key={i}
+                                    key={key}
                                     style={{
-                                        flex: 1,
+                                        width: 'calc((100% - 12px) / 3)',
                                         aspectRatio: '1',
-                                        background: captured ? '#F1F5F9' : '#E2E8F0',
+                                        background: '#F1F5F9',
                                         borderRadius: 8,
                                         overflow: 'hidden',
                                         position: 'relative',
                                     }}
                                 >
-                                    {captured && (
-                                        <>
-                                            <img
-                                                src={captured}
-                                                alt="Damage"
-                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                            />
-                                            <div
-                                                style={{
-                                                    position: 'absolute',
-                                                    top: 4,
-                                                    right: 4,
-                                                    background: '#22C55E',
-                                                    borderRadius: '50%',
-                                                    width: 18,
-                                                    height: 18,
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    fontSize: 10,
-                                                    color: '#fff',
-                                                    fontWeight: 700,
-                                                }}
-                                            >
-                                                <FaCheck />
-                                            </div>
-                                        </>
-                                    )}
+                                    <img src={capturedPhotos[key]} alt="Damage" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <button
+                                        onClick={() => removeAdditional(key)}
+                                        aria-label="Remove"
+                                        style={{
+                                            position: 'absolute', top: 4, right: 4,
+                                            width: 18, height: 18, borderRadius: '50%',
+                                            background: '#EF4444', color: '#fff', border: 'none',
+                                            cursor: 'pointer', fontSize: 9,
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        }}
+                                    >
+                                        <FaTimes />
+                                    </button>
                                 </div>
-                            );
-                        })}
-                    </div>
+                            ))}
+                        </div>
+                    )}
 
                     <button
-                        onClick={() => handleCapture('additional-damage-0')}
+                        onClick={() => handleCapture('additional-damage-' + nextAdditionalIndex)}
                         style={{
                             width: '100%',
                             padding: '13px 0',
@@ -408,7 +412,7 @@ const AddDamagePhotosPage = () => {
                             letterSpacing: 0.2,
                         }}
                     >
-                        Capture
+                        {additionalKeys.length > 0 ? '+ Add Another Photo' : 'Capture'}
                     </button>
                 </div>
 

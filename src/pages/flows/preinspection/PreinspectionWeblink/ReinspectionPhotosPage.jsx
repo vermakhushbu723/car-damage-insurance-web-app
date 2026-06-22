@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaCheckCircle, FaFileAlt } from 'react-icons/fa';
 import AppHeader from '../../../../components/common/AppHeader';
+import DocumentCameraModal from '../../../../components/modals/DocumentCameraModal';
 import { COLORS } from '../../../../constants/theme';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
 import galleryIcon from '../../../../assets/icons/GALLERY.svg';
@@ -34,14 +35,12 @@ const ReinspectionPhotosPage = () => {
     // Load vehicle photos from localStorage
     useEffect(() => {
         const storedPhotos = JSON.parse(localStorage.getItem('damage_photos') || '{}');
-        const photoArray = Object.values(storedPhotos).filter(photo => photo);
-
-        // If we have photos from localStorage, use them; otherwise use default photos
-        if (photoArray.length > 0) {
-            setVehiclePhotos(photoArray);
-        } else {
-            setVehiclePhotos(DEFAULT_VEHICLE_PHOTOS);
-        }
+        // Show only photos actually captured (base64 data URLs) — never the
+        // guide-outline placeholders.
+        const photoArray = Object.values(storedPhotos).filter(
+            (p) => typeof p === 'string' && p.startsWith('data:')
+        );
+        setVehiclePhotos(photoArray);
     }, []);
 
     const [reinspectionPhoto, setReinspectionPhoto] = useState(null); // base64 or null
@@ -49,6 +48,7 @@ const ReinspectionPhotosPage = () => {
     const [billFile, setBillFile] = useState(null);
     const [billStatus, setBillStatus] = useState('required'); // 'required' | 'submitted' | 'pending'
     const [extraPhotos, setExtraPhotos] = useState([]);
+    const [camTarget, setCamTarget] = useState(null); // 'reinspection' | 'bill' | 'more' | null
 
     const uploadedCount = (reinspectionPhoto ? 1 : 0) + extraPhotos.length + (billFile ? 1 : 0);
 
@@ -105,21 +105,28 @@ const ReinspectionPhotosPage = () => {
         input.click();
     };
 
-    const handleReinspectionCamera = () => {
-        triggerCamera((data) => { setReinspectionPhoto(data); setReinspectionStatus('submitted'); });
+    // Live-camera capture (DocumentCameraModal) → store by the active target.
+    const handleCamCapture = (side, file) => {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const data = ev.target.result;
+            if (camTarget === 'reinspection') { setReinspectionPhoto(data); setReinspectionStatus('submitted'); }
+            else if (camTarget === 'bill') { setBillFile(data); setBillStatus('submitted'); }
+            else if (camTarget === 'more') { setExtraPhotos((prev) => [...prev, data]); }
+        };
+        reader.readAsDataURL(file);
     };
+
+    const handleReinspectionCamera = () => setCamTarget('reinspection');
 
     const handleReinspectionGallery = () => {
         triggerGallery((data) => { setReinspectionPhoto(data); setReinspectionStatus('submitted'); });
     };
 
-    const handleTakeMore = () => {
-        triggerCamera((data) => setExtraPhotos(prev => [...prev, data]));
-    };
+    const handleTakeMore = () => setCamTarget('more');
 
-    const handleBillCamera = () => {
-        triggerCamera((data) => { setBillFile(data); setBillStatus('submitted'); });
-    };
+    const handleBillCamera = () => setCamTarget('bill');
 
     const handleBillGallery = () => {
         triggerGallery((data) => { setBillFile(data); setBillStatus('submitted'); });
@@ -394,6 +401,16 @@ const ReinspectionPhotosPage = () => {
                     Submit
                 </button>
             </div>
+
+            {/* Live camera for the reinspection photo / repair bill */}
+            <DocumentCameraModal
+                visible={!!camTarget}
+                docName={camTarget === 'bill' ? 'Repair Bill / Invoice' : 'Reinspection Photo'}
+                source="camera"
+                mode="single"
+                onClose={() => setCamTarget(null)}
+                onCapture={handleCamCapture}
+            />
         </div>
     );
 };

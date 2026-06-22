@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaCheckCircle } from 'react-icons/fa';
 import AppHeader from '../../../../components/common/AppHeader';
+import DocumentCameraModal from '../../../../components/modals/DocumentCameraModal';
 import { COLORS } from '../../../../constants/theme';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
 
@@ -35,6 +36,7 @@ const RepairSubmissionPage = () => {
     const [billPhoto, setBillPhoto] = useState(null);
     const [billStatus, setBillStatus] = useState('required');
     const [extraPhotos, setExtraPhotos] = useState([]);
+    const [camTarget, setCamTarget] = useState(null); // 'reinspection' | 'bill' | 'more' | null
 
     const uploadedCount = (reinspectionPhoto ? 1 : 0) + extraPhotos.length + (billPhoto ? 1 : 0);
     const progress = Math.min((uploadedCount / TOTAL_EXPECTED) * 100, 100);
@@ -69,17 +71,27 @@ const RepairSubmissionPage = () => {
         input.click();
     };
 
-    const handleReinspectionCamera = () =>
-        triggerCamera((d) => { setReinspectionPhoto(d); setReinspectionStatus('submitted'); });
+    // Live-camera capture (DocumentCameraModal) → store by the active target.
+    const handleCamCapture = (side, file) => {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const data = ev.target.result;
+            if (camTarget === 'reinspection') { setReinspectionPhoto(data); setReinspectionStatus('submitted'); }
+            else if (camTarget === 'bill') { setBillPhoto(data); setBillStatus('submitted'); }
+            else if (camTarget === 'more') { setExtraPhotos((prev) => [...prev, data]); }
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleReinspectionCamera = () => setCamTarget('reinspection');
 
     const handleReinspectionGallery = () =>
         triggerGallery((d) => { setReinspectionPhoto(d); setReinspectionStatus('submitted'); });
 
-    const handleTakeMore = () =>
-        triggerCamera((d) => setExtraPhotos((prev) => [...prev, d]));
+    const handleTakeMore = () => setCamTarget('more');
 
-    const handleBillCamera = () =>
-        triggerCamera((d) => { setBillPhoto(d); setBillStatus('submitted'); });
+    const handleBillCamera = () => setCamTarget('bill');
 
     const handleBillGallery = () =>
         triggerGallery((d) => { setBillPhoto(d); setBillStatus('submitted'); });
@@ -282,6 +294,16 @@ const RepairSubmissionPage = () => {
                     Submit
                 </button>
             </div>
+
+            {/* Live camera for the reinspection photo / repair bill */}
+            <DocumentCameraModal
+                visible={!!camTarget}
+                docName={camTarget === 'bill' ? 'Repair Bill / Invoice' : 'Reinspection Photo'}
+                source="camera"
+                mode="single"
+                onClose={() => setCamTarget(null)}
+                onCapture={handleCamCapture}
+            />
         </div>
     );
 };

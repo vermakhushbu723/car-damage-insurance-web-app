@@ -38,7 +38,7 @@ const CustomerDeclarationPage = () => {
                 </label>
                 <button
                     type="button"
-                    onClick={() => navigate(ROUTES.INSPECTOR_DECLARATION)}
+                    onClick={() => { try { sessionStorage.setItem('decl_customer', '1'); } catch { /* ignore */ } navigate(ROUTES.VEHICLE_INFORMATION); }}
                     disabled={!agreed}
                     style={{
                         marginTop: 32,

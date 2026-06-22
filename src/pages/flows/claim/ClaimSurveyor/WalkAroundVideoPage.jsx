@@ -480,7 +480,7 @@ const WalkAroundVideoPage = () => {
                     <div style={{
                         position: 'absolute', top: 16, right: 16, zIndex: 10,
                         textAlign: 'right', color: '#fff',
-                        textShadow: '0 1px 6px rgba(0,0,0,0.7)',
+                        
                     }}>
                         <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.9, letterSpacing: 0.5 }}>
                             {stepLabel}

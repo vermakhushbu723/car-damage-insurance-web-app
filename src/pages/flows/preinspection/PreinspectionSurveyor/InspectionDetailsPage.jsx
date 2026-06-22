@@ -25,8 +25,8 @@ const inspectionData = [
     { icon: greenInsuredNameIcon, label: 'Insured Name', value: 'Rahul Sharma', iconBg: '#22C55E' },
     { icon: vehicleNumberIcon, label: 'Vehicle Number', value: 'MH 01 BS 1234', iconBg: '#EF4444' },
     { icon: purpleClaimNumberIcon, label: 'PI Ref. Number', value: '1234567898765MAN', iconBg: '#7C3AED' },
-    { icon: emailAddressIcon, label: 'Email Address', value: 'rahul.sharma@email.com', iconBg: '#F59E0B' },
-    { icon: phoneNumberIcon, label: 'Phone Number', value: '+91 1234567890', iconBg: '#EC4899' },
+    // { icon: emailAddressIcon, label: 'Email Address', value: 'rahul.sharma@email.com', iconBg: '#F59E0B' },
+    // { icon: phoneNumberIcon, label: 'Phone Number', value: '+91 1234567890', iconBg: '#EC4899' },
 ];
 
 const instructions = [

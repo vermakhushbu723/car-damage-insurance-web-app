@@ -38,7 +38,7 @@ const InspectorDeclarationPage = () => {
                 </label>
                 <button
                     type="button"
-                    onClick={() => navigate(ROUTES.VEHICLE_INFORMATION)}
+                    onClick={() => { try { sessionStorage.setItem('decl_inspector', '1'); } catch { /* ignore */ } navigate(ROUTES.VEHICLE_INFORMATION); }}
                     disabled={!agreed}
                     style={{
                         marginTop: 32,

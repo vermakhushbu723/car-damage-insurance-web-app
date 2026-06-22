@@ -45,9 +45,14 @@ const VehicleInformationPage = () => {
         mobileNumber: '+91 1234567890',
         emailAddress: 'useremail@gmail.com',
         insuranceCompany: 'XYZ Insurance company ltd',
-        customerSignature: null,
-        inspectionAgentSignature: null,
+        customerSignature: sessionStorage.getItem('sign_customer') || null,
+        inspectionAgentSignature: sessionStorage.getItem('sign_inspector') || null,
     });
+
+    // Declaration acceptance is set on the declaration pages (persisted in
+    // sessionStorage) and read back here, so signing can be gated on it.
+    const customerDeclAccepted = sessionStorage.getItem('decl_customer') === '1';
+    const inspectorDeclAccepted = sessionStorage.getItem('decl_inspector') === '1';
 
     const [surveyRecommendation, setSurveyRecommendation] = useState('pending'); // pending, approved, rejected
 
@@ -64,12 +69,16 @@ const VehicleInformationPage = () => {
 
     // Update one of the signature fields with the data URL produced by the
     // SignaturePad on stroke-end (or null when the user clears the pad).
+    const signKey = (field) => (field === 'customerSignature' ? 'sign_customer' : 'sign_inspector');
+
     const handleSignatureChange = (field) => (dataUrl) => {
         setFormData(prev => ({ ...prev, [field]: dataUrl }));
+        try { if (dataUrl) sessionStorage.setItem(signKey(field), dataUrl); else sessionStorage.removeItem(signKey(field)); } catch { /* ignore */ }
     };
 
     const handleClearSignature = (field) => {
         setFormData(prev => ({ ...prev, [field]: null }));
+        try { sessionStorage.removeItem(signKey(field)); } catch { /* ignore */ }
     };
 
     const handleRecentSurvey = () => {
@@ -82,6 +91,9 @@ const VehicleInformationPage = () => {
             alert('Please capture both signatures');
             return;
         }
+        try {
+            ['decl_customer', 'decl_inspector', 'sign_customer', 'sign_inspector'].forEach((k) => sessionStorage.removeItem(k));
+        } catch { /* ignore */ }
         navigate('/claim-workshop/submitted');
     };
 
@@ -97,6 +109,7 @@ const VehicleInformationPage = () => {
         placeholder,
         declarationLabel,
         icon,
+        accepted,
     }) => (
         <div
             style={{
@@ -145,13 +158,30 @@ const VehicleInformationPage = () => {
                     Undo
                 </button>
             </div>
-            <SignaturePad
-                value={value}
-                onChange={handleSignatureChange(field)}
-                height={132}
-                placeholder={placeholder}
-                showClearButton={false}
-            />
+            <div style={{ position: 'relative' }}>
+                <SignaturePad
+                    value={value}
+                    onChange={handleSignatureChange(field)}
+                    height={132}
+                    placeholder={placeholder}
+                    showClearButton={false}
+                />
+                {!accepted && (
+                    <div
+                        onClick={() => navigate(field === 'customerSignature' ? ROUTES.CUSTOMER_DECLARATION : ROUTES.INSPECTOR_DECLARATION)}
+                        style={{
+                            position: 'absolute', inset: 0,
+                            background: 'rgba(241,245,249,0.88)',
+                            borderRadius: 8, cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            textAlign: 'center', padding: 12,
+                            fontSize: 12, fontWeight: 600, color: COLORS.textSecondary,
+                        }}
+                    >
+                        Accept the {declarationLabel} to sign here
+                    </div>
+                )}
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, gap: 12 }}>
                 <div>
                     <button
@@ -172,8 +202,11 @@ const VehicleInformationPage = () => {
                         {declarationLabel}
                     </button>
                 </div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: COLORS.textSecondary, cursor: 'pointer' }}>
-                    <input type="checkbox" checked={Boolean(value)} readOnly style={{ cursor: 'pointer' }} />
+                <label
+                    onClick={() => navigate(field === 'customerSignature' ? ROUTES.CUSTOMER_DECLARATION : ROUTES.INSPECTOR_DECLARATION)}
+                    style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: COLORS.textSecondary, cursor: 'pointer' }}
+                >
+                    <input type="checkbox" checked={accepted} readOnly style={{ cursor: 'pointer' }} />
                     <span>I Agree</span>
                 </label>
             </div>
@@ -380,6 +413,7 @@ const VehicleInformationPage = () => {
                     value={formData.customerSignature}
                     placeholder="Please sign in the box below"
                     declarationLabel="Customer Declaration"
+                    accepted={customerDeclAccepted}
                     icon={{ symbol: <FaUser />, background: '#DBEAFE', color: '#1D4ED8' }}
                 />
 
@@ -390,6 +424,7 @@ const VehicleInformationPage = () => {
                     value={formData.inspectionAgentSignature}
                     placeholder="Please sign in the box below"
                     declarationLabel="Inspector Declaration"
+                    accepted={inspectorDeclAccepted}
                     icon={{ symbol: <FaEdit />, background: '#FEF3C7', color: '#B45309' }}
                 />
 
