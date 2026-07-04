@@ -183,7 +183,7 @@ const WalkAroundVideoPage = () => {
         }
         try {
             return await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: { exact: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+                video: { facingMode: { exact: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
                 audio: true,
             });
         } catch {
@@ -434,7 +434,7 @@ const WalkAroundVideoPage = () => {
                 <>
                     {/* ── Top-left: logo + back affordance ── */}
                     <div style={{
-                        position: 'absolute', top: 16, left: 16, zIndex: 10,
+                        position: 'absolute', top: 'calc(26px + env(safe-area-inset-top))', left: 'calc(26px + env(safe-area-inset-left))', zIndex: 10,
                         display: 'flex', alignItems: 'center', gap: 8,
                     }}>
                         <img
@@ -446,7 +446,7 @@ const WalkAroundVideoPage = () => {
 
                     {/* ── Top-center: REC + elapsed timer ── */}
                     <div style={{
-                        position: 'absolute', top: 16, left: '50%',
+                        position: 'absolute', top: 'calc(26px + env(safe-area-inset-top))', left: '50%',
                         transform: 'translateX(-50%)', zIndex: 10,
                         display: 'flex', gap: 8, alignItems: 'center',
                     }}>
@@ -478,7 +478,7 @@ const WalkAroundVideoPage = () => {
 
                     {/* ── Top-right: step + sub-label ── */}
                     <div style={{
-                        position: 'absolute', top: 16, right: 16, zIndex: 10,
+                        position: 'absolute', top: 'calc(26px + env(safe-area-inset-top))', right: 'calc(26px + env(safe-area-inset-right))', zIndex: 10,
                         textAlign: 'right', color: '#fff',
                         
                     }}>
@@ -501,7 +501,7 @@ const WalkAroundVideoPage = () => {
                     <button
                         onClick={handleBack}
                         style={{
-                            position: 'absolute', top: 16, right: '50%',
+                            position: 'absolute', top: 'calc(26px + env(safe-area-inset-top))', right: '50%',
                             transform: 'translateX(140px)', zIndex: 11,
                             background: 'rgba(0,0,0,0.5)',
                             border: '1.5px solid rgba(255,255,255,0.6)',
@@ -515,9 +515,9 @@ const WalkAroundVideoPage = () => {
 
                     {/* ── Bottom bar: instruction text + timestamp/geo ── */}
                     <div style={{
-                        position: 'absolute', left: 0, right: 0, bottom: 0,
+                        position: 'absolute', left: 'env(safe-area-inset-left)', right: 'env(safe-area-inset-right)', bottom: 'env(safe-area-inset-bottom)',
                         background: '#000',
-                        padding: '8px 14px',
+                        padding: '14px 28px',
                         display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',
                         gap: 12, zIndex: 10,
                     }}>
@@ -535,7 +535,7 @@ const WalkAroundVideoPage = () => {
                             onClick={handleStartRecording}
                             style={{
                                 position: 'absolute',
-                                bottom: 90,
+                                bottom: 'calc(100px + env(safe-area-inset-bottom))',
                                 left: '50%',
                                 transform: 'translateX(-50%)',
                                 zIndex: 12,
@@ -557,7 +557,7 @@ const WalkAroundVideoPage = () => {
                         style={{
                             display: isRecording ? 'flex' : 'none',
                             justifyContent: 'center', alignItems: 'center',
-                            position: 'absolute', bottom: 90, right: 20, zIndex: 12,
+                            position: 'absolute', bottom: 'calc(100px + env(safe-area-inset-bottom))', right: 'calc(30px + env(safe-area-inset-right))', zIndex: 12,
                             background: isRecording ? '#EF4444' : '#9CA3AF',
                             color: '#fff',
                             border: 'none', borderRadius: 999,
@@ -576,7 +576,7 @@ const WalkAroundVideoPage = () => {
             {/* ── Custom video controls (replaces native white bar) ──────── */}
             {isFinished && (
                 <div style={{
-                    position: 'absolute', left: 16, right: 16, bottom: 96,
+                    position: 'absolute', left: 'calc(26px + env(safe-area-inset-left))', right: 'calc(26px + env(safe-area-inset-right))', bottom: 'calc(106px + env(safe-area-inset-bottom))',
                     background: 'rgba(0,0,0,0.65)', borderRadius: 12,
                     padding: '10px 14px', zIndex: 11,
                     display: 'flex', flexDirection: 'column', gap: 8,
@@ -693,7 +693,7 @@ const WalkAroundVideoPage = () => {
             {/* ── Post-recording controls ────────────────────────────────── */}
             {isFinished && (
                 <div style={{
-                    position: 'absolute', left: 16, right: 16, bottom: 24,
+                    position: 'absolute', left: 'calc(26px + env(safe-area-inset-left))', right: 'calc(26px + env(safe-area-inset-right))', bottom: 'calc(34px + env(safe-area-inset-bottom))',
                     display: 'flex', gap: 12, zIndex: 10,
                 }}>
                     <button

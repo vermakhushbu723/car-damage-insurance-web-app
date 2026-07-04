@@ -231,9 +231,11 @@ const VehicleInformationPage = () => {
                 <button
                     type="button"
                     onClick={() => {
-                        // Navigate to the matching declaration page when saved
-                        const dest = field === 'customerSignature' ? ROUTES.CUSTOMER_DECLARATION : ROUTES.INSPECTOR_DECLARATION;
-                        navigate(dest);
+                        // Sign is already captured on stroke; just persist it.
+                        // Do NOT open the declaration page.
+                        if (value) {
+                            try { sessionStorage.setItem(signKey(field), value); } catch { /* ignore */ }
+                        }
                     }}
                     style={{
                         flex: 1,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ROUTES } from '../constants/routes';
+import OrientationGuard from '../components/common/OrientationGuard';
 import LandingPage from '../pages/Landing/LandingPage';
 import AdminLoginPage from '../pages/admin/AdminLogin/AdminLoginPage';
 import AdminSelectPage from '../pages/admin/AdminSelect/AdminSelectPage';
@@ -64,6 +65,7 @@ const adminLayoutChildren = [
 
 const AppRoutes = () => {
     return (
+        <OrientationGuard>
         <Routes>
             {/* Landing — login-type selection screen */}
             <Route path={ROUTES.LANDING} element={<LandingPage />} />
@@ -110,6 +112,7 @@ const AppRoutes = () => {
             {/* Fallback */}
             <Route path="*" element={<Navigate to={ROUTES.LANDING} replace />} />
         </Routes>
+        </OrientationGuard>
     );
 };
 

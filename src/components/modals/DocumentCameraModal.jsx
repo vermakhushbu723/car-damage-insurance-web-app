@@ -105,7 +105,7 @@ const DocumentCameraModal = ({
                 let mediaStream;
                 try {
                     mediaStream = await navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: { exact: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+                        video: { facingMode: { exact: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
                         audio: false,
                     });
                 } catch {
@@ -277,9 +277,17 @@ const DocumentCameraModal = ({
         const canvas = canvasRef.current;
         if (!video || !canvas) return;
         setIsCapturing(true);
-        canvas.width = video.videoWidth || 1280;
-        canvas.height = video.videoHeight || 720;
-        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+        // Downscale to ≤1280px before encoding — capturing the full-res frame
+        // (1920×1080) at q0.92 was the source of the long capture delay on phones.
+        const srcW = video.videoWidth || 1280;
+        const srcH = video.videoHeight || 720;
+        const MAX = 1280;
+        let w = srcW, h = srcH;
+        if (w > h && w > MAX) { h = Math.round((h * MAX) / w); w = MAX; }
+        else if (h >= w && h > MAX) { w = Math.round((w * MAX) / h); h = MAX; }
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(video, 0, 0, w, h);
         canvas.toBlob((blob) => {
             setIsCapturing(false);
             if (!blob) return;
@@ -293,7 +301,7 @@ const DocumentCameraModal = ({
             stopStream();
             setPendingFile(file);
             setPendingUrl(url);
-        }, 'image/jpeg', 0.92);
+        }, 'image/jpeg', 0.7);
     };
 
     // ✓ — accept the captured photo
@@ -550,7 +558,7 @@ const DocumentCameraModal = ({
                             </div>
                         )}
 
-                        <div style={{ position: 'absolute', top: 16, left: 16, right: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 10 }}>
+                        <div style={{ position: 'absolute', top: 'calc(26px + env(safe-area-inset-top))', left: 'calc(26px + env(safe-area-inset-left))', right: 'calc(26px + env(safe-area-inset-right))', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 10 }}>
                             <button
                                 onClick={handleBackToSelection}
                                 style={{ background: 'rgba(0,0,0,0.45)', border: '2px solid rgba(255,255,255,0.7)', borderRadius: '50%', width: 40, height: 40, color: '#fff', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
@@ -572,7 +580,7 @@ const DocumentCameraModal = ({
                             <button
                                 onClick={handleCapturePhoto}
                                 disabled={isCapturing}
-                                style={{ position: 'absolute', bottom: 32, left: '50%', transform: 'translateX(-50%)', width: 76, height: 76, borderRadius: '50%', background: '#fff', border: `4px solid ${COLORS.btnPrimary || '#01A0FE'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: isCapturing ? 'not-allowed' : 'pointer', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', opacity: isCapturing ? 0.5 : 1, zIndex: 10 }}
+                                style={{ position: 'absolute', bottom: 'calc(42px + env(safe-area-inset-bottom))', left: '50%', transform: 'translateX(-50%)', width: 76, height: 76, borderRadius: '50%', background: '#fff', border: `4px solid ${COLORS.btnPrimary || '#01A0FE'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: isCapturing ? 'not-allowed' : 'pointer', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', opacity: isCapturing ? 0.5 : 1, zIndex: 10 }}
                             >
                                 <div style={{ width: 56, height: 56, borderRadius: '50%', background: COLORS.btnPrimary || '#01A0FE' }} />
                             </button>
@@ -580,12 +588,12 @@ const DocumentCameraModal = ({
 
                         {pendingFile && (
                             <>
-                                <div style={{ position: 'absolute', top: 70, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10 }}>
+                                <div style={{ position: 'absolute', top: 70, left: 'env(safe-area-inset-left)', right: 'env(safe-area-inset-right)', display: 'flex', justifyContent: 'center', zIndex: 10 }}>
                                     <span style={{ background: 'rgba(0,0,0,0.55)', color: '#fff', padding: '6px 14px', borderRadius: 999, fontSize: 13, fontWeight: 600 }}>
                                         {isOther ? 'Add this photo?' : 'Use this photo?'}
                                     </span>
                                 </div>
-                                <div style={{ position: 'absolute', bottom: 32, left: 0, right: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 60, zIndex: 10 }}>
+                                <div style={{ position: 'absolute', bottom: 'calc(42px + env(safe-area-inset-bottom))', left: 'env(safe-area-inset-left)', right: 'env(safe-area-inset-right)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 60, zIndex: 10 }}>
                                     <button
                                         onClick={handleRetake}
                                         aria-label="Retake"

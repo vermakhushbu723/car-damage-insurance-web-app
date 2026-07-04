@@ -138,14 +138,14 @@ const PhotoCaptureSelectionPage = () => {
         // still come from the measured vehicle rect, so they stay accurate.
         { id: 'rh-side', label: 'RH Side', top: '10%', left: '42%', labelPosition: 'top' },
         { id: 'rear-rh-side', label: 'Rear RH Side', top: '20%', left: '72%', labelPosition: 'top' },
-        { id: 'rear-side', label: 'Rear Side', top: '46%', left: '87%', labelPosition: 'right' },
+        { id: 'rear-side', label: 'Rear Side', top: '46%', left: '80%', labelPosition: 'right' },
         { id: 'rear-lh-side', label: 'Rear LH Side', top: '72%', left: '80%', labelPosition: 'right' },
         { id: 'lh-side', label: 'LH Side', top: '90%', left: '63%', labelPosition: 'bottom' },
         { id: 'front-lh', label: 'Front LH', top: '92%', left: '46%', labelPosition: 'bottom' },
         { id: 'chassis-number', label: 'Chassis Number', top: '90%', left: '30%', labelPosition: 'bottom' },
-        { id: 'front-side', label: 'Front Side', top: '74%', left: '15%', labelPosition: 'bottom' },
-        { id: 'odometer', label: 'Odometer', top: '50%', left: '10%', labelPosition: 'left' },
-        { id: 'front-rh-side', label: 'Front RH Side', top: '26%', left: '15%', labelPosition: 'left' },
+        { id: 'front-side', label: 'Front Side', top: '74%', left: '18%', labelPosition: 'bottom' },
+        { id: 'odometer', label: 'Odometer', top: '50%', left: '13%', labelPosition: 'left' },
+        { id: 'front-rh-side', label: 'Front RH Side', top: '26%', left: '23%', labelPosition: 'left' },
         { id: 'video', label: 'Video', top: '90%', left: '3%', labelPosition: 'top' },
     ];
     const photoPoints = allPhotoPoints.filter(p => isAngleSupported(vehicleCategory, p.id));
@@ -231,8 +231,8 @@ const PhotoCaptureSelectionPage = () => {
                             alt="Vehicle"
                             className="object-contain"
                             style={{
-                                maxHeight: '60vh',
-                                maxWidth: '50vw',
+                                maxHeight: '54vh',
+                                maxWidth: '46vw',
                                 width: 'auto',
                                 height: 'auto',
                             }}
@@ -244,8 +244,9 @@ const PhotoCaptureSelectionPage = () => {
                             const capturedImageUrl = capturedPhotos[point.id];
 
                             // Calculate responsive circle size based on viewport
-                            const circleSize = Math.min(Math.max(window.innerWidth * 0.062, 58), 82);
-                            const fontSize = Math.min(Math.max(window.innerWidth * 0.016, 13), 18);
+                            const vmin = Math.min(window.innerWidth, window.innerHeight);
+                            const circleSize = Math.min(Math.max(vmin * 0.135, 46), 76);
+                            const fontSize = Math.min(Math.max(vmin * 0.032, 10.5), 17);
 
                             const isVideoPoint = point.id === 'video';
                             const isPointDone = isVideoPoint ? hasVideo : !!capturedImageUrl;

@@ -239,7 +239,7 @@ const CameraCapturePage = () => {
         }
         try {
             return await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: { exact: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+                video: { facingMode: { exact: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
                 audio: false,
             });
         } catch {
@@ -542,7 +542,7 @@ const CameraCapturePage = () => {
 
                     {/* ── TOP RIGHT — angle label ── */}
                     <div style={{
-                        position: 'absolute', top: 16, right: 16,
+                        position: 'absolute', top: 'calc(26px + env(safe-area-inset-top))', right: 'calc(26px + env(safe-area-inset-right))',
                         zIndex: 10, color: COLORS.btnPrimary,
                         fontSize: 22, fontWeight: 700,
                         
@@ -552,7 +552,7 @@ const CameraCapturePage = () => {
 
                     {/* ── BOTTOM LEFT — Location & Date/Time ── */}
                     <div style={{
-                        position: 'absolute', bottom: 20, left: 16,
+                        position: 'absolute', bottom: 'calc(30px + env(safe-area-inset-bottom))', left: 'calc(26px + env(safe-area-inset-left))',
                         zIndex: 10, display: 'flex', flexDirection: 'column', gap: 4,
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: COLORS.btnPrimary, fontWeight: 700, fontSize: 16 }}>
@@ -569,7 +569,7 @@ const CameraCapturePage = () => {
                     <button
                         onClick={handleNavigateBack}
                         style={{
-                            position: 'absolute', top: 16, left: 16,
+                            position: 'absolute', top: 'calc(26px + env(safe-area-inset-top))', left: 'calc(26px + env(safe-area-inset-left))',
                             zIndex: 10,
                             background: 'rgba(0,0,0,0.45)',
                             border: '2px solid rgba(255,255,255,0.7)',
@@ -588,7 +588,7 @@ const CameraCapturePage = () => {
                         disabled={isCapturing}
                         style={{
                             position: 'absolute',
-                            right: 20,
+                            right: 'calc(30px + env(safe-area-inset-right))',
                             top: '50%',
                             transform: 'translateY(-50%)',
                             zIndex: 10,
@@ -609,7 +609,7 @@ const CameraCapturePage = () => {
 
             {/* ── Retake / Save (after capture) ── */}
             {capturedImage && (
-                <div style={{ position: 'absolute', bottom: 24, left: 16, right: 16, display: 'flex', gap: 12, zIndex: 10 }}>
+                <div style={{ position: 'absolute', bottom: 'calc(34px + env(safe-area-inset-bottom))', left: 'calc(26px + env(safe-area-inset-left))', right: 'calc(26px + env(safe-area-inset-right))', display: 'flex', gap: 12, zIndex: 10 }}>
                     <button onClick={handleRetake}
                         style={{ flex: 1, padding: 14, background: '#ef4444', color: '#fff', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: 'pointer' }}>
                         Retake

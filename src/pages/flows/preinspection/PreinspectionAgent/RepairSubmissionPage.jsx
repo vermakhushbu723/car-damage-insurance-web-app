@@ -37,6 +37,7 @@ const RepairSubmissionPage = () => {
     const [billStatus, setBillStatus] = useState('required');
     const [extraPhotos, setExtraPhotos] = useState([]);
     const [camTarget, setCamTarget] = useState(null); // 'reinspection' | 'bill' | 'more' | null
+    const [submitToast, setSubmitToast] = useState(false);
 
     const uploadedCount = (reinspectionPhoto ? 1 : 0) + extraPhotos.length + (billPhoto ? 1 : 0);
     const progress = Math.min((uploadedCount / TOTAL_EXPECTED) * 100, 100);
@@ -97,13 +98,16 @@ const RepairSubmissionPage = () => {
         triggerGallery((d) => { setBillPhoto(d); setBillStatus('submitted'); });
 
     const handleSubmit = () => {
-        // Safety net in case any flow lands here with leftover cache.
-        try {
-            localStorage.clear();
-        } catch (e) {
-            console.warn('localStorage.clear failed:', e);
-        }
-        navigate('/preinspection-agent/dashboard');
+        setSubmitToast(true);
+        // Show the confirmation toast briefly, then clear cache + continue.
+        setTimeout(() => {
+            try {
+                localStorage.clear();
+            } catch (e) {
+                console.warn('localStorage.clear failed:', e);
+            }
+            navigate('/preinspection-agent/dashboard');
+        }, 1400);
     };
 
     return (
@@ -304,6 +308,21 @@ const RepairSubmissionPage = () => {
                 onClose={() => setCamTarget(null)}
                 onCapture={handleCamCapture}
             />
+
+            {submitToast && (
+                <div
+                    style={{
+                        position: 'fixed', bottom: 28, left: '50%', transform: 'translateX(-50%)',
+                        background: '#16A34A', color: '#fff',
+                        padding: '12px 22px', borderRadius: 10,
+                        fontSize: 14, fontWeight: 700, whiteSpace: 'nowrap',
+                        display: 'flex', alignItems: 'center', gap: 8,
+                        boxShadow: '0 6px 20px rgba(0,0,0,0.25)', zIndex: 9999,
+                    }}
+                >
+                    <FaCheckCircle style={{ fontSize: 16 }} /> Submitted successfully!
+                </div>
+            )}
         </div>
     );
 };
