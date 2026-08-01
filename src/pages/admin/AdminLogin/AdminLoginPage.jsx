@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import leftLogo from '../../../assets/png/leftlogo.png';
+import leftLogo from '../../../assets/png/leftLogo.png';
 import rightLogo from '../../../assets/rightlogo.svg';
 import loginImage from '../../../assets/png/loginImage.jpg';
 import { ROUTES } from '../../../constants/routes';
