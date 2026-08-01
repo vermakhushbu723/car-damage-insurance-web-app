@@ -24,6 +24,11 @@ import FLAPage from '../pages/admin/intimation/pages/FLAPage';
 import RecommendationPage from '../pages/admin/intimation/pages/RecommendationPage';
 import DmsSurveyorPage from '../pages/admin/intimation/pages/DmsSurveyorPage';
 import DmsPreInspectionPage from '../pages/admin/intimation/pages/DmsPreInspectionPage';
+import AiIlaAssessmentPage from '../pages/admin/intimation/pages/AiIlaAssessmentPage';
+import AnnotationStudioPage from '../pages/admin/intimation/pages/AnnotationStudioPage';
+import IlaNewPage from '../pages/admin/intimation/pages/IlaNewPage';
+import FeeBillPage from '../pages/admin/intimation/pages/FeeBillPage';
+import ClaimAnalyticsPage from '../pages/admin/intimation/pages/ClaimAnalyticsPage';
 
 // ── Self-contained per-flow route configs ──────────────────────────────
 // Each flow owns a prefixed set of routes (e.g. /claim-workshop/*,
@@ -98,15 +103,22 @@ const AppRoutes = () => {
             {/* Intimation Management System (/admin/intimation/*) */}
             <Route path="/admin/intimation" element={<IntimationLayout />}>
                 <Route index element={<IntimationPage />} />
-                <Route path="claim-handler" element={<ClaimHandlerPage />} />
-                <Route path="surveyor-appointment" element={<SurveyorAppointmentPage />} />
+                <Route path="handler" element={<ClaimHandlerPage />} />
+                <Route path="surveyor-allocation" element={<SurveyorAppointmentPage />} />
                 <Route path="claim-details" element={<ClaimDetailsPage />} />
-                <Route path="ila" element={<ILAPage />} />
-                <Route path="settlement" element={<SettlementPage />} />
+                <Route path="claim-details/analytics" element={<ClaimAnalyticsPage />} />
+                <Route path="ai-ila" element={<AiIlaAssessmentPage />} />
+                <Route path="ila-new" element={<IlaNewPage />} />
                 <Route path="fla" element={<FLAPage />} />
                 <Route path="recommendation" element={<RecommendationPage />} />
+                <Route path="fee-bill" element={<FeeBillPage />} />
+
+                {/* Kept, not in the current sidebar — see routes.js note */}
+                <Route path="ila" element={<ILAPage />} />
+                <Route path="settlement" element={<SettlementPage />} />
                 <Route path="dms-surveyor" element={<DmsSurveyorPage />} />
                 <Route path="dms-preinspection" element={<DmsPreInspectionPage />} />
+                <Route path="annotation-studio" element={<AnnotationStudioPage />} />
             </Route>
 
             {/* Fallback */}

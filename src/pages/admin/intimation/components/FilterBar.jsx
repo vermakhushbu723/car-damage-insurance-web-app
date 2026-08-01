@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SelectField } from './FormFields';
 
 const SearchIcon = () => (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -36,6 +37,7 @@ const inputStyle = {
 /** Shared filter bar used across all Intimation sub-pages */
 const FilterBar = ({ searchPlaceholder = 'Search...' }) => {
     const [search, setSearch] = useState('');
+    const [status, setStatus] = useState('all');
 
     return (
         <div style={{
@@ -64,17 +66,15 @@ const FilterBar = ({ searchPlaceholder = 'Search...' }) => {
             </div>
 
             {/* Status */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 140 }}>
                 <span style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Status</span>
-                <div style={{ position: 'relative' }}>
-                    <select defaultValue="all" style={{ ...inputStyle, paddingRight: 28, appearance: 'none', WebkitAppearance: 'none' }}>
-                        <option value="all">All Status</option>
-                        <option>Completed</option>
-                        <option>Pending</option>
-                        <option>In Progress</option>
-                    </select>
-                    <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', fontSize: 10, pointerEvents: 'none', color: '#6B7280' }}>▾</span>
-                </div>
+                <SelectField
+                    value={status === 'all' ? '' : status}
+                    onChange={(v) => setStatus(v || 'all')}
+                    options={['Completed', 'Pending', 'In Progress']}
+                    placeholder="All Status"
+                    compact
+                />
             </div>
 
             {/* Date Range */}

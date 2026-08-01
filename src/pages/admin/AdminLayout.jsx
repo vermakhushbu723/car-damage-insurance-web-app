@@ -1,5 +1,5 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import AdminSidebar from './components/AdminSidebar';
 import AdminHeader from './components/AdminHeader';
 import { PALETTE } from './adminTheme';
@@ -17,8 +17,26 @@ import './admin.css';
  *   │          ├──────────────────────────────────────────────────┤
  *   │          │  <Outlet />  ← page content                      │
  *   └──────────┴──────────────────────────────────────────────────┘
+ *
+ * On tablet/mobile (<=1024px) the sidebar becomes an off-canvas drawer
+ * toggled by a hamburger button in the header (see admin.css `.ad-*`
+ * rules) instead of squeezing into a narrow viewport.
  */
 const AdminLayout = () => {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const location = useLocation();
+    const contentRef = useRef(null);
+
+    useEffect(() => {
+        // Close the off-canvas sidebar automatically after navigating
+        // (mobile/tablet) -- otherwise it stays open covering the page.
+        setSidebarOpen(false);
+        // The scrollable element is this inner div, not the window (the
+        // layout root is overflow:hidden) -- reset it on every route
+        // change so a new page always opens at the top.
+        contentRef.current?.scrollTo(0, 0);
+    }, [location.pathname]);
+
     return (
         <div
             className="admin-root"
@@ -29,8 +47,13 @@ const AdminLayout = () => {
                 background: PALETTE.pageBg,
             }}
         >
+            <div
+                className={`ad-sidebar-overlay${sidebarOpen ? ' ad-sidebar-open' : ''}`}
+                onClick={() => setSidebarOpen(false)}
+            />
+
             {/* Sidebar — fixed width, full viewport height, never scrolls */}
-            <AdminSidebar />
+            <AdminSidebar open={sidebarOpen} />
 
             {/* Right pane: sticky header + scrollable content */}
             <div
@@ -45,11 +68,11 @@ const AdminLayout = () => {
             >
                 {/* Header stays fixed at top */}
                 <div style={{ flexShrink: 0 }}>
-                    <AdminHeader />
+                    <AdminHeader onMenuClick={() => setSidebarOpen((o) => !o)} />
                 </div>
 
                 {/* Only this area scrolls */}
-                <div style={{ flex: 1, overflowY: 'auto' }}>
+                <div ref={contentRef} style={{ flex: 1, overflowY: 'auto' }}>
                     <Outlet />
                 </div>
             </div>

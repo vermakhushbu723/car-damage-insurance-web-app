@@ -1,22 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { PALETTE } from '../adminTheme';
 
-// ── step meta ─────────────────────────────────────────────────────────
-const STEPS = [
-    { id: 1, code: 'ED-AIR' },
-    { id: 2, code: 'RA' },
-    { id: 3, code: 'GS' },
-    { id: 4, code: 'P&A' },
-    { id: 5, code: 'MP-RW' },
-    { id: 6, code: 'RSEF-NM' },
-    { id: 7, code: 'RSEF-RM' },
-    { id: 8, code: 'RSEF-SM' },
-    { id: 9, code: 'RSEF-CSM/H' },
-    { id: 10, code: 'RSEF-CCA' },
-];
-
-// ── shared style tokens ───────────────────────────────────────────────
 const NAV_BLUE = '#0B2D9B';
+
+const SECTIONS = [
+    { id: 1, label: 'Platform' },
+    { id: 2, label: 'Role Assignment' },
+    { id: 3, label: 'User Profile Details' },
+    { id: 4, label: 'Organization' },
+    { id: 5, label: 'Account Status' },
+];
 
 const inputBase = {
     width: '100%',
@@ -31,410 +24,277 @@ const inputBase = {
     fontFamily: 'inherit',
 };
 
-// ── tiny atoms ────────────────────────────────────────────────────────
+// ── icons ─────────────────────────────────────────────────────────────
+const PhoneIcon = ({ color }) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="7" y="2" width="10" height="20" rx="2" /><line x1="11" y1="18" x2="13" y2="18" />
+    </svg>
+);
+const MonitorIcon = ({ color }) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="4" width="20" height="14" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="18" x2="12" y2="21" />
+    </svg>
+);
+const HeadsetIcon = ({ color }) => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+        <path d="M21 19a2 2 0 0 1-2 2h-1v-7h3z" />
+        <path d="M3 19a2 2 0 0 0 2 2h1v-7H3z" />
+    </svg>
+);
+const CheckCircleIcon = ({ color }) => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+    </svg>
+);
+
+// ── shared atoms ──────────────────────────────────────────────────────
 const Lbl = ({ children }) => (
     <p style={{ margin: '0 0 8px', fontSize: 15, fontWeight: 600, color: '#111827' }}>{children}</p>
 );
 
-const Field = ({ label, children, style }) => (
-    <div style={{ marginBottom: 22, ...style }}>
+const Field = ({ label, children }) => (
+    <div>
         {label && <Lbl>{label}</Lbl>}
         {children}
     </div>
 );
 
-const TextInput = ({ placeholder, type = 'text' }) => (
-    <input type={type} placeholder={placeholder} style={inputBase} />
+const TextInput = ({ value, onChange, placeholder, type = 'text' }) => (
+    <input type={type} value={value} onChange={(e) => onChange?.(e.target.value)} placeholder={placeholder} style={inputBase} />
 );
 
-const SelectInput = ({ placeholder, options = [] }) => (
-    <div style={{ position: 'relative' }}>
-        <select
-            defaultValue=""
-            style={{ ...inputBase, appearance: 'none', WebkitAppearance: 'none', cursor: 'pointer', paddingRight: 36 }}
-        >
-            <option value="" disabled>{placeholder}</option>
-            {options.map(o => <option key={o} value={o}>{o}</option>)}
-        </select>
-        <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#6B7280', fontSize: 13 }}>▾</span>
-    </div>
+const RadioDot = ({ checked, color }) => (
+    <span style={{
+        width: 18, height: 18, borderRadius: '50%', border: `2px solid ${checked ? color : '#CBD5E1'}`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: '#fff',
+    }}>
+        {checked && <span style={{ width: 9, height: 9, borderRadius: '50%', background: color }} />}
+    </span>
 );
 
-const Toggle = ({ defaultOn = true }) => {
-    const [on, setOn] = useState(defaultOn);
-    return (
-        <div
-            role="switch"
-            aria-checked={on}
-            tabIndex={0}
-            onClick={() => setOn(v => !v)}
-            onKeyDown={e => e.key === ' ' && setOn(v => !v)}
-            style={{
-                width: 46, height: 26, borderRadius: 13,
-                background: on ? NAV_BLUE : '#D1D5DB',
-                position: 'relative', cursor: 'pointer',
-                transition: 'background 0.2s', flexShrink: 0, border: 'none', outline: 'none',
-                display: 'inline-block',
-            }}
-        >
-            <div style={{
-                position: 'absolute', top: 3,
-                left: on ? 23 : 3,
-                width: 20, height: 20, borderRadius: '50%',
-                background: '#fff', transition: 'left 0.2s',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
-            }} />
-        </div>
-    );
-};
-
-const PermGroup = ({ options }) => {
-    const [sel, setSel] = useState(null);
-    return (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
-            {options.map(o => (
-                <button
-                    key={o}
-                    onClick={() => setSel(prev => prev === o ? null : o)}
-                    style={{
-                        padding: '8px 20px', borderRadius: 20,
-                        border: `1.5px solid ${sel === o ? NAV_BLUE : '#D1D5DB'}`,
-                        background: sel === o ? NAV_BLUE : '#fff',
-                        color: sel === o ? '#fff' : '#374151',
-                        fontSize: 13, fontWeight: 500, cursor: 'pointer',
-                        transition: 'all 0.15s',
-                    }}
-                >
-                    {o}
-                </button>
-            ))}
-        </div>
-    );
-};
-
-const ModuleRow = ({ title, options }) => (
-    <div style={{ marginBottom: 28 }}>
-        <Lbl>{title}</Lbl>
-        <Toggle defaultOn />
-        <PermGroup options={options} />
-    </div>
+const SelectCard = ({ selected, onClick, icon, label, accent = NAV_BLUE }) => (
+    <button
+        type="button"
+        onClick={onClick}
+        style={{
+            flex: '1 1 160px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+            padding: '24px 16px', borderRadius: 10, cursor: 'pointer', position: 'relative',
+            border: `1.5px solid ${selected ? accent : '#E5E7EB'}`,
+            background: selected ? `${accent}0D` : '#fff',
+            fontFamily: 'inherit',
+        }}
+    >
+        <span style={{ position: 'absolute', top: 12, right: 12 }}>
+            <RadioDot checked={selected} color={accent} />
+        </span>
+        <span style={{
+            width: 44, height: 44, borderRadius: '50%', background: selected ? `${accent}1A` : '#F3F4F6',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+            {icon(selected ? accent : '#6B7280')}
+        </span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: selected ? accent : '#374151' }}>{label}</span>
+    </button>
 );
 
-const StepHeader = ({ n, title, subtitle }) => (
-    <div style={{ marginBottom: 20 }}>
+const SectionCard = ({ innerRef, number, title, subtitle, children }) => (
+    <div ref={innerRef} style={{ background: '#fff', border: `1px solid ${PALETTE.borderLight}`, borderRadius: 8, padding: '24px 28px', marginBottom: 20, boxShadow: '0 1px 3px rgba(15,23,42,0.07)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-            <div style={{
-                width: 30, height: 30, borderRadius: '50%',
-                background: NAV_BLUE, color: '#fff',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 13, fontWeight: 700, flexShrink: 0,
-            }}>{n}</div>
-            <h2 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: NAV_BLUE, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+            <span style={{
+                width: 26, height: 26, borderRadius: '50%', background: NAV_BLUE, color: '#fff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0,
+            }}>
+                {number}
+            </span>
+            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: NAV_BLUE, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
                 {title}
             </h2>
         </div>
-        {subtitle && <p style={{ margin: '0 0 0 40px', fontSize: 12, color: '#6B7280' }}>{subtitle}</p>}
+        {subtitle && <p style={{ margin: '0 0 18px 36px', fontSize: 12, color: '#6B7280' }}>{subtitle}</p>}
+        {children}
     </div>
 );
 
-// ── Step panels ───────────────────────────────────────────────────────
-const Step1 = () => (
-    <div>
-        <StepHeader n={1} title="ED-AIR (EMPLOYEE DETAILS)" subtitle="Enter The basic information of employee" />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 32px' }}>
-            <Field label="Full Name"><TextInput placeholder="Eg. MS_1234567890" /></Field>
-            <Field label="Employee ID"><TextInput placeholder="Enter Employee Name" /></Field>
-            <Field label="Mobile Number"><TextInput placeholder="+91 1234567890" /></Field>
-            <Field label="Official Email Address"><TextInput placeholder="FullName@gmail.com" type="email" /></Field>
-            <Field label="Alternet Mobile Number"><TextInput placeholder="+91 1234567890" /></Field>
-            <Field label="Date Of Joining"><TextInput placeholder="mm/dd/yyyy" type="date" /></Field>
-            <Field label="Department">
-                <SelectInput placeholder="Claim Operations" options={['Claim Operations', 'Finance', 'Tech', 'Operations', 'HR']} />
-            </Field>
-            {/* Photo upload */}
-            <div>
-                <Lbl>&nbsp;</Lbl>
-                <div style={{ width: 164, border: '1px solid #E5E7EB', borderRadius: 8, overflow: 'hidden', display: 'inline-block' }}>
-                    <div style={{ background: '#F9FAFB', padding: '20px 0', textAlign: 'center' }}>
-                        <div style={{
-                            width: 48, height: 48, borderRadius: '50%',
-                            border: '2px solid #D1D5DB', background: '#F3F4F6',
-                            margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        }}>
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-                            </svg>
-                        </div>
-                    </div>
-                    <button style={{
-                        width: '100%', padding: '10px 0', background: NAV_BLUE,
-                        color: '#fff', border: 'none', fontSize: 12, fontWeight: 600,
-                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                        fontFamily: 'inherit',
-                    }}>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                            <polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
-                        </svg>
-                        Upload Photo
-                    </button>
-                    <p style={{ fontSize: 10, color: '#9CA3AF', margin: '6px 8px 8px', textAlign: 'center' }}>PNG, JPG or JPEG (max.2MB)</p>
-                </div>
-            </div>
-        </div>
-    </div>
-);
+const initialForm = {
+    platform: 'omni',
+    internal: '', externalInsurer: '',
+    userId: '', branchOffice: '', mobileNumber: '', emailAddress: '', setPassword: '',
+    businessEntity: '', fullName: '', region: '', stateProvince: '',
+    accountStatus: 'active',
+};
 
-const Step2 = () => (
-    <div>
-        <StepHeader n={2} title="RA (ROLE ASSIGNMENT)" subtitle="Assign role,level & reporting manager" />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 32px' }}>
-            <Field label="Role"><TextInput placeholder="Eg. MS_1234567890" /></Field>
-            <Field label="Role Level"><TextInput placeholder="Enter Employee Name" /></Field>
-        </div>
-        <div style={{ maxWidth: 460 }}>
-            <Field label="Reporting Manager">
-                <SelectInput placeholder="Claim Operations" options={['Claim Operations', 'Manager A', 'Manager B', 'Manager C']} />
-            </Field>
-        </div>
-    </div>
-);
-
-const Step3 = () => (
-    <div>
-        <StepHeader n={3} title="GS (GEOGRAPHY SCOPE)" subtitle="Define the geography access for this users" />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 32px' }}>
-            <Field label="Zone">
-                <SelectInput placeholder="Zone" options={['North', 'South', 'East', 'West', 'Central']} />
-            </Field>
-            <Field label="State"><TextInput placeholder="State" /></Field>
-        </div>
-        <div style={{ maxWidth: 460 }}>
-            <Field label="City/village">
-                <SelectInput placeholder="Claim Operations" options={['Mumbai', 'Delhi', 'Pune', 'Bengaluru', 'Chennai', 'Hyderabad']} />
-            </Field>
-        </div>
-    </div>
-);
-
-const Step4 = () => (
-    <div>
-        <StepHeader n={4} title="P & A (PLATFORM & ACCESS)" subtitle="set platform access, account status & credentials" />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 32px' }}>
-            <Field label="Platform Access">
-                <SelectInput placeholder="Zone" options={['Web', 'Mobile', 'Both']} />
-            </Field>
-            <Field label="Effective From Date"><TextInput placeholder="State" type="date" /></Field>
-            <Field label="Account Status">
-                <SelectInput placeholder="Claim Operations" options={['Active', 'Inactive', 'Pending']} />
-            </Field>
-            <Field label="Temp Password">
-                <SelectInput placeholder="Claim Operations" options={['Auto Generate', 'Manual Set']} />
-            </Field>
-        </div>
-    </div>
-);
-
-const Step5 = () => (
-    <div>
-        <StepHeader n={5} title="MP-RW (MODULE PERMISSIONS — ROLE WISE)" subtitle="configure module-level permission & access rights" />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 40px' }}>
-            <ModuleRow title="Claim Management" options={['View', 'Handle', 'Approve', 'Full']} />
-            <ModuleRow title="Pre-inspection reports" options={['None', 'View', 'Generate', 'Full']} />
-            <ModuleRow title="Survey tracking" options={['None', 'View', 'Assign', 'Full']} />
-            <ModuleRow title="Insurer / Broker management" options={['None', 'View', 'Manage', 'Full']} />
-            <div style={{ marginBottom: 28 }}>
-                <Lbl>User management</Lbl>
-                <Toggle defaultOn />
-                <PermGroup options={['None', 'Own Team', 'State', 'Regional', 'Full']} />
-            </div>
-            <ModuleRow title="Reports & MIS" options={['None', 'View', 'Export', 'Full']} />
-        </div>
-    </div>
-);
-
-const Step6 = () => (
-    <div>
-        <StepHeader n={6} title="RSEF-NM (ROLE-SPECIFIC EXTRA FIELDS — NATIONAL MANAGER)" subtitle="configure module-level permission & access rights" />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 32px' }}>
-            <Field label="Designation"><TextInput placeholder="Designation" /></Field>
-            <Field label="Scope"><TextInput placeholder="Scope" /></Field>
-        </div>
-    </div>
-);
-
-const Step7 = () => (
-    <div>
-        <StepHeader n={7} title="ROLE-SPECIFIC EXTRA FIELDS — REGIONAL MANAGER" subtitle="configure module-level permission & access rights" />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 32px' }}>
-            <Field label="Designation"><TextInput placeholder="Designation" /></Field>
-            <Field label="Region name"><TextInput placeholder="Region name" /></Field>
-        </div>
-        <Field label="States covered">
-            <PermGroup options={['None', 'View', 'Generate', 'Full']} />
-        </Field>
-    </div>
-);
-
-const Step8 = () => (
-    <div>
-        <StepHeader n={8} title="ROLE-SPECIFIC EXTRA FIELDS — STATE MANAGER" subtitle="configure module-level permission & access rights" />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 32px' }}>
-            <Field label="Designation"><TextInput placeholder="Designation" /></Field>
-            <Field label="State assigned">
-                <SelectInput placeholder="State Assigned" options={['Maharashtra', 'Delhi', 'Karnataka', 'Gujarat', 'Tamil Nadu']} />
-            </Field>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 32px' }}>
-            <Field label="Surveyor coordination access"><Toggle defaultOn /></Field>
-            <Field label="Workshop coordination access"><Toggle defaultOn /></Field>
-        </div>
-    </div>
-);
-
-const Step9 = () => (
-    <div>
-        <StepHeader n={9} title="ROLE-SPECIFIC EXTRA FIELDS — CSM / HANDLER" subtitle="configure module-level permission & access rights" />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 40px' }}>
-            <Field label="Designation"><TextInput placeholder="Designation" /></Field>
-            <div style={{ marginBottom: 22 }}>
-                <Lbl>Assigned insurer accounts</Lbl>
-                <PermGroup options={['None', 'View', 'Generate', 'Full']} />
-            </div>
-            <div style={{ marginBottom: 22 }}>
-                <Lbl>Assigned broker accounts</Lbl>
-                <PermGroup options={['None', 'View', 'Generate', 'Full']} />
-            </div>
-            <Field label="SLA tier">
-                <SelectInput placeholder="SLA Tier" options={['Tier 1', 'Tier 2', 'Tier 3']} />
-            </Field>
-        </div>
-        <div style={{ maxWidth: 460, marginTop: 4 }}>
-            <Field label="Max open claims (concurrent)">
-                <TextInput placeholder="1,2,3,4,5,6" />
-            </Field>
-        </div>
-    </div>
-);
-
-const Step10 = () => (
-    <div>
-        <StepHeader n={10} title="RSEF-CCA (ROLE-SPECIFIC EXTRA FIELDS — CLAIM COORDINATION AGENT)" subtitle="configure claim coordination agent specific fields" />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 32px' }}>
-            <Field label="Designation"><TextInput placeholder="Designation" /></Field>
-            <Field label="Agent Code"><TextInput placeholder="Agent Code" /></Field>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 40px' }}>
-            <div style={{ marginBottom: 22 }}>
-                <Lbl>Claim access level</Lbl>
-                <PermGroup options={['None', 'View', 'Process', 'Full']} />
-            </div>
-            <div style={{ marginBottom: 22 }}>
-                <Lbl>Coordination type</Lbl>
-                <PermGroup options={['Internal', 'External', 'Both']} />
-            </div>
-        </div>
-        <div style={{ maxWidth: 460 }}>
-            <Field label="Max concurrent cases">
-                <TextInput placeholder="1,2,3,4,5,6" />
-            </Field>
-        </div>
-    </div>
-);
-
-const STEP_COMPONENTS = [Step1, Step2, Step3, Step4, Step5, Step6, Step7, Step8, Step9, Step10];
-
-// ── Stepper ───────────────────────────────────────────────────────────
-const Stepper = ({ current, onStepClick }) => (
-    <div style={{ display: 'flex', alignItems: 'center', overflowX: 'auto', paddingBottom: 4 }}>
-        {STEPS.map((step, idx) => {
-            const done = step.id < current;
-            const active = step.id === current;
-            const inactive = step.id > current;
-            return (
-                <React.Fragment key={step.id}>
-                    <button
-                        onClick={() => !inactive && onStepClick(step.id)}
-                        style={{
-                            display: 'flex', alignItems: 'center', gap: 7,
-                            flexShrink: 0, background: 'none', border: 'none',
-                            cursor: inactive ? 'default' : 'pointer', padding: '2px 0',
-                        }}
-                    >
-                        <div style={{
-                            width: 28, height: 28, borderRadius: '50%',
-                            background: inactive ? 'transparent' : NAV_BLUE,
-                            border: `2px solid ${inactive ? '#C9CDD8' : NAV_BLUE}`,
-                            color: inactive ? '#9CA3AF' : '#fff',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 12, fontWeight: 700, flexShrink: 0,
-                            transition: 'all 0.15s',
-                        }}>
-                            {step.id}
-                        </div>
-                        <span style={{
-                            fontSize: 12, fontWeight: active ? 700 : 500,
-                            color: inactive ? '#9CA3AF' : '#111827',
-                            whiteSpace: 'nowrap',
-                        }}>
-                            {step.code}
-                        </span>
-                    </button>
-                    {idx < STEPS.length - 1 && (
-                        <div style={{
-                            flex: '0 0 18px', height: 1.5,
-                            background: done ? NAV_BLUE : '#D1D5DB',
-                            margin: '0 2px',
-                        }} />
-                    )}
-                </React.Fragment>
-            );
-        })}
-    </div>
-);
-
-// ── Main page ─────────────────────────────────────────────────────────
+/**
+ * "Internal User Creation" -- matches the client's reference design
+ * exactly: a single scrolling page with all 5 sections visible at once
+ * (not an accordion/wizard), a left step rail that tracks scroll position
+ * and jumps to a section on click, and a "Create Now" submit at the end.
+ */
 const AdminUserCreationPage = () => {
-    const [step, setStep] = useState(1);
-    const StepContent = STEP_COMPONENTS[step - 1];
-    const isLast = step === STEPS.length;
+    const [form, setForm] = useState(initialForm);
+    const [activeSection, setActiveSection] = useState(1);
+    const [submitted, setSubmitted] = useState(false);
+    const sectionRefs = useRef([]);
+
+    const set = (key) => (value) => setForm((prev) => ({ ...prev, [key]: value }));
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+                if (visible[0]) {
+                    const idx = sectionRefs.current.indexOf(visible[0].target);
+                    if (idx !== -1) setActiveSection(idx + 1);
+                }
+            },
+            { rootMargin: '-15% 0px -55% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] }
+        );
+        sectionRefs.current.forEach((el) => el && observer.observe(el));
+        return () => observer.disconnect();
+    }, []);
+
+    const scrollToSection = (id) => {
+        sectionRefs.current[id - 1]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    const handleCreate = () => {
+        setSubmitted(true);
+        window.setTimeout(() => setSubmitted(false), 3500);
+    };
 
     return (
         <main className="admin-page">
-            {/* Title row */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 4 }}>
-                <div>
-                    <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, color: PALETTE.primaryBlue }}>
-                        Internal User Creation
-                    </h1>
-                    <p style={{ margin: '6px 0 0', fontSize: 13, color: '#374151', fontWeight: 500 }}>
-                        Provision new access and deine role-based permission&nbsp;for insure personal
-                    </p>
+            <h1 style={{ margin: '0 0 4px', fontSize: 28, fontWeight: 800, color: PALETTE.primaryBlue }}>As SaaS</h1>
+            <p style={{ margin: '0 0 20px', fontSize: 13, color: '#374151', fontWeight: 600 }}>
+                Setup a new user with secure access to the motor insurance platform
+            </p>
+
+            {submitted && (
+                <div style={{
+                    display: 'flex', alignItems: 'center', gap: 10, background: '#ECFDF5', border: '1px solid #A7F3D0',
+                    color: '#047857', borderRadius: 8, padding: '12px 16px', marginBottom: 16, fontSize: 13, fontWeight: 600,
+                }}>
+                    <CheckCircleIcon color="#047857" /> User created successfully.
                 </div>
-                <button
-                    onClick={() => isLast ? alert('User created successfully!') : setStep(s => s + 1)}
-                    style={{
-                        padding: '12px 36px', background: NAV_BLUE, color: '#fff',
-                        border: 'none', borderRadius: 6, fontSize: 14, fontWeight: 700,
-                        cursor: 'pointer', flexShrink: 0, fontFamily: 'inherit',
-                        boxShadow: '0 2px 8px rgba(11,45,155,0.25)',
-                    }}
-                >
-                    {isLast ? 'Submit' : 'Continue'}
-                </button>
-            </div>
+            )}
 
-            {/* Stepper */}
-            <div style={{ borderBottom: '1px solid #E5E7EB', padding: '18px 0 14px', marginBottom: 14 }}>
-                <Stepper current={step} onStepClick={setStep} />
-            </div>
+            <div className="ad-page-flex">
+                {/* ── Left: step rail ──────────────────────────────────── */}
+                <div className="ad-step-rail" style={{ width: 200, flexShrink: 0, paddingTop: 4, position: 'sticky', top: 4, alignSelf: 'flex-start' }}>
+                    {SECTIONS.map((s) => {
+                        const isActive = s.id === activeSection;
+                        return (
+                            <div
+                                key={s.id}
+                                onClick={() => scrollToSection(s.id)}
+                                style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 22, cursor: 'pointer' }}
+                            >
+                                <span style={{
+                                    width: 26, height: 26, borderRadius: '50%',
+                                    background: isActive ? NAV_BLUE : 'transparent',
+                                    border: `2px solid ${isActive ? NAV_BLUE : '#CBD5E1'}`,
+                                    color: isActive ? '#fff' : '#94A3B8',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontSize: 12, fontWeight: 700, flexShrink: 0,
+                                }}>
+                                    {s.id}
+                                </span>
+                                <span style={{ fontSize: 13, fontWeight: isActive ? 700 : 500, color: isActive ? NAV_BLUE : '#94A3B8', lineHeight: 1.4, paddingTop: 3, whiteSpace: 'nowrap' }}>
+                                    {s.label}
+                                </span>
+                            </div>
+                        );
+                    })}
+                </div>
 
-            {/* Form card */}
-            <div style={{
-                background: '#fff', border: '1px solid #E5E7EB', borderRadius: 6,
-                padding: '28px 32px', boxShadow: '0 1px 3px rgba(15,23,42,0.07)',
-            }}>
-                <StepContent />
+                {/* ── Right: all sections, always visible ──────────────── */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    <SectionCard innerRef={(el) => { sectionRefs.current[0] = el; }} number={1} title="Platform" subtitle="Enter The basic information of employee">
+                        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                            <SelectCard selected={form.platform === 'mobile'} onClick={() => set('platform')('mobile')} icon={(c) => <PhoneIcon color={c} />} label="Mob Application" />
+                            <SelectCard selected={form.platform === 'web'} onClick={() => set('platform')('web')} icon={(c) => <MonitorIcon color={c} />} label="Web Portal" />
+                            <SelectCard selected={form.platform === 'omni'} onClick={() => set('platform')('omni')} icon={(c) => <HeadsetIcon color={c} />} label="Omni-Channel (Both)" />
+                        </div>
+                    </SectionCard>
+
+                    <SectionCard innerRef={(el) => { sectionRefs.current[1] = el; }} number={2} title="Role Assignment" subtitle="Enter The basic information of employee">
+                        <div className="ad-form-grid" style={{ gap: 16 }}>
+                            <Field label="Internal"><TextInput value={form.internal} onChange={set('internal')} placeholder="Eg. MS_1234567890" /></Field>
+                            <Field label="External - Insurer"><TextInput value={form.externalInsurer} onChange={set('externalInsurer')} placeholder="Enter Employee Name" /></Field>
+                        </div>
+                    </SectionCard>
+
+                    <SectionCard innerRef={(el) => { sectionRefs.current[2] = el; }} number={3} title="User Profile Details" subtitle="Assign role,level & reporting manager">
+                        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
+                            <Field label="User ID"><TextInput value={form.userId} onChange={set('userId')} placeholder="Eg. MS_1234567890" /></Field>
+                            <Field label="Branch/Office"><TextInput value={form.branchOffice} onChange={set('branchOffice')} placeholder="Enter Employee Name" /></Field>
+                            <Field label="Mobile Number"><TextInput value={form.mobileNumber} onChange={set('mobileNumber')} placeholder="+91 1234567890" /></Field>
+                            <Field label="Email Address"><TextInput value={form.emailAddress} onChange={set('emailAddress')} placeholder="Enter Employee Name" type="email" /></Field>
+                        </div>
+                        <div style={{ maxWidth: 460 }}>
+                            <Field label="Set Password"><TextInput value={form.setPassword} onChange={set('setPassword')} placeholder="Set Password" type="password" /></Field>
+                        </div>
+                    </SectionCard>
+
+                    <SectionCard innerRef={(el) => { sectionRefs.current[3] = el; }} number={4} title="Organization" subtitle="Assign role,level & reporting manager">
+                        <div className="ad-form-grid" style={{ gap: 16 }}>
+                            <Field label="Business Entity"><TextInput value={form.businessEntity} onChange={set('businessEntity')} placeholder="Architectural Savvy" /></Field>
+                            <Field label="Full Name"><TextInput value={form.fullName} onChange={set('fullName')} placeholder="Metropolitan HQ" /></Field>
+                            <Field label="Region"><TextInput value={form.region} onChange={set('region')} placeholder="India" /></Field>
+                            <Field label="State/Province"><TextInput value={form.stateProvince} onChange={set('stateProvince')} placeholder="Maharashtra" /></Field>
+                        </div>
+                    </SectionCard>
+
+                    <SectionCard innerRef={(el) => { sectionRefs.current[4] = el; }} number={5} title="Account Status" subtitle="Assign role,level & reporting manager">
+                        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
+                            <button
+                                type="button"
+                                onClick={() => set('accountStatus')('active')}
+                                style={{
+                                    flex: '1 1 260px', maxWidth: 340, display: 'flex', alignItems: 'center', gap: 12,
+                                    padding: '14px 18px', borderRadius: 8, cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit',
+                                    border: `1.5px solid ${form.accountStatus === 'active' ? '#10B981' : '#E5E7EB'}`,
+                                    background: form.accountStatus === 'active' ? '#ECFDF5' : '#fff',
+                                }}
+                            >
+                                <RadioDot checked={form.accountStatus === 'active'} color="#10B981" />
+                                <span>
+                                    <span style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#111827' }}>Active</span>
+                                    <span style={{ display: 'block', fontSize: 11, color: '#6B7280' }}>Users Can Access The System</span>
+                                </span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => set('accountStatus')('inactive')}
+                                style={{
+                                    flex: '1 1 260px', maxWidth: 340, display: 'flex', alignItems: 'center', gap: 12,
+                                    padding: '14px 18px', borderRadius: 8, cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit',
+                                    border: `1.5px solid ${form.accountStatus === 'inactive' ? '#94A3B8' : '#E5E7EB'}`,
+                                    background: form.accountStatus === 'inactive' ? '#F1F5F9' : '#fff',
+                                }}
+                            >
+                                <RadioDot checked={form.accountStatus === 'inactive'} color="#64748B" />
+                                <span>
+                                    <span style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#111827' }}>Inactive</span>
+                                    <span style={{ display: 'block', fontSize: 11, color: '#6B7280' }}>Access Restricted</span>
+                                </span>
+                            </button>
+                        </div>
+                    </SectionCard>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 }}>
+                        <button
+                            onClick={handleCreate}
+                            style={{
+                                padding: '12px 36px', background: NAV_BLUE, color: '#fff',
+                                border: 'none', borderRadius: 6, fontSize: 14, fontWeight: 700,
+                                cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 2px 8px rgba(11,45,155,0.25)',
+                            }}
+                        >
+                            Create Now
+                        </button>
+                    </div>
+                </div>
             </div>
         </main>
     );

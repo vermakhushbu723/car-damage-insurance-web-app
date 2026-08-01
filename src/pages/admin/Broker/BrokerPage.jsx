@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const BLUE = '#114EC9';
 
@@ -163,12 +163,11 @@ const Toggle = ({ defaultOn = true }) => {
 };
 
 // ── Section header ─────────────────────────────────────────────────────
-const SectionHeader = ({ number, title, onClick }) => (
+const SectionHeader = ({ number, title }) => (
     <div
-        onClick={onClick}
         style={{
             display: 'flex', alignItems: 'center',
-            padding: '18px 0', cursor: 'pointer',
+            padding: '18px 0',
         }}
     >
         <div style={{
@@ -190,7 +189,7 @@ const SectionHeader = ({ number, title, onClick }) => (
 // ════════════════════════════════════════════════════════════════════════
 const FirmDetailsForm = () => (
     <div style={{ paddingBottom: 28 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="Broker" placeholder="Eg: MG 1234567890" />
             <SelectField
                 label="Broker Type"
@@ -198,27 +197,27 @@ const FirmDetailsForm = () => (
                 options={['Individual', 'Corporate', 'Composite']}
             />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="IRDAI Broker License Number" placeholder="Eg: MG 1234567890" />
             <DateField label="License Exp Date" />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="CIN Number" placeholder="Eg: MG 1234567890" />
             <Field label="PAN" placeholder="Eg: MGMT12310" />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="GST Number" placeholder="Eg: Companyname@gmail.com" />
             <Field label="Official Email ID" placeholder="Eg: +91 1234567890" />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="Primary Contact Number" placeholder="Operating State" />
             <LinkIconField label="Website URL" placeholder="Website Link" />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="Register Address" placeholder="Eg: Companyname@gmail.com" />
             <Field label="State" placeholder="Eg: +91 1234567890" />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16 }}>
             <Field label="PIN" placeholder="6 Digit Code" />
             <div />
         </div>
@@ -263,7 +262,7 @@ const LogoForm = () => (
 // ════════════════════════════════════════════════════════════════════════
 const EmpanelmentForm = () => (
     <div style={{ paddingBottom: 28 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16 }}>
             <Field label="Lines of business" placeholder="Eg: MS 1234567890" />
             <SelectField
                 label="Empanelled insurers"
@@ -288,7 +287,7 @@ const PlatformAccessForm = () => (
                 style={{ ...inputStyle, color: '#64748B', cursor: 'default', maxWidth: '50%' }}
             />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16 }}>
             <DateField label="Effective from" />
             <DateField label="Expiry date" />
         </div>
@@ -300,7 +299,7 @@ const PlatformAccessForm = () => (
 // ════════════════════════════════════════════════════════════════════════
 const RoleHierarchyForm = () => (
     <div style={{ paddingBottom: 28 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px 48px' }}>
+        <div className="ad-form-grid" style={{ gap: '20px 48px' }}>
             {/* Row 1 */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: 13, color: '#374151' }}>National Manager (HO)</span>
@@ -342,15 +341,15 @@ const PrimaryAdminForm = () => {
             <div style={{ marginBottom: 16 }}>
                 <Field label="Admin full name" placeholder="Eg: MG 1234567890" />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
                 <Field label="Employee ID" placeholder="Eg: Companyname@gmail.com" />
                 <Field label="Admin email" placeholder="Eg: +91 1234567890" />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
                 <Field label="Admin mobile Number" placeholder="Operating State" />
                 <LinkIconField label="Designation" placeholder="Website Link" />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div className="ad-form-grid" style={{ gap: 16 }}>
                 <Field label="Linked insurers" placeholder="Eg: Companyname@gmail.com" />
                 <div>
                     <label style={labelStyle}>Temp password</label>
@@ -386,7 +385,7 @@ const PrimaryAdminForm = () => {
 // ════════════════════════════════════════════════════════════════════════
 const SubUserCreationForm = () => (
     <div style={{ paddingBottom: 28 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <SelectField
                 label="Role"
                 placeholder="Select Role"
@@ -394,7 +393,7 @@ const SubUserCreationForm = () => (
             />
             <EditIconField label="Parent user" placeholder="Website Link" />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16 }}>
             <SelectField
                 label="Geography assignment"
                 placeholder="Select"
@@ -416,62 +415,78 @@ const SECTION_FORMS = [
     <SubUserCreationForm key="7" />,
 ];
 
+const CheckCircleIcon = ({ color }) => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+    </svg>
+);
+
 // ════════════════════════════════════════════════════════════════════════
-//  Main BrokerPage
+//  Main BrokerPage -- every section is visible at once (not an accordion);
+//  the left step rail is sticky and tracks scroll position, matching the
+//  Internal User Creation page's pattern (see AdminUserCreationPage.jsx).
 // ════════════════════════════════════════════════════════════════════════
 const BrokerPage = () => {
     const [activeStep, setActiveStep] = useState(1);
+    const [submitted, setSubmitted] = useState(false);
+    const sectionRefs = useRef([]);
 
-    const handleContinue = () => {
-        setActiveStep((prev) => Math.min(prev + 1, STEPS.length));
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+                if (visible[0]) {
+                    const idx = sectionRefs.current.indexOf(visible[0].target);
+                    if (idx !== -1) setActiveStep(idx + 1);
+                }
+            },
+            { rootMargin: '-15% 0px -55% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] }
+        );
+        sectionRefs.current.forEach((el) => el && observer.observe(el));
+        return () => observer.disconnect();
+    }, []);
+
+    const scrollToStep = (id) => {
+        sectionRefs.current[id - 1]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    const handleCreate = () => {
+        setSubmitted(true);
+        window.setTimeout(() => setSubmitted(false), 3500);
     };
 
     return (
-        <div style={{ padding: '28px 36px', minHeight: '100%', background: '#fff' }}>
-            {/* Page title + Continue */}
-            <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                marginBottom: 32,
-            }}>
-                <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', margin: 0 }}>
-                    BROKER &mdash; Survey &amp; Claims System
-                </h1>
-                <button
-                    onClick={handleContinue}
-                    style={{
-                        padding: '10px 30px',
-                        background: BLUE, color: '#fff',
-                        border: 'none', borderRadius: 6,
-                        fontSize: 14, fontWeight: 600, cursor: 'pointer', letterSpacing: 0.3,
-                    }}
-                >
-                    Continue
-                </button>
-            </div>
+        <div className="ad-page-padding" style={{ padding: '28px 36px', minHeight: '100%', background: '#fff' }}>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', margin: '0 0 20px' }}>
+                BROKER &mdash; Survey &amp; Claims System
+            </h1>
 
-            {/* Two-column layout */}
-            <div style={{ display: 'flex', gap: 40 }}>
-                {/* ── Left: step list ─────────────────────────────────── */}
-                <div style={{ width: 200, flexShrink: 0, paddingTop: 4 }}>
+            {submitted && (
+                <div style={{
+                    display: 'flex', alignItems: 'center', gap: 10, background: '#ECFDF5', border: '1px solid #A7F3D0',
+                    color: '#047857', borderRadius: 8, padding: '12px 16px', marginBottom: 16, fontSize: 13, fontWeight: 600,
+                }}>
+                    <CheckCircleIcon color="#047857" /> Broker profile saved successfully.
+                </div>
+            )}
+
+            {/* Two-column layout -- stacks on tablet/mobile (see .ad-page-flex) */}
+            <div className="ad-page-flex">
+                {/* ── Left: sticky step rail ───────────────────────────── */}
+                <div className="ad-step-rail" style={{ width: 200, flexShrink: 0, paddingTop: 4, position: 'sticky', top: 4, alignSelf: 'flex-start' }}>
                     {STEPS.map((step) => {
                         const isActive = step.id === activeStep;
-                        const isDone = step.id < activeStep;
-                        const isFuture = step.id > activeStep;
                         return (
                             <div
                                 key={step.id}
-                                onClick={() => setActiveStep(step.id)}
-                                style={{
-                                    display: 'flex', alignItems: 'flex-start', gap: 12,
-                                    marginBottom: 20, cursor: 'pointer',
-                                    opacity: isFuture ? 0.4 : 1,
-                                }}
+                                onClick={() => scrollToStep(step.id)}
+                                style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 20, cursor: 'pointer' }}
                             >
                                 <div style={{
                                     width: 26, height: 26, borderRadius: '50%',
-                                    background: isActive || isDone ? BLUE : 'transparent',
-                                    border: `2px solid ${isActive || isDone ? BLUE : '#CBD5E1'}`,
-                                    color: isActive || isDone ? '#fff' : '#94A3B8',
+                                    background: isActive ? BLUE : 'transparent',
+                                    border: `2px solid ${isActive ? BLUE : '#CBD5E1'}`,
+                                    color: isActive ? '#fff' : '#94A3B8',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                     fontSize: 12, fontWeight: 700, flexShrink: 0,
                                 }}>
@@ -479,10 +494,11 @@ const BrokerPage = () => {
                                 </div>
                                 <span style={{
                                     fontSize: 13,
-                                    fontWeight: isActive ? 600 : 500,
-                                    color: isActive ? BLUE : isDone ? '#64748B' : '#94A3B8',
+                                    fontWeight: isActive ? 700 : 500,
+                                    color: isActive ? BLUE : '#94A3B8',
                                     lineHeight: 1.4,
                                     paddingTop: 3,
+                                    whiteSpace: 'nowrap',
                                 }}>
                                     {step.label}
                                 </span>
@@ -491,21 +507,32 @@ const BrokerPage = () => {
                     })}
                 </div>
 
-                {/* ── Right: accordion sections ────────────────────────── */}
+                {/* ── Right: all sections, always visible ──────────────── */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                    {STEPS.map((step, idx) => {
-                        const isActive = step.id === activeStep;
-                        return (
-                            <div key={step.id} style={{ borderBottom: '1px solid #E5E7EB' }}>
-                                <SectionHeader
-                                    number={step.id}
-                                    title={SECTION_TITLES[idx]}
-                                    onClick={() => setActiveStep(step.id)}
-                                />
-                                {isActive && SECTION_FORMS[idx]}
-                            </div>
-                        );
-                    })}
+                    {STEPS.map((step, idx) => (
+                        <div
+                            key={step.id}
+                            ref={(el) => { sectionRefs.current[idx] = el; }}
+                            style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 8, padding: '4px 24px 24px', marginBottom: 20, boxShadow: '0 1px 3px rgba(15,23,42,0.07)' }}
+                        >
+                            <SectionHeader number={step.id} title={SECTION_TITLES[idx]} />
+                            {SECTION_FORMS[idx]}
+                        </div>
+                    ))}
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 }}>
+                        <button
+                            onClick={handleCreate}
+                            style={{
+                                padding: '10px 30px',
+                                background: BLUE, color: '#fff',
+                                border: 'none', borderRadius: 6,
+                                fontSize: 14, fontWeight: 600, cursor: 'pointer', letterSpacing: 0.3,
+                            }}
+                        >
+                            Create Now
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

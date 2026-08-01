@@ -45,16 +45,28 @@ export const ROUTES = {
     },
 
     // ── Intimation Management System ──────────────────────────────────
+    // Sidebar order/labels match the Figma "Untitled" design file 1:1 —
+    // see IntimationSidebar.jsx. A few older routes (ILA, Settlement, Dms
+    // surveyor, Dms pre-inspection, Annotation Studio) predate that design
+    // and aren't in its sidebar; their pages are kept (still reachable by
+    // direct URL) but unlinked from nav so they don't get lost.
     INTIMATION: {
         BASE: '/admin/intimation',
-        CLAIM_HANDLER: '/admin/intimation/claim-handler',
-        SURVEYOR_APPOINTMENT: '/admin/intimation/surveyor-appointment',
+        SURVEYOR_APPOINTMENT: '/admin/intimation/surveyor-allocation',
+        CLAIM_HANDLER: '/admin/intimation/handler',
         CLAIM_DETAILS: '/admin/intimation/claim-details',
-        ILA: '/admin/intimation/ila',
-        SETTLEMENT: '/admin/intimation/settlement',
+        CLAIM_DETAILS_ANALYTICS: '/admin/intimation/claim-details/analytics',
+        AI_ILA: '/admin/intimation/ai-ila',
+        ILA_NEW: '/admin/intimation/ila-new',
         FLA: '/admin/intimation/fla',
         RECOMMENDATION: '/admin/intimation/recommendation',
+        FEE_BILL: '/admin/intimation/fee-bill',
+
+        // Kept, not in the current sidebar (see note above)
+        ILA: '/admin/intimation/ila',
+        SETTLEMENT: '/admin/intimation/settlement',
         DMS_SURVEYOR: '/admin/intimation/dms-surveyor',
         DMS_PREINSPECTION: '/admin/intimation/dms-preinspection',
+        ANNOTATION_STUDIO: '/admin/intimation/annotation-studio',
     },
 };

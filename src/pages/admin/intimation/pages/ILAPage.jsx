@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import MetricCard from '../components/MetricCard';
 import FilterBar from '../components/FilterBar';
+import { ROUTES } from '../../../../constants/routes';
 
 const ClipIcon = () => (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -66,7 +68,10 @@ const rows = Array(6).fill({
     status: 'Completed',
 });
 
-const ILAPage = () => (
+const ILAPage = () => {
+    const navigate = useNavigate();
+
+    return (
     <main style={{ padding: '20px 24px', fontFamily: 'Instrument Sans, sans-serif' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
@@ -75,7 +80,10 @@ const ILAPage = () => (
                 <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6B7280' }}>Manage Insurance Loss Assessments and Survey Reports</p>
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-                <button style={{ background: '#1454D1', color: '#fff', border: 'none', borderRadius: 6, padding: '9px 20px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                <button
+                    onClick={() => navigate(ROUTES.INTIMATION.AI_ILA)}
+                    style={{ background: '#1454D1', color: '#fff', border: 'none', borderRadius: 6, padding: '9px 20px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                >
                     AI ILA
                 </button>
                 <button style={{ background: '#1454D1', color: '#fff', border: 'none', borderRadius: 6, padding: '9px 20px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
@@ -140,6 +148,7 @@ const ILAPage = () => (
             </table>
         </div>
     </main>
-);
+    );
+};
 
 export default ILAPage;

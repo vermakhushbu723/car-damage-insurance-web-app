@@ -1,5 +1,7 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import FilterBar from '../components/FilterBar';
+import { ROUTES } from '../../../../constants/routes';
 
 const EyeIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -65,7 +67,7 @@ const docItems = [
         )
     },
     {
-        label: 'Damage Assess...', icon: (
+        label: 'Damage Assess...', route: ROUTES.INTIMATION.AI_ILA, icon: (
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1454D1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
@@ -81,7 +83,10 @@ const docItems = [
     },
 ];
 
-const DmsPreInspectionPage = () => (
+const DmsPreInspectionPage = () => {
+    const navigate = useNavigate();
+
+    return (
     <main style={{ padding: '20px 24px', fontFamily: 'Instrument Sans, sans-serif' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
@@ -131,7 +136,10 @@ const DmsPreInspectionPage = () => (
             <h2 style={{ fontSize: 18, fontWeight: 800, color: '#111827', marginBottom: 16 }}>Document Management System - Pre-Inspection</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 12 }}>
                 {docItems.map((item, i) => (
-                    <button key={i} style={{
+                    <button
+                        key={i}
+                        onClick={() => item.route && navigate(item.route)}
+                        style={{
                         background: '#fff',
                         border: '1.5px solid #BFDBFE',
                         borderRadius: 8,
@@ -150,6 +158,7 @@ const DmsPreInspectionPage = () => (
             </div>
         </div>
     </main>
-);
+    );
+};
 
 export default DmsPreInspectionPage;

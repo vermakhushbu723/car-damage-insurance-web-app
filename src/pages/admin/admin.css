@@ -77,3 +77,231 @@
   border-radius: 8px;
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.14);
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+ * Intimation module — responsive layout (navbar + footer + form pages)
+ *
+ * Breakpoints: mobile <=640px, tablet 641-1024px, laptop/desktop >1024px.
+ * Sidebar is static in the normal flex flow on laptop/desktop; on
+ * tablet/mobile it becomes an off-canvas drawer toggled by a hamburger
+ * button in the header, so it never has to squeeze into a narrow
+ * viewport. Everything below (search bar, form grids, the main+DMS
+ * panel split, and the Save/Submit "footer" bars) reflows to a single
+ * column once the viewport can't comfortably fit two.
+ * ───────────────────────────────────────────────────────────────────── */
+
+.im-sidebar {
+  transition: transform 0.22s ease;
+}
+
+.im-hamburger {
+  display: none;
+}
+
+.im-sidebar-overlay {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .im-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1200;
+    transform: translateX(-100%);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+  }
+  .im-sidebar.im-sidebar-open {
+    transform: translateX(0);
+  }
+  .im-hamburger {
+    display: flex !important;
+  }
+  .im-sidebar-overlay.im-sidebar-open {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    z-index: 1100;
+  }
+}
+
+@media (max-width: 640px) {
+  .im-header-search {
+    width: 140px !important;
+  }
+}
+
+/* Search bar hides entirely on very narrow phones -- the icon buttons
+   and hamburger stay reachable without the row wrapping. */
+@media (max-width: 420px) {
+  .im-header-search {
+    display: none !important;
+  }
+}
+
+/* Two-column section-card field grid (FormFields.jsx SectionCard) -->
+   single column once the viewport is tablet-sized or smaller. */
+.im-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 24px;
+}
+@media (max-width: 768px) {
+  .im-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Main form column + right-hand Document Management panel --> stacks
+   vertically, DMS panel goes full width below the form, once the
+   viewport can't fit both side by side. */
+.im-page-flex {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+@media (max-width: 900px) {
+  .im-page-flex {
+    flex-direction: column;
+  }
+  .im-page-flex > * {
+    width: 100%;
+  }
+  /* DocumentManagementPanel sets an inline fixed width (260px) that beats
+     the rule above on specificity alone -- force it full-width once it's
+     stacked below the form instead of staying a narrow left-aligned box. */
+  .im-dms-panel {
+    width: 100% !important;
+  }
+}
+
+/* Save/Submit (and similar) button rows --> stack full-width on phones
+   instead of squeezing two buttons into half-width each. */
+.im-button-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+@media (max-width: 480px) {
+  .im-button-bar {
+    flex-direction: column;
+  }
+}
+
+/* Claim & Vehicle / filter-row grids that are normally 4-5 columns wide */
+.im-grid-auto {
+  display: grid;
+  gap: 14px;
+}
+@media (max-width: 1024px) {
+  .im-grid-auto {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+@media (max-width: 480px) {
+  .im-grid-auto {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+ * Plain admin module — responsive layout (/admin/dashboard,
+ * /admin/user-creation, /admin/insurer, /admin/broker, /admin/surveyor,
+ * /admin/workshop, /admin/settings, /admin/support)
+ *
+ * Same pattern as the "Intimation module" block above, under an `ad-`
+ * prefix so the two modules' CSS stays independent even though both
+ * happen to share `.admin-sidebar`/`.admin-sidebar-item` for item
+ * styling. Breakpoints match: mobile <=640px, tablet 641-1024px,
+ * laptop/desktop >1024px.
+ * ───────────────────────────────────────────────────────────────────── */
+
+.ad-sidebar {
+  transition: transform 0.22s ease;
+}
+
+.ad-hamburger {
+  display: none;
+}
+
+.ad-sidebar-overlay {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .ad-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1200;
+    transform: translateX(-100%);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+  }
+  .ad-sidebar.ad-sidebar-open {
+    transform: translateX(0);
+  }
+  .ad-hamburger {
+    display: flex !important;
+  }
+  .ad-sidebar-overlay.ad-sidebar-open {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    z-index: 1100;
+  }
+}
+
+@media (max-width: 640px) {
+  .ad-header-search {
+    width: 140px !important;
+  }
+}
+@media (max-width: 420px) {
+  .ad-header-search {
+    display: none !important;
+  }
+}
+
+/* Insurer/Broker/Surveyor pages: fixed-width left step-rail beside the
+   accordion form column --> stacks vertically (rail becomes a horizontal
+   scrollable strip above the form) once they can't fit side by side. */
+.ad-page-flex {
+  display: flex;
+  gap: 40px;
+}
+@media (max-width: 900px) {
+  .ad-page-flex {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .ad-page-flex > .ad-step-rail {
+    width: 100% !important;
+    display: flex;
+    overflow-x: auto;
+    gap: 4px;
+    padding-bottom: 4px;
+  }
+}
+
+/* Generic 2-column field grid used throughout Insurer/Broker/Surveyor
+   section forms and the AdminUserCreation wizard steps. */
+.ad-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+@media (max-width: 768px) {
+  .ad-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Outer page padding on Insurer/Broker/Surveyor (inline '28px 36px') and
+   AdminUserCreation's form card ('28px 32px') -- shrinks on phones so
+   fixed padding doesn't eat most of a 375px viewport. */
+@media (max-width: 480px) {
+  .ad-page-padding {
+    padding: 16px !important;
+  }
+}

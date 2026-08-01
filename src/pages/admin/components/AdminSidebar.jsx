@@ -52,10 +52,10 @@ const SidebarItem = ({ item }) => {
  * etc.). Items without a `path` yet are placeholders — clicking them is
  * a no-op until those routes are built.
  */
-const AdminSidebar = () => {
+const AdminSidebar = ({ open }) => {
     return (
         <aside
-            className="admin-sidebar flex flex-col"
+            className={`admin-sidebar ad-sidebar flex flex-col${open ? ' ad-sidebar-open' : ''}`}
             style={{
                 width: 166,
                 background: PALETTE.sidebar,

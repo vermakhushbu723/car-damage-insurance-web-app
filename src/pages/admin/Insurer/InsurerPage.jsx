@@ -140,19 +140,19 @@ const SectionHeader = ({ number, title, rightLabel, onClick }) => (
 // ════════════════════════════════════════════════════════════════════════
 const CompanyDetailsForm = () => (
     <div style={{ paddingBottom: 28 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="Company Name" placeholder="Eg: MG 1234567890" />
             <Field label="CIN" placeholder="Enter Employee Name" />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="IRDAI License" placeholder="Eg: MG 1234567890" />
             <Field label="Insure Type" placeholder="Enter Employee Name" />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="GST" placeholder="Eg: MG 1234567890" />
             <Field label="PAN" placeholder="Eg: MGMT12310" />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="Official Email" placeholder="Eg: Companyname@gmail.com" />
             <Field label="Contact Number" placeholder="Eg: +91 1234567890" />
         </div>
@@ -164,7 +164,7 @@ const CompanyDetailsForm = () => (
                 style={{ ...inputStyle, resize: 'vertical' }}
             />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="State" placeholder="Operating State" />
             <Field label="PIN" placeholder="6 Digit Code" />
         </div>
@@ -179,15 +179,15 @@ const PrimaryAdminForm = () => {
     const [showPwd, setShowPwd] = useState(false);
     return (
         <div style={{ paddingBottom: 28 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
                 <Field label="Full Name" placeholder="Eg: MG 1234567890" />
                 <Field label="Employee ID" placeholder="Enter Employee Name" />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
                 <Field label="Work Email" placeholder="Eg: MG 1234567890" />
                 <Field label="Mobile" placeholder="Eg: M18T57810" />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+            <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
                 <Field label="Designation" placeholder="Eg: Companyname@gmail.com" />
                 <Field label="Department" placeholder="Eg: +91 1234567890" />
             </div>
@@ -235,7 +235,7 @@ const BrandingForm = () => {
     const [color, setColor] = useState('#004AC6');
     return (
         <div style={{ paddingBottom: 28 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48 }}>
+            <div className="ad-form-grid" style={{ gap: 48 }}>
                 <div>
                     <div style={{
                         width: 108, height: 108,
@@ -294,7 +294,7 @@ const BrandingForm = () => {
 // ════════════════════════════════════════════════════════════════════════
 const AccessLifecycleForm = () => (
     <div style={{ paddingBottom: 28 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16 }}>
             <div>
                 <label style={labelStyle}>Effective From</label>
                 <input type="date" style={inputStyle} />
@@ -320,7 +320,7 @@ const ROLES = [
 
 const RoleHierarchyForm = () => (
     <div style={{ paddingBottom: 28 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px 40px' }}>
+        <div className="ad-form-grid" style={{ gap: '16px 40px' }}>
             {ROLES.map((role) => (
                 <div key={role.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <span style={{ fontSize: 13, color: '#374151' }}>{role.label}</span>
@@ -435,7 +435,7 @@ const SubUserCreationForm = () => {
             </div>
 
             {/* Permissions grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+            <div className="ad-form-grid" style={{ gap: 32 }}>
                 <div>
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 14, letterSpacing: 0.5 }}>
                         MODULE PERMISSION
@@ -482,10 +482,10 @@ const InsurerPage = () => {
     };
 
     return (
-        <div style={{ padding: '28px 36px', minHeight: '100%', background: '#fff' }}>
+        <div className="ad-page-padding" style={{ padding: '28px 36px', minHeight: '100%', background: '#fff' }}>
             {/* Page title + Continue button */}
             <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
                 marginBottom: 32,
             }}>
                 <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', margin: 0 }}>
@@ -509,10 +509,10 @@ const InsurerPage = () => {
                 </button>
             </div>
 
-            {/* Two-column layout */}
-            <div style={{ display: 'flex', gap: 40 }}>
+            {/* Two-column layout -- stacks on tablet/mobile (see .ad-page-flex) */}
+            <div className="ad-page-flex">
                 {/* ── Left: step list ─────────────────────────────────── */}
-                <div style={{ width: 210, flexShrink: 0, paddingTop: 4 }}>
+                <div className="ad-step-rail" style={{ width: 210, flexShrink: 0, paddingTop: 4 }}>
                     {STEPS.map((step) => {
                         const isActive = step.id === activeStep;
                         const isDone = step.id < activeStep;

@@ -20,7 +20,7 @@ const rows = Array(8).fill({
 const RecommendationPage = () => (
     <main style={{ padding: '20px 24px', fontFamily: 'Instrument Sans, sans-serif' }}>
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
             <div>
                 <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: '#1454D1' }}>Recommendation</h1>
                 <p style={{ margin: '4px 0 0', fontSize: 13, color: '#6B7280' }}>Manage Loss Approvals and First Loss Assessments</p>
@@ -34,8 +34,8 @@ const RecommendationPage = () => (
         <FilterBar />
 
         {/* Table */}
-        <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 8, overflow: 'hidden', marginTop: 16 }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+        <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 8, overflow: 'auto', marginTop: 16 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 860 }}>
                 <thead>
                     <tr style={{ background: '#F9FAFB' }}>
                         {['FLA Details', 'Settlement Type', 'Recommendation Date', 'Closure Type', 'Invoice Number', 'Invoice Amount', 'Status', 'Action'].map(h => (

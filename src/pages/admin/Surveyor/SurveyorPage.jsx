@@ -163,7 +163,7 @@ const SectionHeader = ({ number, title, onClick }) => (
 // ════════════════════════════════════════════════════════════════════════
 const PersonalDetailsForm = () => (
     <div style={{ paddingBottom: 28 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="Full name" placeholder="Eg: MG 1234567890" />
             <SelectField
                 label="Gender"
@@ -171,19 +171,19 @@ const PersonalDetailsForm = () => (
                 options={['Male', 'Female', 'Other', 'Prefer not to say']}
             />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="Aadhaar number" placeholder="Aadhaar number" />
             <DateField label="Date of birth" placeholder="DD-MM-YYYY" />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="Primary Contact Number" placeholder="Operating State" />
             <Field label="PAN" placeholder="Eg: MSRT37851G" />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="Register Address" placeholder="Eg: Companyname@gmail.com" />
             <Field label="Official Email ID" placeholder="Eg: +91 1234567890" />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16 }}>
             <Field label="State" placeholder="Eg: +91 1234567890" />
             <Field label="PIN" placeholder="6 Digit Code" />
         </div>
@@ -195,7 +195,7 @@ const PersonalDetailsForm = () => (
 // ════════════════════════════════════════════════════════════════════════
 const IrdaiLicenseForm = () => (
     <div style={{ paddingBottom: 28 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="IRDAI surveyor license no" placeholder="Eg: MS 1234567890" />
             <SelectField
                 label="License category"
@@ -203,11 +203,11 @@ const IrdaiLicenseForm = () => (
                 options={['Motor', 'Non-Motor', 'Both']}
             />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <UploadField label="License certificate upload" placeholder="PDF or JPG, max 5MB" />
             <DateField label="License issue date" placeholder="DD-MM-YYYY" />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16 }}>
             <DateField label="License expiry date" placeholder="DD-MM-YYYY" />
             <div />
         </div>
@@ -219,7 +219,7 @@ const IrdaiLicenseForm = () => (
 // ════════════════════════════════════════════════════════════════════════
 const ProfessionalDetailsForm = () => (
     <div style={{ paddingBottom: 28 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="Specialization" placeholder="Eg: MG 1234567890" />
             <SelectField
                 label="Years of experience"
@@ -227,11 +227,11 @@ const ProfessionalDetailsForm = () => (
                 options={['0-1 years', '1-3 years', '3-5 years', '5-10 years', '10+ years']}
             />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="Empanelled insurers" placeholder="Select from active insurers; min 1 required" />
             <Field label="Service states" placeholder="All Indian states" />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="Service districts" placeholder="Select from active insurers; min 1 required" />
             <Field label="Max concurrent surveys" placeholder="Service states" />
         </div>
@@ -249,7 +249,7 @@ const ProfessionalDetailsForm = () => (
 // ════════════════════════════════════════════════════════════════════════
 const BankingDetailsForm = () => (
     <div style={{ paddingBottom: 28 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="Account holder name" placeholder="Eg: MG 1234567890" />
             <SelectField
                 label="Bank name"
@@ -257,11 +257,11 @@ const BankingDetailsForm = () => (
                 options={['SBI', 'HDFC', 'ICICI', 'Axis', 'Kotak', 'PNB', 'Bank of Baroda']}
             />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="Account number" placeholder="Select from active insurers; min 1 required" />
             <Field label="IFSC code" placeholder="All Indian states" />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16 }}>
             <Field label="Account type" placeholder="Select from active insurers; min 1 required" />
             <Field label="Cancelled cheque / passbook" placeholder="Service states" />
         </div>
@@ -273,7 +273,7 @@ const BankingDetailsForm = () => (
 // ════════════════════════════════════════════════════════════════════════
 const DocumentsPhotoForm = () => (
     <div style={{ paddingBottom: 28 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <UploadField
                 label="Profile photo"
                 placeholder="JPG/PNG; max 1MB; face clearly visible; min 200×200px"
@@ -297,14 +297,14 @@ const DocumentsPhotoForm = () => (
 // ════════════════════════════════════════════════════════════════════════
 const PlatformAppAccessForm = () => (
     <div style={{ paddingBottom: 28 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16, marginBottom: 16 }}>
             <Field label="Platform" placeholder="Eg: MG 1234567890" />
             <Field
                 label="App permissions"
                 placeholder="Vehicle Survey / Pre-inspection / Photo-Video Capture / Survey Report Submit / GPS Tracking"
             />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div className="ad-form-grid" style={{ gap: 16 }}>
             <Field
                 label="Effective from"
                 placeholder="Select from active insurers; min 1 required"
@@ -338,10 +338,10 @@ const SurveyorPage = () => {
     };
 
     return (
-        <div style={{ padding: '28px 36px', minHeight: '100%', background: '#fff' }}>
+        <div className="ad-page-padding" style={{ padding: '28px 36px', minHeight: '100%', background: '#fff' }}>
             {/* Page title + Continue */}
             <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
                 marginBottom: 32,
             }}>
                 <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0F172A', margin: 0 }}>
@@ -360,10 +360,10 @@ const SurveyorPage = () => {
                 </button>
             </div>
 
-            {/* Two-column layout */}
-            <div style={{ display: 'flex', gap: 40 }}>
+            {/* Two-column layout -- stacks on tablet/mobile (see .ad-page-flex) */}
+            <div className="ad-page-flex">
                 {/* ── Left: step list ─────────────────────────────────── */}
-                <div style={{ width: 200, flexShrink: 0, paddingTop: 4 }}>
+                <div className="ad-step-rail" style={{ width: 200, flexShrink: 0, paddingTop: 4 }}>
                     {STEPS.map((step) => {
                         const isActive = step.id === activeStep;
                         const isDone = step.id < activeStep;
