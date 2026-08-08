@@ -46,10 +46,13 @@ export const ROUTES = {
 
     // ── Intimation Management System ──────────────────────────────────
     // Sidebar order/labels match the Figma "Untitled" design file 1:1 —
-    // see IntimationSidebar.jsx. A few older routes (ILA, Settlement, Dms
-    // surveyor, Dms pre-inspection, Annotation Studio) predate that design
-    // and aren't in its sidebar; their pages are kept (still reachable by
-    // direct URL) but unlinked from nav so they don't get lost.
+    // see IntimationSidebar.jsx — except Annotation Studio, added after the
+    // fact (not part of that design) for direct access to the annotate →
+    // train flow (see ai-damage-assessment-service/training/README.md). A
+    // few other older routes (ILA, Settlement, Dms surveyor, Dms
+    // pre-inspection) predate the Figma design and aren't in its sidebar
+    // either; their pages are kept (still reachable by direct URL) but
+    // unlinked from nav so they don't get lost.
     INTIMATION: {
         BASE: '/admin/intimation',
         SURVEYOR_APPOINTMENT: '/admin/intimation/surveyor-allocation',
@@ -57,6 +60,7 @@ export const ROUTES = {
         CLAIM_DETAILS: '/admin/intimation/claim-details',
         CLAIM_DETAILS_ANALYTICS: '/admin/intimation/claim-details/analytics',
         AI_ILA: '/admin/intimation/ai-ila',
+        ANNOTATION_STUDIO: '/admin/intimation/annotation-studio',
         ILA_NEW: '/admin/intimation/ila-new',
         FLA: '/admin/intimation/fla',
         RECOMMENDATION: '/admin/intimation/recommendation',
@@ -67,6 +71,5 @@ export const ROUTES = {
         SETTLEMENT: '/admin/intimation/settlement',
         DMS_SURVEYOR: '/admin/intimation/dms-surveyor',
         DMS_PREINSPECTION: '/admin/intimation/dms-preinspection',
-        ANNOTATION_STUDIO: '/admin/intimation/annotation-studio',
     },
 };

@@ -56,6 +56,12 @@ const IdCardIcon = ({ size = 16, color = 'currentColor' }) => (
         <line x1="13" y1="10" x2="18" y2="10" /><line x1="13" y1="14" x2="18" y2="14" />
     </svg>
 );
+const PenBoxIcon = ({ size = 16, color = 'currentColor' }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <path d="M8.5 15.5l1-3.5 6-6 2.5 2.5-6 6-3.5 1z" />
+    </svg>
+);
 
 // ── Nav items — order/labels match the Figma design's sidebar exactly ──
 const NAV_ITEMS = [
@@ -64,6 +70,7 @@ const NAV_ITEMS = [
     { id: 'handler', label: 'Handler', path: ROUTES.INTIMATION.CLAIM_HANDLER, Icon: GearIcon },
     { id: 'claim-details', label: 'Claim Details', path: ROUTES.INTIMATION.CLAIM_DETAILS, Icon: InfoCircleIcon },
     { id: 'ai-ila', label: 'AI ILA', path: ROUTES.INTIMATION.AI_ILA, Icon: CpuIcon },
+    { id: 'annotation-studio', label: 'Annotation Studio', path: ROUTES.INTIMATION.ANNOTATION_STUDIO, Icon: PenBoxIcon },
     { id: 'ila-new', label: 'ILA - New', path: ROUTES.INTIMATION.ILA_NEW, Icon: BadgeCheckIcon },
     { id: 'fla', label: 'FLA', path: ROUTES.INTIMATION.FLA, Icon: GridIcon },
     { id: 'recommendation', label: 'Recommendation', path: ROUTES.INTIMATION.RECOMMENDATION, Icon: MailIcon },
