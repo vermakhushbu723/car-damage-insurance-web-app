@@ -91,7 +91,7 @@ const AnnotationStudioPage = () => {
     const [saveMessage, setSaveMessage] = useState(null);
 
     const [trainEpochs, setTrainEpochs] = useState(100);
-    const [trainBase, setTrainBase] = useState('yolo11l-seg.pt');
+    const [trainBase, setTrainBase] = useState('yolov8s-seg.pt');
     const [trainDevice, setTrainDevice] = useState('cpu');
     // Empty = let the server auto-pick (low on CPU -- a large checkpoint at
     // the default batch reliably crashes with an out-of-memory access
@@ -503,8 +503,9 @@ const AnnotationStudioPage = () => {
                     <div>
                         <label style={labelStyle}>Base checkpoint</label>
                         <select style={inputStyle} value={trainBase} onChange={(e) => setTrainBase(e.target.value)} disabled={isTrainingActive}>
-                            <option value="yolo11n-seg.pt">yolo11n-seg.pt (nano — fast, for quick tests)</option>
-                            <option value="yolo11l-seg.pt">yolo11l-seg.pt (large — per architecture spec)</option>
+                            <option value="yolov8n-seg.pt">yolov8n-seg.pt (nano — fastest, for quick tests)</option>
+                            <option value="yolov8s-seg.pt">yolov8s-seg.pt (small — recommended default)</option>
+                            <option value="yolov8m-seg.pt">yolov8m-seg.pt (medium — better accuracy, needs a GPU)</option>
                         </select>
                     </div>
                     <div>
@@ -530,11 +531,12 @@ const AnnotationStudioPage = () => {
                     )}
                 </div>
 
-                {trainDevice === 'cpu' && trainBase === 'yolo11l-seg.pt' && !trainBatch && (
+                {trainDevice === 'cpu' && trainBase !== 'yolov8n-seg.pt' && !trainBatch && (
                     <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 6, padding: '8px 12px', fontSize: 11, color: '#92400E', marginBottom: 14 }}>
-                        ⚠ Large checkpoint + CPU: batch will auto-default to 2 (a higher batch reliably crashes with an
-                        out-of-memory error on CPU — happened during testing). Training will be slow; use the nano
-                        checkpoint for quick tests, or a GPU for real runs.
+                        ⚠ {trainBase === 'yolov8m-seg.pt' ? 'Medium' : 'Small'} checkpoint + CPU: batch will auto-default to 2
+                        (a higher batch reliably crashes with an out-of-memory error on CPU with a large-enough
+                        checkpoint — happened during testing). Training will be slow, more so for medium; use the
+                        nano checkpoint for quick tests, or a GPU for real runs.
                     </div>
                 )}
 

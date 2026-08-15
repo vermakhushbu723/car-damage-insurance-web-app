@@ -20,7 +20,7 @@ async function parseOrThrow(response) {
 }
 
 /**
- * Runs YOLO11-seg damage detection on one photo.
+ * Runs YOLOv8-seg damage detection on one photo.
  * @param {File} photoFile
  * @param {'car'|'two_wheeler'|'commercial_vehicle'} vehicleType
  */

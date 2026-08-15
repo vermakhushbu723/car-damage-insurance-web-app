@@ -394,7 +394,7 @@ const AiIlaAssessmentPage = () => {
                 <div>
                     <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: PALETTE.primaryBlue }}>AI ILA Assessment</h1>
                     <p style={{ margin: '4px 0 0', fontSize: 13, color: PALETTE.muted }}>
-                        YOLO11 damage detection + Llama report narrative — see ai-damage-assessment-service/docs/ARCHITECTURE.md
+                        YOLOv8 damage detection + Llama report narrative — see ai-damage-assessment-service/docs/ARCHITECTURE.md
                     </p>
                 </div>
                 <button onClick={() => navigate(-1)} style={{ background: '#fff', color: PALETTE.muted, border: `1px solid ${PALETTE.cardBorder}`, borderRadius: 6, padding: '9px 18px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
@@ -406,7 +406,7 @@ const AiIlaAssessmentPage = () => {
                 <Banner tone={queueStats.threshold_reached ? 'warn' : 'info'}>
                     Retraining queue: <strong>{queueStats.pending_corrections}</strong> pending corrections
                     (threshold: {queueStats.volume_threshold}).{' '}
-                    {queueStats.threshold_reached ? 'Volume threshold reached — ready for the next YOLO11 fine-tune batch.' : 'Every correction you save below adds to this queue.'}
+                    {queueStats.threshold_reached ? 'Volume threshold reached — ready for the next YOLOv8 fine-tune batch.' : 'Every correction you save below adds to this queue.'}
                 </Banner>
             )}
             {error && <Banner tone="danger">{error}</Banner>}
@@ -422,7 +422,7 @@ const AiIlaAssessmentPage = () => {
             )}
             {originalDetection?.is_placeholder_model && (
                 <Banner tone="warn">
-                    Running on the stock YOLO11 checkpoint — no fine-tuned damage-detection weights are
+                    Running on the stock YOLOv8 checkpoint — no fine-tuned damage-detection weights are
                     configured yet, so detections are a placeholder (whole-vehicle outline only), not real
                     damage regions. See Section 6 of the architecture doc.
                 </Banner>
