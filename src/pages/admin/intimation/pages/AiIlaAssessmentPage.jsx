@@ -24,7 +24,7 @@ const VEHICLE_TYPES = [
     { value: 'commercial_vehicle', label: 'Commercial Vehicle' },
 ];
 
-const DAMAGE_TYPE_OPTIONS = ['dent', 'scratch', 'crack', 'shatter', 'deformation', 'tear', 'unknown'];
+const DAMAGE_TYPE_OPTIONS = ['crack', 'dent', 'glass_shatter', 'lamp_broken', 'scratch', 'tire_flat', 'unknown'];
 const SEVERITY_OPTIONS = ['minor', 'moderate', 'severe'];
 const ACTION_OPTIONS = ['repair', 'replace', 'no_action'];
 const ROW_STATUS_OPTIONS = ['Pending', 'Approval', 'In Review'];
@@ -422,9 +422,15 @@ const AiIlaAssessmentPage = () => {
             )}
             {originalDetection?.is_placeholder_model && (
                 <Banner tone="warn">
-                    Running on the stock YOLOv8 checkpoint — no fine-tuned damage-detection weights are
-                    configured yet, so detections are a placeholder (whole-vehicle outline only), not real
-                    damage regions. See Section 6 of the architecture doc.
+                    {originalDetection?.detected_real_damage_classes
+                        ? 'Running on the CarDD-pretrained checkpoint (cardd-seg.pt) — detects real damage types ' +
+                          '(crack, dent, glass_shatter, lamp_broken, scratch, tire_flat) but isn\'t fine-tuned on ' +
+                          'your own photos yet, and part assignment (bumper/door/etc.) isn\'t wired up — see the ' +
+                          '"unassigned" part label below. See Section 5.1 of the architecture doc.'
+                        : 'Running on the CarDD-pretrained checkpoint, but no damage regions were detected in this ' +
+                          'photo above the confidence threshold — could be a photo with no visible damage, an ' +
+                          'angle/lighting the model doesn\'t handle well, or damage outside its 6 trained classes. ' +
+                          'See Section 6 of the architecture doc.'}
                 </Banner>
             )}
 

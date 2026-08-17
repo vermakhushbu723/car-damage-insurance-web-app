@@ -25,7 +25,7 @@ const box = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
 
 export const DEMO_DETECTIONS = [
     { part: 'front_bumper', damage_type: 'crack', confidence: 0.96, mask_area_ratio: 0.22, mask_polygon: box(0.27, 0.70, 0.46, 0.13), displayLabel: 'Front Bumper', displayStatus: 'Cracked' },
-    { part: 'left_headlight', damage_type: 'shatter', confidence: 0.94, mask_area_ratio: 0.20, mask_polygon: box(0.15, 0.42, 0.16, 0.12), displayLabel: 'Left Headlight', displayStatus: 'Broken' },
+    { part: 'left_headlight', damage_type: 'lamp_broken', confidence: 0.94, mask_area_ratio: 0.20, mask_polygon: box(0.15, 0.42, 0.16, 0.12), displayLabel: 'Left Headlight', displayStatus: 'Broken' },
     { part: 'front_left_fender', damage_type: 'dent', confidence: 0.88, mask_area_ratio: 0.16, mask_polygon: box(0.08, 0.55, 0.18, 0.15), displayLabel: 'Front Left Fender', displayStatus: 'Dented' },
     { part: 'hood', damage_type: 'scratch', confidence: 0.82, mask_area_ratio: 0.18, mask_polygon: box(0.30, 0.30, 0.40, 0.15), displayLabel: 'Hood', displayStatus: 'Paint Damage' },
     { part: 'left_door', damage_type: 'scratch', confidence: 0.78, mask_area_ratio: 0.14, mask_polygon: box(0.05, 0.38, 0.20, 0.16), displayLabel: 'Left Door', displayStatus: 'Scratched' },
@@ -45,7 +45,7 @@ export const DEMO_ROW_STATUS = {
 
 export const DEMO_LINE_ITEMS = [
     { part: 'front_bumper', damage_type: 'crack', severity: 'severe', action: 'repair', part_cost: 0, labor_cost: 32000, paint_consumables_cost: 16500, line_total: 48500, rate_source: 'parts_rate_db' },
-    { part: 'left_headlight', damage_type: 'shatter', severity: 'severe', action: 'replace', part_cost: 21000, labor_cost: 1800, paint_consumables_cost: 0, line_total: 22800, rate_source: 'parts_rate_db' },
+    { part: 'left_headlight', damage_type: 'lamp_broken', severity: 'severe', action: 'replace', part_cost: 21000, labor_cost: 1800, paint_consumables_cost: 0, line_total: 22800, rate_source: 'parts_rate_db' },
     { part: 'front_left_fender', damage_type: 'dent', severity: 'moderate', action: 'repair', part_cost: 0, labor_cost: 7200, paint_consumables_cost: 5200, line_total: 12400, rate_source: 'parts_rate_db' },
     { part: 'hood', damage_type: 'scratch', severity: 'minor', action: 'repair', part_cost: 0, labor_cost: 3600, paint_consumables_cost: 3200, line_total: 6800, rate_source: 'parts_rate_db' },
     { part: 'left_door', damage_type: 'scratch', severity: 'minor', action: 'repair', part_cost: 0, labor_cost: 1800, paint_consumables_cost: 1400, line_total: 3200, rate_source: 'parts_rate_db' },
@@ -61,7 +61,7 @@ Reported cause: front collision
 
 Damage summary:
 - Front Bumper: crack, severe -> repair (structural crack, bumper reinforcement intact).
-- Left Headlight: shatter, severe -> replace (housing destroyed, non-repairable).
+- Left Headlight: lamp_broken, severe -> replace (housing destroyed, non-repairable).
 - Front Left Fender: dent, moderate -> repair (panel beating + repaint).
 - Hood: paint damage, minor -> repair (surface scratch, no denting).
 - Left Door: scratch, minor -> repair (cosmetic, panel intact).

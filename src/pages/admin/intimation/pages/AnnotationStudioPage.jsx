@@ -15,13 +15,15 @@ import {
 
 // Matches server/src/schemas/constants.js's TRAINABLE_DAMAGE_TYPES (the
 // backend looks up the class id by name, so the two lists don't need to be
-// in the same order -- just the same vocabulary) and PARTS.
+// in the same order -- just the same vocabulary) and PARTS. These 6 are
+// CarDD's classes (see yolo-service/app.py's module docstring) -- the
+// project's real, model-grounded damage taxonomy.
 const VEHICLE_TYPES = [
     { value: 'car', label: 'Car' },
     { value: 'two_wheeler', label: 'Two Wheeler' },
     { value: 'commercial_vehicle', label: 'Commercial Vehicle' },
 ];
-const DAMAGE_TYPES = ['dent', 'scratch', 'crack', 'shatter', 'deformation', 'tear'];
+const DAMAGE_TYPES = ['crack', 'dent', 'glass_shatter', 'lamp_broken', 'scratch', 'tire_flat'];
 const PARTS = [
     'front_bumper', 'rear_bumper', 'bonnet', 'front_door_lh', 'front_door_rh',
     'rear_door_lh', 'rear_door_rh', 'fender_lh', 'fender_rh', 'headlamp_lh',
@@ -30,8 +32,8 @@ const PARTS = [
 ];
 
 const DAMAGE_COLORS = {
-    dent: '#3B82F6', scratch: '#F59E0B', crack: '#EF4444',
-    shatter: '#8B5CF6', deformation: '#EC4899', tear: '#10B981',
+    crack: '#EF4444', dent: '#3B82F6', glass_shatter: '#8B5CF6',
+    lamp_broken: '#F97316', scratch: '#F59E0B', tire_flat: '#10B981',
 };
 
 const cardStyle = {
