@@ -1,9 +1,7 @@
 // Derives the "AI Assessment Insights" panel's summary numbers from the
 // same Detection / AssessmentResult / CauseCheckResult shapes the real
-// backend returns (app/schemas.py) -- so these work identically whether
-// the data came from a real /detect+/assess+/report run or from demo mode
-// (src/utils/aiDemoData.js). None of this needs a model; it's just a
-// summary rollup of numbers the pipeline already produced.
+// backend returns. None of this needs a model; it's just a summary rollup
+// of numbers the real /detect+/assess+/report pipeline already produced.
 
 const SEVERITY_WEIGHT = { minor: 25, moderate: 55, severe: 90 };
 

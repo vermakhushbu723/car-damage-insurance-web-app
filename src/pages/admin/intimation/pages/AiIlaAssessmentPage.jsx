@@ -13,10 +13,6 @@ import {
 } from '../../../../services/aiDamageAssessmentApi';
 import { computeImageQuality, computeAverageHash, findDuplicateIds } from '../../../../utils/aiImageAnalysis';
 import { computeAiConfidence, computeDamageScore, computeFraudSignal, estimateRepairDurationDays } from '../../../../utils/aiInsightMetrics';
-import {
-    DEMO_VEHICLE, DEMO_CLAIM, DEMO_REPORTED_CAUSE, DEMO_DETECTIONS, DEMO_LINE_ITEMS,
-    DEMO_TOTAL_COST, DEMO_NARRATIVE, DEMO_CAUSE_CHECK, DEMO_PHOTOS, DEMO_ROW_STATUS,
-} from '../../../../utils/aiDemoData';
 
 const VEHICLE_TYPES = [
     { value: 'car', label: 'Private Car' },
@@ -136,7 +132,6 @@ const AiIlaAssessmentPage = () => {
     const [brightness, setBrightness] = useState(1);
 
     // Pipeline state
-    const [mode, setMode] = useState('idle'); // idle | demo | real
     const [stage, setStage] = useState('idle'); // idle | detecting | assessing | reporting | done | error
     const [error, setError] = useState(null);
     const [processingMs, setProcessingMs] = useState(null);
@@ -212,7 +207,6 @@ const AiIlaAssessmentPage = () => {
         setPhotos((prev) => [entry, ...prev.filter((p) => p.id !== primaryPhotoId)]);
         setPrimaryPhotoId(id);
         setViewerPhotoId(id);
-        setMode('real');
         resetResults();
     };
 
@@ -245,64 +239,15 @@ const AiIlaAssessmentPage = () => {
         if (id === primaryPhotoId) return;
         setPrimaryPhotoId(id);
         setViewerPhotoId(id);
-        setMode('real');
         resetResults();
-    };
-
-    const runDemo = async () => {
-        const startedAt = performance.now();
-        setMode('demo');
-        resetResults();
-        setClaimId(DEMO_CLAIM.claimId);
-        setPolicyNumber(DEMO_CLAIM.policyNumber);
-        setMake(DEMO_VEHICLE.make);
-        setModel(DEMO_VEHICLE.model);
-        setYear(DEMO_VEHICLE.year);
-        setRegion(DEMO_VEHICLE.region);
-        setReportedCause(DEMO_REPORTED_CAUSE);
-
-        // If the handler already uploaded their own photo, keep showing that
-        // photo behind the (mocked) damage boxes instead of swapping in the
-        // app's built-in placeholder images -- that's the whole point of
-        // testing with your own photo. Only fall back to the placeholder set
-        // when nothing has been uploaded yet.
-        const hasUploadedPhoto = photos.some((p) => p.file);
-        if (!hasUploadedPhoto) {
-            setPhotos(DEMO_PHOTOS);
-            setPrimaryPhotoId(DEMO_PHOTOS[0].id);
-            setViewerPhotoId(DEMO_PHOTOS[0].id);
-        } else {
-            setViewerPhotoId(primaryPhotoId);
-        }
-
-        setStage('detecting');
-        await new Promise((r) => setTimeout(r, 500)); // feel of a real pipeline running
-        const detectionResult = { detections: DEMO_DETECTIONS, is_placeholder_model: false, model_checkpoint: 'demo-mock' };
-        setOriginalDetection(detectionResult);
-        setDetections(DEMO_DETECTIONS);
-        setRowStatus(DEMO_ROW_STATUS);
-
-        setStage('assessing');
-        await new Promise((r) => setTimeout(r, 400));
-        const assessmentResult = { line_items: DEMO_LINE_ITEMS, total_cost: DEMO_TOTAL_COST };
-        setOriginalAssessment(assessmentResult);
-        setAssessment(assessmentResult);
-
-        setStage('reporting');
-        await new Promise((r) => setTimeout(r, 400));
-        setReport({ narrative: DEMO_NARRATIVE, cause_check: DEMO_CAUSE_CHECK, generated_by: 'demo' });
-
-        setStage('done');
-        setProcessingMs(Math.round(performance.now() - startedAt));
     };
 
     const runAssessment = async () => {
         const primary = photos.find((p) => p.id === primaryPhotoId);
         if (!primary?.file) {
-            setError('Upload a primary photo first (or click "Run Demo").');
+            setError('Upload a primary photo first.');
             return;
         }
-        setMode('real');
         setError(null);
         const startedAt = performance.now();
         try {
@@ -327,8 +272,8 @@ const AiIlaAssessmentPage = () => {
             setProcessingMs(Math.round(performance.now() - startedAt));
         } catch (err) {
             setError(
-                `${err.message || String(err)} — is the AI service running? Click "Run Demo" instead to ` +
-                'try the UI without it (see ai-damage-assessment-service/README.md to set the real service up).'
+                `${err.message || String(err)} — is the AI service running? See ` +
+                'ai-damage-assessment-service/README.md to set it up.'
             );
             setStage('error');
         }
@@ -336,11 +281,6 @@ const AiIlaAssessmentPage = () => {
 
     const reassess = async (nextDetections) => {
         setDetections(nextDetections);
-        if (mode === 'demo') {
-            // No backend round-trip in demo mode -- keep the mocked totals as-is,
-            // this is just so removing/editing a row doesn't error out.
-            return;
-        }
         if (!originalDetection) return;
         try {
             const vehicle = { make, model, year: Number(year), region };
@@ -357,7 +297,7 @@ const AiIlaAssessmentPage = () => {
     const hasCorrections = originalDetection && JSON.stringify(originalDetection.detections) !== JSON.stringify(detections);
 
     const handleSaveCorrection = async () => {
-        if (!originalDetection || !hasCorrections || mode === 'demo') return;
+        if (!originalDetection || !hasCorrections) return;
         setSaveState('saving');
         try {
             await submitCorrection({
@@ -410,16 +350,6 @@ const AiIlaAssessmentPage = () => {
                 </Banner>
             )}
             {error && <Banner tone="danger">{error}</Banner>}
-            {mode === 'demo' && (
-                <Banner tone="info">
-                    <strong>Demo mode</strong> — the damage list, gauges, cost table and report below are
-                    all mock data generated entirely in your browser (no backend, no Python required); the
-                    numbered boxes are placed at fixed positions, not detected from pixels.{' '}
-                    {photos.some((p) => p.file)
-                        ? 'The boxes are drawn over the photo you uploaded, so you can see roughly where each mock damage would land on it.'
-                        : 'No photo was uploaded, so this is showing the app\'s built-in placeholder car outline instead — upload your own photo first, then click "Run Demo" again, to see the boxes over your real photo.'}
-                </Banner>
-            )}
             {originalDetection?.is_placeholder_model && (
                 <Banner tone="warn">
                     {originalDetection?.detected_real_damage_classes
@@ -436,16 +366,7 @@ const AiIlaAssessmentPage = () => {
 
             {/* ── Setup ─────────────────────────────────────────────────── */}
             <div style={cardStyle}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
-                    <h2 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: PALETTE.body }}>Claim & Vehicle</h2>
-                    <button
-                        onClick={runDemo}
-                        disabled={busy}
-                        style={{ background: '#059669', color: '#fff', border: 'none', borderRadius: 6, padding: '9px 18px', fontSize: 13, fontWeight: 700, cursor: busy ? 'not-allowed' : 'pointer', opacity: busy ? 0.6 : 1 }}
-                    >
-                        ▶ Run Demo (no backend needed)
-                    </button>
-                </div>
+                <h2 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 800, color: PALETTE.body }}>Claim & Vehicle</h2>
                 <div className="im-grid-auto" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
                     <div><label style={labelStyle}>Claim ID</label><input style={inputStyle} value={claimId} onChange={(e) => setClaimId(e.target.value)} /></div>
                     <div><label style={labelStyle}>Policy Number</label><input style={inputStyle} value={policyNumber} onChange={(e) => setPolicyNumber(e.target.value)} /></div>
@@ -479,7 +400,7 @@ const AiIlaAssessmentPage = () => {
                 </div>
                 <p style={{ fontSize: 12, color: PALETTE.muted, marginTop: 10 }}>
                     "Run AI Assessment" calls the AI Damage Assessment Service (default <code>http://localhost:8000</code>) —
-                    see its README to set it up. "Run Demo" needs nothing at all.
+                    see its README to set it up.
                 </p>
             </div>
 
@@ -723,17 +644,13 @@ const AiIlaAssessmentPage = () => {
                     )}
 
                     <div style={{ marginTop: 16, textAlign: 'right' }}>
-                        {mode === 'demo' ? (
-                            <span style={{ fontSize: 12, color: PALETTE.muted }}>Corrections aren't saved in demo mode — switch to a real photo run to test this.</span>
-                        ) : (
-                            <button
-                                onClick={handleSaveCorrection}
-                                disabled={!hasCorrections || saveState === 'saving'}
-                                style={{ background: hasCorrections ? '#059669' : '#9CA3AF', color: '#fff', border: 'none', borderRadius: 6, padding: '9px 20px', fontSize: 13, fontWeight: 700, cursor: hasCorrections ? 'pointer' : 'not-allowed' }}
-                            >
-                                {saveState === 'saving' ? 'Saving…' : saveState === 'saved' ? 'Saved to retraining queue ✓' : 'Save Correction'}
-                            </button>
-                        )}
+                        <button
+                            onClick={handleSaveCorrection}
+                            disabled={!hasCorrections || saveState === 'saving'}
+                            style={{ background: hasCorrections ? '#059669' : '#9CA3AF', color: '#fff', border: 'none', borderRadius: 6, padding: '9px 20px', fontSize: 13, fontWeight: 700, cursor: hasCorrections ? 'pointer' : 'not-allowed' }}
+                        >
+                            {saveState === 'saving' ? 'Saving…' : saveState === 'saved' ? 'Saved to retraining queue ✓' : 'Save Correction'}
+                        </button>
                     </div>
                 </div>
             )}
@@ -786,7 +703,7 @@ const AiIlaAssessmentPage = () => {
             {report && (
                 <div style={cardStyle}>
                     <h2 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 800, color: PALETTE.body }}>ILA Report</h2>
-                    {report.generated_by !== 'llama' && report.generated_by !== 'demo' && (
+                    {report.generated_by !== 'llama' && (
                         <Banner tone="warn">Ollama isn't reachable — this is a templated summary, not an LLM-generated narrative. Run <code>ollama serve</code> to enable real report generation.</Banner>
                     )}
                     <Banner tone={report.cause_check.is_consistent ? 'success' : 'danger'}>
