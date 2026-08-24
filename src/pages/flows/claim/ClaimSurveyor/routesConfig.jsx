@@ -1,5 +1,6 @@
 import React from 'react';
 import ProtectedCameraRoute from '../../../../routes/ProtectedCameraRoute';
+import RequireAuth from '../../../../routes/RequireAuth';
 import { ROUTES } from './routes';
 import LoginPage from './LoginPage';
 import DashboardPage from './DashboardPage';
@@ -20,8 +21,12 @@ import VehicleInformationPage from './VehicleInformationPage';
 import CustomerDeclarationPage from './CustomerDeclarationPage';
 import InspectorDeclarationPage from './InspectorDeclarationPage';
 
-// Route list for this flow — spread into AppRoutes.
-export const flowRoutes = [
+// Must match the role this flow logs into (see LoginPage.jsx's PORTAL_ROLE
+// and ai-damage-assessment-service/auth-service/src/schemas/roles.js).
+const PORTAL_ROLE = 'claim_surveyor';
+
+// Raw route list for this flow, before the auth guard is applied.
+const rawFlowRoutes = [
     { path: ROUTES.LOGIN, element: <LoginPage /> },
     { path: ROUTES.DASHBOARD, element: <DashboardPage /> },
     { path: ROUTES.CLAIM_START, element: <ClaimStartPage /> },
@@ -41,5 +46,14 @@ export const flowRoutes = [
     { path: ROUTES.CUSTOMER_DECLARATION, element: <CustomerDeclarationPage /> },
     { path: ROUTES.INSPECTOR_DECLARATION, element: <InspectorDeclarationPage /> },
 ];
+
+// Every route except LOGIN itself requires a valid claim_surveyor session --
+// hitting any of these URLs directly without logging in first bounces back
+// to ROUTES.LOGIN (see RequireAuth). Spread into AppRoutes.
+export const flowRoutes = rawFlowRoutes.map((route) =>
+    route.path === ROUTES.LOGIN
+        ? route
+        : { ...route, element: <RequireAuth role={PORTAL_ROLE} loginPath={ROUTES.LOGIN}>{route.element}</RequireAuth> }
+);
 
 export default flowRoutes;

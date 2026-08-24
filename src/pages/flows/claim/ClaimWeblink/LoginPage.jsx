@@ -58,7 +58,7 @@ const LoginPage = () => {
         <div className="min-h-screen flex flex-col" style={{ background: 'rgba(218, 240, 254, 1)' }}>
             <AppHeader />
             {/* <div className="w-full" style={{ background: COLORS.primaryDark, height: '8px' }} /> */}
-            <div class="login-card">
+            <div className="login-card">
                 <div className="flex gap-4 mt-4 mb-8 justify-center">
                     <button
                         onClick={() => setActiveTab('claim')}

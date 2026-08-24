@@ -8,6 +8,12 @@ import captureRefresh from '../../../../assets/capturerefress.png';
 import { ROUTES } from './routes';
 import BottomButton from '../../../../components/common/BottomButton';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
+import { login as loginApi } from '../../../../services/authApi';
+import { saveSession } from '../../../../utils/authSession';
+
+// Which portal this login page belongs to -- must match one of the role
+// constants in ai-damage-assessment-service/auth-service/src/schemas/roles.js.
+const PORTAL_ROLE = 'preinspection_surveyor';
 
 const generateCaptcha = () => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
@@ -28,6 +34,7 @@ const LoginPage = () => {
     const [captchaText, setCaptchaText] = useState(generateCaptcha());
     const [captchaInput, setCaptchaInput] = useState('');
     const [errors, setErrors] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const refreshCaptcha = () => {
         setCaptchaText(generateCaptcha());
@@ -43,7 +50,7 @@ const LoginPage = () => {
         return newErrors;
     };
 
-    const handleLogin = () => {
+    const handleLogin = async () => {
         const validationErrors = validate();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
@@ -51,14 +58,24 @@ const LoginPage = () => {
             return;
         }
         setErrors({});
-        navigate(ROUTES.DASHBOARD);
+        setIsSubmitting(true);
+        try {
+            const { token, user } = await loginApi(PORTAL_ROLE, username.trim(), password);
+            saveSession(PORTAL_ROLE, { token, user });
+            navigate(ROUTES.DASHBOARD);
+        } catch (err) {
+            setErrors({ api: err.message || 'Login failed. Please try again.' });
+            refreshCaptcha();
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
         <div className="min-h-screen flex flex-col" style={{ background: 'rgba(218, 240, 254, 1)' }}>
             <AppHeader />
             {/* <div className="w-full" style={{ background: COLORS.primaryDark, height: '8px' }} /> */}
-            <div class="login-card">
+            <div className="login-card">
                 <div className="flex gap-4 mt-4 mb-8 justify-center">
                     <button
                         onClick={() => setActiveTab('claim')}
@@ -147,9 +164,10 @@ const LoginPage = () => {
                         />
                     </div>
                     {errors.captcha && <p className="text-sm -mt-3" style={{ color: COLORS.textRed }}>{errors.captcha}</p>}
+                    {errors.api && <p role="alert" className="text-sm -mt-3" style={{ color: COLORS.textRed }}>{errors.api}</p>}
 
                     <div className="mt-3">
-                        <BottomButton label="Login" onClick={handleLogin} />
+                        <BottomButton label={isSubmitting ? 'Signing in…' : 'Login'} onClick={handleLogin} disabled={isSubmitting} />
                     </div>
                 </div>
 
