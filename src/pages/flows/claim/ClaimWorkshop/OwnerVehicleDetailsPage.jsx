@@ -9,6 +9,10 @@ import { COLORS } from '../../../../constants/theme';
 import { ROUTES } from './routes';
 import { setProduct } from '../../../../store/vehicleSlice';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
+import { createClaim } from '../../../../services/claimsApi';
+import { getSession } from '../../../../utils/authSession';
+
+const PORTAL_ROLE = 'claim_workshop';
 
 // Per-field input filters — strip disallowed characters as the user types,
 // and hint the correct on-screen keyboard via inputMode.
@@ -188,6 +192,8 @@ const OwnerVehicleDetailsPage = () => {
 
     const [form, setForm] = useState(readPersistedForm);
     const [errors, setErrors] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [apiError, setApiError] = useState('');
 
     const set = (key) => (val) => {
         setForm((p) => ({ ...p, [key]: val }));
@@ -244,7 +250,7 @@ const OwnerVehicleDetailsPage = () => {
         return Object.keys(next).length === 0;
     };
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (!validate()) return;
 
         try {
@@ -257,8 +263,26 @@ const OwnerVehicleDetailsPage = () => {
         // (PhotoCaptureSelectionPage / CameraCapturePage) can pick the
         // matching silhouette + angle guides (car / bike / truck).
         dispatch(setProduct(form.product || null));
-        console.log('Owner & Vehicle Details submitted:', form);
-        navigate(ROUTES.DOCUMENT_UPLOAD);
+
+        setApiError('');
+        setIsSubmitting(true);
+        try {
+            const session = getSession(PORTAL_ROLE);
+            if (!session) {
+                // RequireAuth should already have kept an unauthenticated
+                // user off this page -- this is just a defensive fallback
+                // for an expired token found mid-form.
+                navigate(ROUTES.LOGIN);
+                return;
+            }
+            const { claim } = await createClaim(session.token, form);
+            console.log('Claim created:', claim.claimNumber);
+            navigate(ROUTES.DOCUMENT_UPLOAD);
+        } catch (err) {
+            setApiError(err.message || 'Could not save claim. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -426,7 +450,10 @@ const OwnerVehicleDetailsPage = () => {
                     )}
                 </div>
 
-                <BottomButton label="Submit" onClick={handleNext} />
+                {apiError && (
+                    <p role="alert" className="text-sm mb-2" style={{ color: COLORS.statusPending }}>{apiError}</p>
+                )}
+                <BottomButton label={isSubmitting ? 'Saving…' : 'Submit'} onClick={handleNext} disabled={isSubmitting} />
             </div>
         </div>
     );
