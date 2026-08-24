@@ -52,3 +52,45 @@ export async function getClaims(token, status) {
     });
     return parseOrThrow(response);
 }
+
+// ── Survey flow (Document Upload → Inspection Details → Photo Capture →
+// Add Damage Photos → Damage Review → Submitted) ──────────────────────────
+// These pages work off one "active claim" -- see
+// src/utils/authSession.js's sibling, ../utils/activeClaim.js, for how that
+// claim id is threaded through sessionStorage between them.
+
+/** Fetches one claim's full details (for InspectionDetailsPage / DamageReviewPage). */
+export async function getClaim(token, claimId) {
+    const response = await fetch(`${BASE_URL}/api/v1/claims/${claimId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return parseOrThrow(response);
+}
+
+/**
+ * Persists survey progress -- Document Upload's per-document status and/or
+ * Photo Capture / Add Damage Photos' per-angle capture status. Each key
+ * present REPLACES the corresponding object server-side (send the full
+ * current state, not a diff). NOTE: this stores completion status only --
+ * the captured photo bytes themselves still live in the browser, unchanged
+ * from before (see claims-service's database.js migration comment).
+ * @param {string} token @param {string} claimId
+ * @param {{documents?: object, capturedAngles?: object}} progress
+ */
+export async function updateClaimProgress(token, claimId, progress) {
+    const response = await fetch(`${BASE_URL}/api/v1/claims/${claimId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(progress),
+    });
+    return parseOrThrow(response);
+}
+
+/** DamageReviewPage's "Submit Survey" -- marks the claim Completed (moves it out of the Dashboard's Pending count). */
+export async function submitClaim(token, claimId) {
+    const response = await fetch(`${BASE_URL}/api/v1/claims/${claimId}/submit`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return parseOrThrow(response);
+}

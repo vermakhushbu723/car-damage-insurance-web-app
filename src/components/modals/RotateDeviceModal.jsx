@@ -21,7 +21,7 @@ const RotateDeviceModal = ({ visible, onAllow }) => {
                     style={{ background: '#EFF6FF', border: '1px solid #00A0FE' }}
                 >
                     <span className="text-4xl p-3">
-                        <img src={rotateIcon} alt="rotate" srcset="" />
+                        <img src={rotateIcon} alt="rotate" />
                     </span>
                 </div>
 

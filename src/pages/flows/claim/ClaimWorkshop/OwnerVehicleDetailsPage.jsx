@@ -11,6 +11,7 @@ import { setProduct } from '../../../../store/vehicleSlice';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
 import { createClaim } from '../../../../services/claimsApi';
 import { getSession } from '../../../../utils/authSession';
+import { setActiveClaimId } from '../../../../utils/activeClaim';
 
 const PORTAL_ROLE = 'claim_workshop';
 
@@ -276,6 +277,7 @@ const OwnerVehicleDetailsPage = () => {
                 return;
             }
             const { claim } = await createClaim(session.token, form);
+            setActiveClaimId(claim.id);
             console.log('Claim created:', claim.claimNumber);
             navigate(ROUTES.DOCUMENT_UPLOAD);
         } catch (err) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FaCheck } from 'react-icons/fa';
 import { COLORS } from '../../../../constants/theme';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
@@ -7,6 +7,10 @@ import { usePageLoading } from '../../../../hooks/usePageLoading';
 const SubmittedPage = () => {
     usePageLoading();
     const navigate = useNavigate();
+    const location = useLocation();
+    // Passed from DamageReviewPage's handleSubmit after the real
+    // POST /api/v1/claims/:id/submit call succeeds -- see claims-service.
+    const claimNumber = location.state?.claimNumber;
 
     return (
         <div
@@ -45,9 +49,15 @@ const SubmittedPage = () => {
                 </div>
 
                 {/* Title */}
-                <h2 style={{ fontWeight: 900, fontSize: 26, color: COLORS.textPrimary, marginBottom: 16, letterSpacing: 1 }}>
+                <h2 style={{ fontWeight: 900, fontSize: 26, color: COLORS.textPrimary, marginBottom: claimNumber ? 4 : 16, letterSpacing: 1 }}>
                     SUBMITTED
                 </h2>
+
+                {claimNumber && (
+                    <p style={{ fontSize: 13, color: COLORS.textSecondary, marginBottom: 16 }}>
+                        Claim {claimNumber}
+                    </p>
+                )}
 
                 {/* Message */}
                 <p style={{ fontSize: 15, color: COLORS.textPrimary, lineHeight: 1.7, marginBottom: 28 }}>
