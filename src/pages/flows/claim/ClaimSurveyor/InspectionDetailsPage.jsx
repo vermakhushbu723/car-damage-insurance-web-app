@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppHeader from '../../../../components/common/AppHeader';
 import PageTitleBar from '../../../../components/common/PageTitleBar';
@@ -8,28 +8,34 @@ import LocationModal from '../../../../components/modals/LocationModal';
 import { COLORS } from '../../../../constants/theme';
 import { ROUTES } from './routes';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
+import { getClaim } from '../../../../services/claimsApi';
+import { getSession } from '../../../../utils/authSession';
+import { getActiveClaimId } from '../../../../utils/activeClaim';
 import insuranceCompanyIcon from '../../../../assets/icons/InsuranceCompany.svg';
 import greenInsuredNameIcon from '../../../../assets/icons/GreenInsuredName.svg';
 import vehicleNumberIcon from '../../../../assets/icons/VehicleNumber.svg';
 import purpleClaimNumberIcon from '../../../../assets/icons/PurpleClaimNumber.svg';
-import policyNumberIcon from '../../../../assets/icons/PolicyNumber.svg';
-import emailAddressIcon from '../../../../assets/icons/EmailAddress.svg';
-import phoneNumberIcon from '../../../../assets/icons/PhoneNumber.svg';
 import autorateIcon from '../../../../assets/icons/autorate.svg';
 import gpsLocationIcon from '../../../../assets/icons/gpslocation.svg';
 import photos360Icon from '../../../../assets/icons/photos360.svg';
 import documentClarityIcon from '../../../../assets/icons/documentclarity.svg';
 import finalReviewIcon from '../../../../assets/icons/finalreview.svg';
 
-const inspectionData = [
-    { icon: insuranceCompanyIcon, label: 'Insurance Company', value: 'ABC Insurance Pvt. Ltd.', iconBg: '#3B82F6' },
-    { icon: greenInsuredNameIcon, label: 'Insured Name', value: 'Rahul Sharma', iconBg: '#22C55E' },
-    { icon: vehicleNumberIcon, label: 'Vehicle Number', value: 'MH 01 BS 1234', iconBg: '#EF4444' },
-    { icon: purpleClaimNumberIcon, label: 'Claim Number', value: '1234567898765MAN', iconBg: '#7C3AED' },
-    { icon: policyNumberIcon, label: 'Policy Number', value: '1234 5678 9012', iconBg: '#16A34A' },
-    // { icon: emailAddressIcon, label: 'Email Address', value: 'rahul.sharma@email.com', iconBg: '#FA9D19' },
-    // { icon: phoneNumberIcon, label: 'Phone Number', value: '+91 1234567890', iconBg: '#EC4899' },
-];
+const PORTAL_ROLE = 'claim_surveyor';
+
+// Builds the info-card rows from a real claim (see claims-service's
+// toPublicClaim) -- replaces what used to be hardcoded placeholder values.
+// No "Policy Number" row: the Owner & Vehicle Details form never collects
+// one, so there's no honest value to show for it here.
+function buildInspectionData(claim) {
+    if (!claim) return [];
+    return [
+        { icon: insuranceCompanyIcon, label: 'Insurance Company', value: claim.insurerName || '—', iconBg: '#3B82F6' },
+        { icon: greenInsuredNameIcon, label: 'Insured Name', value: claim.insuredName || '—', iconBg: '#22C55E' },
+        { icon: vehicleNumberIcon, label: 'Vehicle Number', value: claim.registrationNumber || '—', iconBg: '#EF4444' },
+        { icon: purpleClaimNumberIcon, label: 'Claim Number', value: claim.claimNumber || '—', iconBg: '#7C3AED' },
+    ];
+}
 
 const instructions = [
     {
@@ -74,6 +80,32 @@ const InspectionDetailsPage = () => {
     const navigate = useNavigate();
     const [showRotate, setShowRotate] = useState(false);
     const [showLocation, setShowLocation] = useState(false);
+    const [claim, setClaim] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [loadError, setLoadError] = useState('');
+
+    useEffect(() => {
+        const claimId = getActiveClaimId();
+        if (!claimId) {
+            setIsLoading(false);
+            setLoadError('No active claim found — please start from Owner & Vehicle Details.');
+            return;
+        }
+        (async () => {
+            const session = getSession(PORTAL_ROLE);
+            if (!session) return;
+            try {
+                const { claim: fetchedClaim } = await getClaim(session.token, claimId);
+                setClaim(fetchedClaim);
+            } catch (err) {
+                setLoadError(err.message || 'Could not load claim details.');
+            } finally {
+                setIsLoading(false);
+            }
+        })();
+    }, []);
+
+    const inspectionData = buildInspectionData(claim);
 
     const handleStartPhotos = () => {
         setShowLocation(true);
@@ -101,6 +133,15 @@ const InspectionDetailsPage = () => {
             <div className="flex-1 px-4 pt-4 pb-6 main-bg">
 
                 {/* Inspection Info Card */}
+                {isLoading ? (
+                    <div className="bg-white rounded-2xl px-4 py-4 mb-4 text-sm" style={{ color: COLORS.textSecondary, border: `1px solid ${COLORS.borderInput}` }}>
+                        Loading claim details…
+                    </div>
+                ) : loadError ? (
+                    <div className="bg-white rounded-2xl px-4 py-4 mb-4 text-sm" style={{ color: COLORS.statusPending, border: `1px solid ${COLORS.borderInput}` }}>
+                        {loadError}
+                    </div>
+                ) : (
                 <div
                     className="bg-white rounded-2xl px-4 mb-4"
                     style={{ border: `1px solid ${COLORS.borderInput}`, boxShadow: '0px 1px 6px 0px #00000026' }}
@@ -126,6 +167,7 @@ const InspectionDetailsPage = () => {
                         </div>
                     ))}
                 </div>
+                )}
 
                 {/* Instructions Heading */}
                 <p

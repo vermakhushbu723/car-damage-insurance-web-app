@@ -14,6 +14,9 @@ import {
     WORKFLOW_TYPES,
 } from '../../../../store/workflowSlice';
 import { CAMERA_ACCESS_KEY } from '../../../../routes/ProtectedCameraRoute';
+import { updateClaimProgress } from '../../../../services/claimsApi';
+import { getSession } from '../../../../utils/authSession';
+import { getActiveClaimId } from '../../../../utils/activeClaim';
 import carFrontLeft from '../../../../assets/png/car/FrontLeft.png';
 import carFront from '../../../../assets/png/car/Front.png';
 import carFrontRight from '../../../../assets/png/car/FrontRight.png';
@@ -74,6 +77,8 @@ const PHOTO_SECTIONS = [
 // Required angles to consider "all done"
 export const REQUIRED_ANGLES = ['front-side', 'lh-side', 'rh-side', 'rear-side'];
 
+const PORTAL_ROLE = 'claim_surveyor';
+
 const AddDamagePhotosPage = () => {
     usePageLoading();
     const navigate = useNavigate();
@@ -82,10 +87,29 @@ const AddDamagePhotosPage = () => {
     const workflowOption = useSelector(selectWorkflowOption);
     const dispatch = useDispatch();
     const [capturedPhotos, setCapturedPhotos] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Persists WHICH angles are captured to claims-service (booleans only,
+    // same as PhotoCaptureSelectionPage's syncCapturedAngles -- the actual
+    // photo bytes stay in localStorage; see claims-service's database.js
+    // migration comment). Best-effort/fire-and-forget.
+    const syncCapturedAngles = async (stored) => {
+        const claimId = getActiveClaimId();
+        if (!claimId) return;
+        const session = getSession(PORTAL_ROLE);
+        if (!session) return;
+        const flags = Object.fromEntries(Object.keys(stored).filter((k) => stored[k]).map((k) => [k, true]));
+        try {
+            await updateClaimProgress(session.token, claimId, { capturedAngles: flags });
+        } catch {
+            /* non-fatal, see comment above */
+        }
+    };
 
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem('damage_photos') || '{}');
         setCapturedPhotos(stored);
+        syncCapturedAngles(stored);
     }, []);
 
     const completedCount = PHOTO_SECTIONS.filter(s => capturedPhotos[s.captureAngle]).length;
@@ -127,6 +151,7 @@ const AddDamagePhotosPage = () => {
                 delete stored[key];
                 localStorage.setItem('damage_photos', JSON.stringify(stored));
             } catch { /* ignore */ }
+            syncCapturedAngles(next);
             return next;
         });
     };
@@ -143,7 +168,7 @@ const AddDamagePhotosPage = () => {
         });
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         // Workflow is picked on the landing page (stored in Redux), so jump
         // straight to its destination. If the current workflow option is
         // missing, assume the Damage Review flow because this page belongs to
@@ -151,6 +176,13 @@ const AddDamagePhotosPage = () => {
         const selectedOption = workflowOption || WORKFLOW_TYPES.OPTION_GROUP_1;
         if (!workflowOption) {
             dispatch(setOption(selectedOption));
+        }
+
+        setIsSubmitting(true);
+        try {
+            await syncCapturedAngles(capturedPhotos);
+        } finally {
+            setIsSubmitting(false);
         }
 
         const next = ROUTES.DAMAGE_REVIEW;
@@ -420,6 +452,7 @@ const AddDamagePhotosPage = () => {
                 {completedCount >= PHOTO_SECTIONS.length && (
                     <button
                         onClick={handleSubmit}
+                        disabled={isSubmitting}
                         style={{
                             width: '100%',
                             padding: '15px 0',
@@ -429,11 +462,12 @@ const AddDamagePhotosPage = () => {
                             borderRadius: 12,
                             fontSize: 16,
                             fontWeight: 700,
-                            cursor: 'pointer',
+                            cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                            opacity: isSubmitting ? 0.7 : 1,
                             boxShadow: '0 4px 12px rgba(34,197,94,0.3)',
                         }}
                     >
-                        Save & Submit
+                        {isSubmitting ? 'Saving…' : 'Save & Submit'}
                     </button>
                 )}
             </div>

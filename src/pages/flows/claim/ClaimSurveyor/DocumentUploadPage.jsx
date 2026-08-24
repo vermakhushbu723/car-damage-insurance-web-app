@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircleFilled } from '@ant-design/icons';
 import AppHeader from '../../../../components/common/AppHeader';
@@ -10,6 +10,9 @@ import { ROUTES } from './routes';
 import PrimaryButton from '../../../../components/common/PrimaryButton';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
 import SecondaryButton from '../../../../components/common/SecondaryButton';
+import { getClaim, updateClaimProgress } from '../../../../services/claimsApi';
+import { getSession } from '../../../../utils/authSession';
+import { getActiveClaimId } from '../../../../utils/activeClaim';
 import greenTickIcon from '../../../../assets/icons/greenTick.svg';
 import pendingIcon from '../../../../assets/icons/pending.svg';
 import claimFormIcon from '../../../../assets/icons/claim-form.svg';
@@ -18,6 +21,8 @@ import registrationCertificateIcon from '../../../../assets/icons/registration-c
 import repairEstimateIcon from '../../../../assets/icons/repair-estimate.svg';
 import kycIcon from '../../../../assets/icons/kyc.svg';
 import phoneIcon from '../../../../assets/icons/phone.svg';
+
+const PORTAL_ROLE = 'claim_surveyor';
 
 const DOC_LIST = [
     { id: 'claim_form', icon: claimFormIcon, bgColor: '#8A64FF40', borderColor: '#8A64FF', label: 'Claim Form', desc: 'Insurance Claim Application Form', required: true },
@@ -42,6 +47,47 @@ const DocumentUploadPage = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [activeDoc, setActiveDoc] = useState(null);
     const [pickerSource, setPickerSource] = useState('camera'); // 'camera' | 'gallery'
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [apiError, setApiError] = useState('');
+
+    const claimId = getActiveClaimId();
+
+    // Restore progress saved server-side on a previous visit (e.g. after a
+    // refresh) -- only which docs were submitted, not the images themselves
+    // (those are camera captures held in memory/blob URLs, so they don't
+    // survive a reload either way; see claims-service's database.js).
+    useEffect(() => {
+        if (!claimId) return;
+        (async () => {
+            const session = getSession(PORTAL_ROLE);
+            if (!session) return;
+            try {
+                const { claim } = await getClaim(session.token, claimId);
+                if (claim.documents && Object.keys(claim.documents).length > 0) {
+                    setUploaded((prev) => ({ ...claim.documents, ...prev }));
+                }
+            } catch {
+                /* non-fatal -- page still works, just starts from a blank progress state */
+            }
+        })();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [claimId]);
+
+    // Sends the current per-document submitted/not-submitted flags to
+    // claims-service (booleans only -- `uploaded` can hold raw File/Blob
+    // values which aren't meaningfully serializable, and the backend only
+    // needs to know completion status, not the bytes).
+    const syncDocuments = async (nextUploaded) => {
+        if (!claimId) return;
+        const session = getSession(PORTAL_ROLE);
+        if (!session) return;
+        const flags = Object.fromEntries(DOC_LIST.map((d) => [d.id, !!nextUploaded[d.id]]));
+        try {
+            await updateClaimProgress(session.token, claimId, { documents: flags });
+        } catch (err) {
+            setApiError(err.message || 'Could not save document progress.');
+        }
+    };
 
     const completedCount = Object.keys(uploaded).filter((k) => uploaded[k]).length;
     const totalCount = DOC_LIST.length;
@@ -56,15 +102,18 @@ const DocumentUploadPage = () => {
     };
 
     const handleCapture = (side, file) => {
-        if (activeDoc) {
-            setUploaded((p) => ({
+        if (!activeDoc) return;
+        setUploaded((p) => {
+            const next = {
                 ...p,
                 [activeDoc.id]: {
                     ...(typeof p[activeDoc.id] === 'object' ? p[activeDoc.id] : {}),
                     [side]: file || true,
                 },
-            }));
-        }
+            };
+            syncDocuments(next);
+            return next;
+        });
     };
 
     // Multi-image save. 'Other' accumulates a list of named documents (the card
@@ -74,17 +123,28 @@ const DocumentUploadPage = () => {
         const urls = files.map((f) => URL.createObjectURL(f));
         const label = name || activeDoc.label;
         setUploaded((p) => {
+            let next;
             if (activeDoc.isOther) {
                 const prevDocs = p[activeDoc.id]?.documents || [];
                 const documents = [...prevDocs, { name: label, urls, count: files.length }];
-                return { ...p, [activeDoc.id]: { documents, count: documents.length } };
+                next = { ...p, [activeDoc.id]: { documents, count: documents.length } };
+            } else {
+                next = { ...p, [activeDoc.id]: { name: label, files, urls, count: files.length } };
             }
-            return { ...p, [activeDoc.id]: { name: label, files, urls, count: files.length } };
+            syncDocuments(next);
+            return next;
         });
     };
 
-    const handleNext = () => {
-        navigate(ROUTES.INSPECTION_DETAILS);
+    const handleNext = async () => {
+        setApiError('');
+        setIsSubmitting(true);
+        try {
+            await syncDocuments(uploaded);
+            navigate(ROUTES.INSPECTION_DETAILS);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -179,7 +239,10 @@ const DocumentUploadPage = () => {
                         );
                     })}
 
-                    <BottomButton label="Next" onClick={handleNext} />
+                    {apiError && (
+                        <p role="alert" className="text-sm" style={{ color: COLORS.statusPending }}>{apiError}</p>
+                    )}
+                    <BottomButton label={isSubmitting ? 'Saving…' : 'Next'} onClick={handleNext} disabled={isSubmitting} />
                 </div>
 
                 {/* Document Camera Modal */}

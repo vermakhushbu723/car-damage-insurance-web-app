@@ -13,8 +13,6 @@ import SecondaryButton from '../../../../components/common/SecondaryButton';
 import { getClaim, updateClaimProgress } from '../../../../services/claimsApi';
 import { getSession } from '../../../../utils/authSession';
 import { getActiveClaimId } from '../../../../utils/activeClaim';
-
-const PORTAL_ROLE = 'claim_workshop';
 import greenTickIcon from '../../../../assets/icons/greenTick.svg';
 import pendingIcon from '../../../../assets/icons/pending.svg';
 import claimFormIcon from '../../../../assets/icons/claim-form.svg';
@@ -23,6 +21,8 @@ import registrationCertificateIcon from '../../../../assets/icons/registration-c
 import repairEstimateIcon from '../../../../assets/icons/repair-estimate.svg';
 import kycIcon from '../../../../assets/icons/kyc.svg';
 import phoneIcon from '../../../../assets/icons/phone.svg';
+
+const PORTAL_ROLE = 'claim_workshop';
 
 const DOC_LIST = [
     { id: 'claim_form', icon: claimFormIcon, bgColor: '#8A64FF40', borderColor: '#8A64FF', label: 'Claim Form', desc: 'Insurance Claim Application Form', required: true },

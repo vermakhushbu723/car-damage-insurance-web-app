@@ -1,16 +1,19 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SearchOutlined, CloseCircleFilled } from '@ant-design/icons';
 import AppHeader from '../../../../components/common/AppHeader';
 import ClaimListCard from '../../../../components/common/ClaimListCard';
 import { COLORS } from '../../../../constants/theme';
 import { ROUTES } from './routes';
-import { DEMO_CLAIMS } from '../../../../constants/demoClaims';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
+import { getClaims } from '../../../../services/claimsApi';
+import { getSession } from '../../../../utils/authSession';
 import totalClaimsIcon from '../../../../assets/icons/TotalClaims.svg';
 import surveyCompletedIcon from '../../../../assets/icons/SurveyCompleted.svg';
 import pendingSurveyIcon from '../../../../assets/icons/PendingSurvey.svg';
 import searchClaimIcon from '../../../../assets/icons/SearchClaim.svg';
+
+const PORTAL_ROLE = 'claim_surveyor';
 
 const VIEW = {
     TOTAL: 'total',
@@ -19,20 +22,44 @@ const VIEW = {
     SEARCH: 'search',
 };
 
-const totalCount = DEMO_CLAIMS.length;
-const completedCount = DEMO_CLAIMS.filter((c) => c.status === 'Completed').length;
-const pendingCount = DEMO_CLAIMS.filter((c) => c.status === 'Pending').length;
-
 const DashboardPage = () => {
     usePageLoading();
     const navigate = useNavigate();
     const [view, setView] = useState(VIEW.TOTAL);
     const [query, setQuery] = useState('');
+    const [claims, setClaims] = useState([]);
+    const [counts, setCounts] = useState({ total: 0, completed: 0, pending: 0 });
+    const [isLoading, setIsLoading] = useState(true);
+    const [loadError, setLoadError] = useState('');
+
+    useEffect(() => {
+        let cancelled = false;
+
+        (async () => {
+            const session = getSession(PORTAL_ROLE);
+            if (!session) return; // RequireAuth already redirects; nothing to fetch.
+
+            setIsLoading(true);
+            setLoadError('');
+            try {
+                const { claims: fetchedClaims, counts: fetchedCounts } = await getClaims(session.token);
+                if (cancelled) return;
+                setClaims(fetchedClaims);
+                setCounts(fetchedCounts);
+            } catch (err) {
+                if (!cancelled) setLoadError(err.message || 'Could not load claims.');
+            } finally {
+                if (!cancelled) setIsLoading(false);
+            }
+        })();
+
+        return () => { cancelled = true; };
+    }, []);
 
     const statsCards = [
         {
             icon: totalClaimsIcon,
-            count: String(totalCount).padStart(2, '0'),
+            count: String(counts.total).padStart(2, '0'),
             label: 'Total Claims',
             bg: COLORS.cardTotalClaims,
             border: `1px solid #004FE5`,
@@ -41,7 +68,7 @@ const DashboardPage = () => {
         },
         {
             icon: surveyCompletedIcon,
-            count: String(completedCount).padStart(2, '0'),
+            count: String(counts.completed).padStart(2, '0'),
             label: 'Survey Completed',
             bg: COLORS.cardSurveyCompleted,
             border: `1px solid #009348`,
@@ -50,7 +77,7 @@ const DashboardPage = () => {
         },
         {
             icon: pendingSurveyIcon,
-            count: String(pendingCount).padStart(2, '0'),
+            count: String(counts.pending).padStart(2, '0'),
             label: 'Pending Survey',
             bg: COLORS.cardPendingSurvey,
             border: `1px solid #FA9D19`,
@@ -70,22 +97,22 @@ const DashboardPage = () => {
 
     const filteredClaims = useMemo(() => {
         if (view === VIEW.COMPLETED) {
-            return DEMO_CLAIMS.filter((c) => c.status === 'Completed');
+            return claims.filter((c) => c.status === 'Completed');
         }
         if (view === VIEW.PENDING) {
-            return DEMO_CLAIMS.filter((c) => c.status === 'Pending');
+            return claims.filter((c) => c.status === 'Pending');
         }
         if (view === VIEW.SEARCH) {
             const q = query.trim().toLowerCase();
-            if (!q) return DEMO_CLAIMS;
-            return DEMO_CLAIMS.filter((c) =>
+            if (!q) return claims;
+            return claims.filter((c) =>
                 [c.claimNumber, c.registrationNumber, c.insuredName, c.vehicle, c.location, c.insurerName]
                     .filter(Boolean)
                     .some((f) => f.toLowerCase().includes(q))
             );
         }
-        return DEMO_CLAIMS;
-    }, [view, query]);
+        return claims;
+    }, [view, query, claims]);
 
     const listConfig = {
         [VIEW.TOTAL]: { title: 'All Claims', badgeBg: COLORS.primary },
@@ -188,12 +215,28 @@ const DashboardPage = () => {
                     </div>
 
                     <div className="flex-1 pb-6">
-                        {filteredClaims.length === 0 ? (
+                        {isLoading ? (
                             <div
                                 className="text-center py-10 rounded-lg"
                                 style={{ background: COLORS.bgCard, color: COLORS.textSecondary }}
                             >
-                                <p className="text-sm font-medium">No claims match your search.</p>
+                                <p className="text-sm font-medium">Loading claims…</p>
+                            </div>
+                        ) : loadError ? (
+                            <div
+                                className="text-center py-10 rounded-lg"
+                                style={{ background: COLORS.bgCard, color: COLORS.statusPending }}
+                            >
+                                <p className="text-sm font-medium">{loadError}</p>
+                            </div>
+                        ) : filteredClaims.length === 0 ? (
+                            <div
+                                className="text-center py-10 rounded-lg"
+                                style={{ background: COLORS.bgCard, color: COLORS.textSecondary }}
+                            >
+                                <p className="text-sm font-medium">
+                                    {view === VIEW.SEARCH ? 'No claims match your search.' : 'No claims yet.'}
+                                </p>
                             </div>
                         ) : (
                             filteredClaims.map((claim) => (

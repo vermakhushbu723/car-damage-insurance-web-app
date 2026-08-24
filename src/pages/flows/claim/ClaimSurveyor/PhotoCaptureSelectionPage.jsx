@@ -14,6 +14,11 @@ import { getCenterImage, isAngleSupported } from '../../../../constants/vehicleA
 import { usePageLoading } from '../../../../hooks/usePageLoading';
 import { FaMobileAlt, FaSyncAlt, FaVideo, FaCamera, FaCheck } from 'react-icons/fa';
 import { COLORS } from '../../../../constants/theme';
+import { updateClaimProgress } from '../../../../services/claimsApi';
+import { getSession } from '../../../../utils/authSession';
+import { getActiveClaimId } from '../../../../utils/activeClaim';
+
+const PORTAL_ROLE = 'claim_surveyor';
 
 // Where each capture angle sits on the vehicle, as fractions of the rendered
 // silhouette box (fx: 0 = front/left … 1 = rear/right; fy: 0 = top … 1 = bottom).
@@ -58,6 +63,25 @@ const PhotoCaptureSelectionPage = () => {
     const [videoUrl, setVideoUrl] = useState('');
     const [videoLoadError, setVideoLoadError] = useState(false);
 
+    // Persists WHICH angles are captured to claims-service (booleans only --
+    // the actual photo bytes stay in localStorage as before; see
+    // claims-service's database.js migration comment). Best-effort/fire-
+    // and-forget: a failed sync doesn't block capturing, it just means
+    // progress won't be visible server-side until the next successful sync.
+    const syncCapturedAngles = async (stored, hasVideoNow) => {
+        const claimId = getActiveClaimId();
+        if (!claimId) return;
+        const session = getSession(PORTAL_ROLE);
+        if (!session) return;
+        const flags = { ...Object.fromEntries(Object.keys(stored).filter((k) => stored[k]).map((k) => [k, true])) };
+        if (hasVideoNow) flags.video = true;
+        try {
+            await updateClaimProgress(session.token, claimId, { capturedAngles: flags });
+        } catch {
+            /* non-fatal, see comment above */
+        }
+    };
+
     // Load captured photos + walk-around video status from localStorage
     const loadCapturedPhotos = () => {
         const stored = JSON.parse(localStorage.getItem('damage_photos') || '{}');
@@ -65,6 +89,7 @@ const PhotoCaptureSelectionPage = () => {
         const url = localStorage.getItem('walk_around_video_url') || '';
         setVideoUrl(url);
         if (url) setVideoLoadError(false);
+        syncCapturedAngles(stored, !!url);
     };
 
     const hasVideo = !!videoUrl && !videoLoadError;
