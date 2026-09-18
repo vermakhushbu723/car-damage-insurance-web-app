@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "car-damage-insurance-web-app",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/dev-with-ai.cjs",
+    "dev:web": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
