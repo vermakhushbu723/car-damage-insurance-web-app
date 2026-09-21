@@ -1,0 +1,99 @@
+/* Compact, cleaner sizing for the AI Damage Assessment + Offline Training
+   pages. Both pages use inline styles, so these rules need !important to
+   win; everything is scoped under .ai-compact so no other page changes. */
+
+.ai-compact {
+    padding: 16px 20px !important;
+    font-size: 12px;
+    color: #1f2937;
+}
+
+/* Headings */
+.ai-compact h1 { font-size: 17px !important; letter-spacing: -0.2px; }
+.ai-compact h2 { font-size: 13.5px !important; margin-bottom: 10px !important; }
+.ai-compact h3 { font-size: 12px !important; }
+.ai-compact p { font-size: 11.5px !important; line-height: 1.5 !important; }
+.ai-compact code { font-size: 11px; }
+
+/* Cards: tighter padding and spacing, softer border */
+.ai-compact > div[style*="border-radius: 8px"],
+.ai-compact div[style*="padding: 20px"] {
+    padding: 14px 16px !important;
+    margin-bottom: 14px !important;
+    border-radius: 10px !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+/* Form labels */
+.ai-compact label {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    margin-bottom: 3px !important;
+}
+
+/* Inputs, selects and the custom SelectField trigger */
+.ai-compact input:not([type="file"]),
+.ai-compact select,
+.ai-compact button[type="button"][style*="text-align: left"] {
+    font-size: 12px !important;
+    padding: 5px 8px !important;
+    min-height: 30px;
+    border-radius: 6px !important;
+}
+.ai-compact button[type="button"][style*="text-align: left"] { padding-right: 26px !important; }
+.ai-compact input[type="file"] { font-size: 11.5px !important; }
+
+/* SelectField dropdown menu items */
+.ai-compact ul li,
+.ai-compact ul button,
+.ai-compact [role="listbox"] * {
+    font-size: 12px !important;
+}
+
+/* Buttons */
+.ai-compact button {
+    font-size: 12px !important;
+}
+.ai-compact button[style*="padding: 10px 22px"],
+.ai-compact button[style*="padding: 9px 20px"],
+.ai-compact button[style*="padding: 9px 18px"],
+.ai-compact button[style*="padding: 8px 16px"] {
+    padding: 6px 14px !important;
+    border-radius: 6px !important;
+}
+
+/* Tables */
+.ai-compact table { font-size: 12px !important; }
+.ai-compact th {
+    font-size: 10.5px !important;
+    padding: 7px 10px !important;
+    letter-spacing: 0.3px;
+    color: #6b7280 !important;
+}
+.ai-compact td { padding: 6px 10px !important; }
+.ai-compact tbody tr:hover { background: #f8fafc; }
+.ai-compact tfoot td { font-size: 12.5px !important; }
+
+/* Banners / notes */
+.ai-compact div[style*="line-height: 1.5"] {
+    font-size: 11.5px !important;
+    padding: 8px 12px !important;
+    margin-bottom: 12px !important;
+}
+
+/* Pre (ILA report narrative) */
+.ai-compact pre {
+    font-size: 12px !important;
+    line-height: 1.6 !important;
+    padding: 12px !important;
+}
+
+/* SelectField option rows (rendered as divs) */
+.ai-compact div[style*="padding: 8px 10px"][style*="cursor: pointer"] {
+    font-size: 12px !important;
+    padding: 6px 8px !important;
+}
+
+/* Donut gauges */
+.ai-compact svg + span,
+.ai-compact span[style*="font-size: 12px"] { font-size: 11px !important; }

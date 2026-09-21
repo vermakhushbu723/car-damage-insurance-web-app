@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './aiCompact.css';
 import { PALETTE } from '../../adminTheme';
 import DonutGauge from '../components/DonutGauge';
 import DamageBoxOverlay from '../components/DamageBoxOverlay';
@@ -12,6 +13,7 @@ import {
     getRetrainingQueueStats,
 } from '../../../../services/aiDamageAssessmentApi';
 import { computeImageQuality, computeAverageHash, findDuplicateIds } from '../../../../utils/aiImageAnalysis';
+import { ALL_PARTS, PART_OPTIONS, PART_FILTER_OPTIONS, partLabel, matchesPart, suggestPart } from '../../../../utils/vehicleParts';
 import { computeAiConfidence, computeDamageScore, computeFraudSignal, estimateRepairDurationDays } from '../../../../utils/aiInsightMetrics';
 
 const VEHICLE_TYPES = [
@@ -45,16 +47,15 @@ const cardStyle = {
 
 // Client-side CSV export of the AI Damage Assessment table -- no backend
 // call needed, matches the "Export CSV" button in the reference design.
-function exportDetectionsCsv(detections, assessment) {
+function exportDetectionsCsv(rows) {
     const header = ['Vehicle Part', 'Damage Type', 'Severity', 'Action', 'Est. Cost (INR)', 'AI Confidence (%)'];
-    const rows = detections.map((d) => {
-        const lineItem = assessment?.line_items.find((li) => li.part === d.part);
+    const csvRows = rows.map(({ d, lineItem }) => {
         return [
-            d.part, d.damage_type, lineItem?.severity || '', lineItem?.action || 'no_action',
+            partLabel(d.part), d.damage_type, lineItem?.severity || '', lineItem?.action || 'no_action',
             lineItem?.line_total ?? '', Math.round(d.confidence * 100),
         ];
     });
-    const csv = [header, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const csv = [header, ...csvRows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -157,6 +158,10 @@ const AiIlaAssessmentPage = () => {
     // they've signed off on. Keyed by part name so it survives re-ordering.
     const [rowStatus, setRowStatus] = useState({});
 
+    // Part focus: 'all' shows the full vehicle; a specific part narrows the
+    // photo overlay, damage table, cost breakdown and total to that part only.
+    const [partFilter, setPartFilter] = useState(ALL_PARTS);
+
     useEffect(() => {
         getRetrainingQueueStats().then(setQueueStats).catch(() => setQueueStats(null));
     }, []);
@@ -252,7 +257,15 @@ const AiIlaAssessmentPage = () => {
         const startedAt = performance.now();
         try {
             setStage('detecting');
-            const detectionResult = await detectDamage(primary.file, vehicleType);
+            const rawResult = await detectDamage(primary.file, vehicleType);
+            // The model only predicts damage type -- fill in a best-guess part
+            // from the photo angle + damage position (utils/vehicleParts.js).
+            const detectionResult = {
+                ...rawResult,
+                detections: rawResult.detections.map((d) => (
+                    d.part && d.part !== 'unassigned' ? d : { ...d, part: suggestPart(d, primary.label) }
+                )),
+            };
             setOriginalDetection(detectionResult);
             setDetections(detectionResult.detections);
 
@@ -328,8 +341,21 @@ const AiIlaAssessmentPage = () => {
     const fraudSignal = report ? computeFraudSignal(report.cause_check) : null;
     const repairDuration = assessment ? estimateRepairDurationDays(assessment.line_items) : 'N/A';
 
+    // line_items come back 1:1 and in the same order as detections (costEngine.js maps them).
+    const allRows = detections.map((d, i) => ({ d, i, lineItem: assessment?.line_items[i] }));
+    const visibleRows = allRows.filter(({ d }) => matchesPart(d.part, partFilter));
+    const visibleTotal = visibleRows.reduce((sum, r) => sum + (r.lineItem?.line_total || 0), 0);
+    const partSummary = Object.values(allRows.reduce((acc, { d, lineItem }) => {
+        const entry = acc[d.part] || { part: d.part, count: 0, cost: 0 };
+        entry.count += 1;
+        entry.cost += lineItem?.line_total || 0;
+        acc[d.part] = entry;
+        return acc;
+    }, {}));
+    const filterLabel = partFilter === ALL_PARTS ? 'Full Vehicle' : partLabel(partFilter);
+
     return (
-        <main style={{ padding: '20px 24px', fontFamily: 'Instrument Sans, sans-serif' }}>
+        <main className="ai-compact" style={{ padding: '20px 24px', fontFamily: 'Instrument Sans, sans-serif' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12, marginBottom: 20 }}>
                 <div>
                     <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: PALETTE.primaryBlue }}>AI ILA Assessment</h1>
@@ -355,8 +381,8 @@ const AiIlaAssessmentPage = () => {
                     {originalDetection?.detected_real_damage_classes
                         ? 'Running on the CarDD-pretrained checkpoint (cardd-seg.pt) — detects real damage types ' +
                           '(crack, dent, glass_shatter, lamp_broken, scratch, tire_flat) but isn\'t fine-tuned on ' +
-                          'your own photos yet, and part assignment (bumper/door/etc.) isn\'t wired up — see the ' +
-                          '"unassigned" part label below. See Section 5.1 of the architecture doc.'
+                          'your own photos yet. Vehicle Part is auto-suggested from the photo angle + damage position — ' +
+                          'set the correct angle under the photo, and fix any wrong part in the table below.'
                         : 'Running on the CarDD-pretrained checkpoint, but no damage regions were detected in this ' +
                           'photo above the confidence threshold — could be a photo with no visible damage, an ' +
                           'angle/lighting the model doesn\'t handle well, or damage outside its 6 trained classes. ' +
@@ -378,6 +404,10 @@ const AiIlaAssessmentPage = () => {
                     <div><label style={labelStyle}>Model</label><input style={inputStyle} value={model} onChange={(e) => setModel(e.target.value)} /></div>
                     <div><label style={labelStyle}>Year</label><input type="number" style={inputStyle} value={year} onChange={(e) => setYear(e.target.value)} /></div>
                     <div><label style={labelStyle}>Region</label><input style={inputStyle} value={region} onChange={(e) => setRegion(e.target.value)} /></div>
+                    <div>
+                        <label style={labelStyle}>Part Focus</label>
+                        <SelectField value={partFilter} onChange={setPartFilter} options={PART_FILTER_OPTIONS} placeholder="All Parts" />
+                    </div>
                     <div><label style={labelStyle}>Reported Cause of Loss</label><input style={inputStyle} value={reportedCause} onChange={(e) => setReportedCause(e.target.value)} /></div>
                 </div>
 
@@ -446,9 +476,9 @@ const AiIlaAssessmentPage = () => {
                             {viewerPhoto && (
                                 <DamageBoxOverlay
                                     imageUrl={viewerPhoto.src}
-                                    detections={showBoxesOnViewer ? detections : []}
-                                    selectedIndex={selectedIndex}
-                                    onSelect={setSelectedIndex}
+                                    detections={showBoxesOnViewer ? visibleRows.map((r) => r.d) : []}
+                                    selectedIndex={visibleRows.findIndex((r) => r.i === selectedIndex)}
+                                    onSelect={(k) => setSelectedIndex(visibleRows[k]?.i ?? null)}
                                     filters={{ zoom, rotateDeg, brightness }}
                                 />
                             )}
@@ -542,25 +572,52 @@ const AiIlaAssessmentPage = () => {
                             <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: PALETTE.primaryBlue, letterSpacing: 0.5 }}>DETECTED</p>
                             <h2 style={{ margin: '2px 0 0', fontSize: 17, fontWeight: 800, color: PALETTE.body }}>AI Damage Assessment</h2>
                             <p style={{ margin: '2px 0 0', fontSize: 12, color: PALETTE.muted }}>
-                                {detections.length} Parts Identified · Ordered By Severity
+                                {filterLabel}: {visibleRows.length} of {detections.length} damages · ₹{visibleTotal.toLocaleString('en-IN')}
                                 {hasCorrections && <span style={{ color: '#B45309', fontWeight: 700 }}> · Edited — not yet saved as a correction</span>}
                             </p>
                         </div>
                         <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
                             <button
-                                onClick={() => exportDetectionsCsv(detections, assessment)}
+                                onClick={() => exportDetectionsCsv(visibleRows)}
                                 style={{ background: '#fff', color: PALETTE.primaryBlue, border: `1px solid ${PALETTE.primaryBlue}`, borderRadius: 6, padding: '8px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
                             >
                                 Export CSV
                             </button>
                             <button
-                                onClick={() => setRowStatus(Object.fromEntries(detections.map((d) => [d.part, 'Approval'])))}
+                                onClick={() => setRowStatus((prev) => ({ ...prev, ...Object.fromEntries(visibleRows.map((r) => [r.i, 'Approval'])) }))}
                                 style={{ background: PALETTE.primaryBlue, color: '#fff', border: 'none', borderRadius: 6, padding: '8px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
                             >
                                 Approve All
                             </button>
                         </div>
                     </div>
+
+                    {/* Part-wise summary: click a part to see only its damage, "All Parts" for the full vehicle */}
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
+                        {[{ part: ALL_PARTS, count: detections.length, cost: assessment?.total_cost || 0 }, ...partSummary].map((p) => {
+                            const active = partFilter === p.part;
+                            return (
+                                <button
+                                    key={p.part}
+                                    onClick={() => setPartFilter(p.part)}
+                                    style={{
+                                        border: `1px solid ${active ? PALETTE.primaryBlue : PALETTE.cardBorder}`,
+                                        background: active ? PALETTE.primaryBlue : '#fff', color: active ? '#fff' : PALETTE.body,
+                                        borderRadius: 999, padding: '6px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                                    }}
+                                >
+                                    {p.part === ALL_PARTS ? 'All Parts' : partLabel(p.part)} · {p.count} · ₹{p.cost.toLocaleString('en-IN')}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {visibleRows.length === 0 && (
+                        <Banner tone="info">
+                            No damage found on {filterLabel} in this photo. Pick "All Parts" to see the full vehicle, or
+                            change a row's Vehicle Part if the AI guessed the wrong part.
+                        </Banner>
+                    )}
 
                     <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 760 }}>
@@ -572,9 +629,8 @@ const AiIlaAssessmentPage = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {detections.map((d, i) => {
-                                    const lineItem = assessment?.line_items.find((li) => li.part === d.part);
-                                    const status = rowStatus[d.part] || 'Pending';
+                                {visibleRows.map(({ d, i, lineItem }) => {
+                                    const status = rowStatus[i] || 'Pending';
                                     const confidencePct = Math.round(d.confidence * 100);
                                     return (
                                         <tr key={i} style={{ borderBottom: '1px solid #F3F4F6', background: i === selectedIndex ? '#FEF2F2' : 'transparent', cursor: 'pointer' }} onClick={() => setSelectedIndex(i)}>
@@ -584,7 +640,14 @@ const AiIlaAssessmentPage = () => {
                                                 </span>
                                             </td>
                                             <td style={{ padding: '8px 12px', fontWeight: 700 }}>
-                                                <input style={{ ...inputStyle, padding: '4px 8px', fontWeight: 700 }} value={d.part} onClick={(e) => e.stopPropagation()} onChange={(e) => updateDetection(i, { part: e.target.value })} />
+                                                <div onClick={(e) => e.stopPropagation()}>
+                                                    <SelectField
+                                                        value={d.part}
+                                                        onChange={(v) => updateDetection(i, { part: v })}
+                                                        options={PART_OPTIONS.some((p) => p.value === d.part) ? PART_OPTIONS : [{ value: d.part, label: partLabel(d.part) }, ...PART_OPTIONS]}
+                                                        compact
+                                                    />
+                                                </div>
                                             </td>
                                             <td style={{ padding: '8px 12px' }} onClick={(e) => e.stopPropagation()}>
                                                 <SelectField value={d.damage_type} onChange={(v) => updateDetection(i, { damage_type: v })} options={DAMAGE_TYPE_OPTIONS} compact />
@@ -620,7 +683,7 @@ const AiIlaAssessmentPage = () => {
                                             <td style={{ padding: '8px 12px' }} onClick={(e) => e.stopPropagation()}>
                                                 <SelectField
                                                     value={status}
-                                                    onChange={(v) => setRowStatus((prev) => ({ ...prev, [d.part]: v }))}
+                                                    onChange={(v) => setRowStatus((prev) => ({ ...prev, [i]: v }))}
                                                     options={ROW_STATUS_OPTIONS}
                                                     compact
                                                 />
@@ -637,9 +700,10 @@ const AiIlaAssessmentPage = () => {
 
                     {assessment && (
                         <p style={{ margin: '14px 0 0', fontSize: 12, color: PALETTE.muted }}>
-                            {assessment.line_items.filter((li) => li.action === 'repair').length} repair ·{' '}
-                            {assessment.line_items.filter((li) => li.action === 'replace').length} replace ·{' '}
-                            ₹{assessment.total_cost.toLocaleString('en-IN')} total est.
+                            {filterLabel}: {visibleRows.filter((r) => r.lineItem?.action === 'repair').length} repair ·{' '}
+                            {visibleRows.filter((r) => r.lineItem?.action === 'replace').length} replace ·{' '}
+                            ₹{visibleTotal.toLocaleString('en-IN')} est.
+                            {partFilter !== ALL_PARTS && <> (full vehicle ₹{assessment.total_cost.toLocaleString('en-IN')})</>}
                         </p>
                     )}
 
@@ -658,7 +722,7 @@ const AiIlaAssessmentPage = () => {
             {/* ── Cost breakdown (part/labor/paint detail) ─────────────── */}
             {assessment && (
                 <div style={cardStyle}>
-                    <h2 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 800, color: PALETTE.body }}>Cost Breakdown (AI ILA)</h2>
+                    <h2 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 800, color: PALETTE.body }}>Cost Breakdown (AI ILA) — {filterLabel}</h2>
                     <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 700 }}>
                         <thead>
@@ -669,9 +733,9 @@ const AiIlaAssessmentPage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {assessment.line_items.map((item, i) => (
+                            {visibleRows.filter((r) => r.lineItem).map(({ lineItem: item }, i) => (
                                 <tr key={i} style={{ borderBottom: '1px solid #F3F4F6' }}>
-                                    <td style={{ padding: '8px 12px', fontWeight: 600 }}>{item.part}</td>
+                                    <td style={{ padding: '8px 12px', fontWeight: 600 }}>{partLabel(item.part)}</td>
                                     <td style={{ padding: '8px 12px' }}>
                                         <span style={{ padding: '2px 8px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: item.severity === 'severe' ? '#FEE2E2' : item.severity === 'moderate' ? '#FEF3C7' : '#DCFCE7', color: item.severity === 'severe' ? '#B91C1C' : item.severity === 'moderate' ? '#92400E' : '#166534' }}>
                                             {item.severity}
@@ -690,8 +754,8 @@ const AiIlaAssessmentPage = () => {
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colSpan={6} style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 700 }}>Total Estimated Cost (AI ILA)</td>
-                                <td colSpan={2} style={{ padding: '10px 12px', fontWeight: 800, fontSize: 15, color: PALETTE.primaryBlue }}>₹{assessment.total_cost.toLocaleString('en-IN')}</td>
+                                <td colSpan={6} style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 700 }}>Total Estimated Cost (AI ILA) — {filterLabel}</td>
+                                <td colSpan={2} style={{ padding: '10px 12px', fontWeight: 800, fontSize: 15, color: PALETTE.primaryBlue }}>₹{visibleTotal.toLocaleString('en-IN')}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -702,7 +766,7 @@ const AiIlaAssessmentPage = () => {
             {/* ── Report narrative + cause-consistency ─────────────────── */}
             {report && (
                 <div style={cardStyle}>
-                    <h2 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 800, color: PALETTE.body }}>ILA Report</h2>
+                    <h2 style={{ margin: '0 0 14px', fontSize: 15, fontWeight: 800, color: PALETTE.body }}>ILA Report (Full Vehicle)</h2>
                     {report.generated_by !== 'llama' && (
                         <Banner tone="warn">Ollama isn't reachable — this is a templated summary, not an LLM-generated narrative. Run <code>ollama serve</code> to enable real report generation.</Banner>
                     )}

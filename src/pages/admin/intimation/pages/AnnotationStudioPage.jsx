@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './aiCompact.css';
 import { PALETTE } from '../../adminTheme';
 import {
     annotationPhotoFileUrl,
@@ -12,6 +13,7 @@ import {
     trainingReportImageUrl,
     uploadAnnotationPhotos,
 } from '../../../../services/aiDamageAssessmentApi';
+import { ALL_PARTS, PART_OPTIONS, PART_FILTER_OPTIONS, partLabel, matchesPart } from '../../../../utils/vehicleParts';
 
 // Matches server/src/schemas/constants.js's TRAINABLE_DAMAGE_TYPES (the
 // backend looks up the class id by name, so the two lists don't need to be
@@ -24,12 +26,7 @@ const VEHICLE_TYPES = [
     { value: 'commercial_vehicle', label: 'Commercial Vehicle' },
 ];
 const DAMAGE_TYPES = ['crack', 'dent', 'glass_shatter', 'lamp_broken', 'scratch', 'tire_flat'];
-const PARTS = [
-    'front_bumper', 'rear_bumper', 'bonnet', 'front_door_lh', 'front_door_rh',
-    'rear_door_lh', 'rear_door_rh', 'fender_lh', 'fender_rh', 'headlamp_lh',
-    'headlamp_rh', 'tail_light_lh', 'tail_light_rh', 'windshield_front',
-    'windshield_rear', 'roof', 'boot_lid',
-];
+const PARTS = PART_OPTIONS.map((p) => p.value);
 
 const DAMAGE_COLORS = {
     crack: '#EF4444', dent: '#3B82F6', glass_shatter: '#8B5CF6',
@@ -87,6 +84,10 @@ const AnnotationStudioPage = () => {
     const [pendingPart, setPendingPart] = useState(PARTS[0]);
     const [pendingDamageType, setPendingDamageType] = useState(DAMAGE_TYPES[0]);
     const [selectedPolyId, setSelectedPolyId] = useState(null);
+    // Part focus: 'all' = every photo/annotation; a specific part shows only
+    // photos that have that part annotated (plus un-annotated ones to label)
+    // and dims the other parts' polygons in the editor.
+    const [partFilter, setPartFilter] = useState(ALL_PARTS);
     const [imgSize, setImgSize] = useState({ w: 1, h: 1 });
 
     const [saving, setSaving] = useState(false);
@@ -104,6 +105,18 @@ const AnnotationStudioPage = () => {
     const trainPollRef = useRef(null);
 
     const activePhoto = photos.find((p) => p.id === activePhotoId) || null;
+
+    const photoParts = (photo) => new Set((photo.annotations || []).map((a) => a.part));
+    const visiblePhotos = partFilter === ALL_PARTS
+        ? photos
+        : photos.filter((photo) => !photo.annotated || photoParts(photo).has(partFilter));
+    const partCounts = photos.reduce((acc, photo) => {
+        (photo.annotations || []).forEach((a) => { acc[a.part] = (acc[a.part] || 0) + 1; });
+        return acc;
+    }, {});
+    const annotatedForFilter = partFilter === ALL_PARTS
+        ? photos.filter((p) => p.annotated).length
+        : photos.filter((p) => photoParts(p).has(partFilter)).length;
     const isTrainingActive = trainJob && (trainJob.status === 'preparing' || trainJob.status === 'training');
 
     // Poll /training/status every 2s while a job is running (and once on
@@ -277,7 +290,7 @@ const AnnotationStudioPage = () => {
     };
 
     return (
-        <main style={{ padding: '20px 24px', fontFamily: 'Instrument Sans, sans-serif' }}>
+        <main className="ai-compact" style={{ padding: '20px 24px', fontFamily: 'Instrument Sans, sans-serif' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
                 <div>
                     <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: PALETTE.primaryBlue }}>Annotation Studio</h1>
@@ -296,6 +309,24 @@ const AnnotationStudioPage = () => {
                         <label style={labelStyle}>Vehicle type</label>
                         <select style={inputStyle} value={vehicleType} onChange={(e) => setVehicleType(e.target.value)}>
                             {VEHICLE_TYPES.map((v) => <option key={v.value} value={v.value}>{v.label}</option>)}
+                        </select>
+                    </div>
+                    <div>
+                        <label style={labelStyle}>Part focus</label>
+                        <select
+                            data-testid="part-filter-select"
+                            style={inputStyle}
+                            value={partFilter}
+                            onChange={(e) => {
+                                setPartFilter(e.target.value);
+                                if (e.target.value !== ALL_PARTS) setPendingPart(e.target.value);
+                            }}
+                        >
+                            {PART_FILTER_OPTIONS.map((p) => (
+                                <option key={p.value} value={p.value}>
+                                    {p.label}{p.value !== ALL_PARTS && partCounts[p.value] ? ` (${partCounts[p.value]})` : ''}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     <div>
@@ -331,8 +362,16 @@ const AnnotationStudioPage = () => {
                     </p>
                 )}
 
+                {photos.length > 0 && (
+                    <p style={{ fontSize: 12, color: PALETTE.muted, margin: '0 0 10px' }}>
+                        {partFilter === ALL_PARTS ? 'All parts' : partLabel(partFilter)}: <strong>{annotatedForFilter}</strong> annotated
+                        photo(s) · showing {visiblePhotos.length} of {photos.length}
+                        {partFilter !== ALL_PARTS && ' (un-annotated photos are kept so you can label them)'}
+                    </p>
+                )}
+
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                    {photos.map((photo) => (
+                    {visiblePhotos.map((photo) => (
                         <div
                             key={photo.id}
                             onClick={() => openPhoto(photo)}
@@ -386,6 +425,7 @@ const AnnotationStudioPage = () => {
                                             key={poly.id}
                                             points={poly.points.map((p) => `${p.x},${p.y}`).join(' ')}
                                             fill={`${DAMAGE_COLORS[poly.damageType]}33`}
+                                            opacity={matchesPart(poly.part, partFilter) ? 1 : 0.25}
                                             stroke={poly.id === selectedPolyId ? '#111827' : DAMAGE_COLORS[poly.damageType]}
                                             strokeWidth={poly.id === selectedPolyId ? 3 : 2}
                                         />
@@ -422,7 +462,7 @@ const AnnotationStudioPage = () => {
                                     </select>
                                     <label style={labelStyle}>Part</label>
                                     <select data-testid="polygon-part-select" style={{ ...inputStyle, marginBottom: 12 }} value={pendingPart} onChange={(e) => setPendingPart(e.target.value)}>
-                                        {PARTS.map((p) => <option key={p} value={p}>{p}</option>)}
+                                        {PART_OPTIONS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
                                     </select>
                                     <div style={{ display: 'flex', gap: 8 }}>
                                         <button data-testid="add-annotation-btn" onClick={confirmPendingPolygon} style={btn('#059669')}>Add Annotation</button>
@@ -433,6 +473,7 @@ const AnnotationStudioPage = () => {
 
                             <h3 style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 800 }}>
                                 Annotations for this photo — {polygons.length}
+                                {partFilter !== ALL_PARTS && ` (${polygons.filter((poly) => poly.part === partFilter).length} on ${partLabel(partFilter)})`}
                             </h3>
                             {polygons.length === 0 && (
                                 <p style={{ fontSize: 12, color: PALETTE.muted }}>No annotations yet — draw one on the photo.</p>
@@ -442,6 +483,7 @@ const AnnotationStudioPage = () => {
                                     key={poly.id}
                                     onClick={() => setSelectedPolyId(poly.id)}
                                     style={{
+                                        opacity: matchesPart(poly.part, partFilter) ? 1 : 0.45,
                                         display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px',
                                         borderRadius: 6, marginBottom: 6, cursor: 'pointer',
                                         background: poly.id === selectedPolyId ? '#EFF6FF' : '#F9FAFB',
@@ -463,7 +505,7 @@ const AnnotationStudioPage = () => {
                                         onClick={(e) => e.stopPropagation()}
                                         onChange={(e) => updatePolygon(poly.id, { part: e.target.value })}
                                     >
-                                        {PARTS.map((p) => <option key={p} value={p}>{p}</option>)}
+                                        {PART_OPTIONS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
                                     </select>
                                     <button onClick={(e) => { e.stopPropagation(); removePolygon(poly.id); }} style={{ background: 'none', border: 'none', color: '#DC2626', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}>×</button>
                                 </div>
