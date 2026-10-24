@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppHeader from '../../../../components/common/AppHeader';
 import BottomButton from '../../../../components/common/BottomButton';
@@ -11,6 +11,7 @@ import registrationCertificateIcon from '../../../../assets/icons/registration-c
 import repairEstimateIcon from '../../../../assets/icons/repair-estimate.svg';
 import kycIcon from '../../../../assets/icons/kyc.svg';
 import phoneIcon from '../../../../assets/icons/phone.svg';
+import { captureSurveyToken, fetchSurveyClaim, getCachedSurveyClaim, getSurveyToken } from '../../../../services/surveyLinkApi';
 
 const documents = [
     {
@@ -46,9 +47,50 @@ const documents = [
     },
 ];
 
+/** Intimation details from the call center, shown before the survey starts. */
+const detailRows = (c) => [
+    ['Assist Claim ID', c.assistClaimId],
+    ['Claim No', c.claimNo],
+    ['Insurer', c.insurer?.name],
+    ['Insurer Claim No', c.insurer?.claimNumber],
+    ['Policy No', c.insurer?.policyNumber],
+    ['Insured Name', c.insured?.name],
+    ['Vehicle No', c.vehicle?.registrationNumber],
+    ['Make / Model', [c.vehicle?.make, c.vehicle?.model, c.vehicle?.variant].filter(Boolean).join(' ')],
+    ['Date Of Incident', [c.incident?.date, c.incident?.time].filter(Boolean).join(' ')],
+    ['Place Of Incident', c.incident?.place],
+    ['Nature Of Loss', c.incident?.natureOfLoss],
+    ['Workshop', c.workshop?.name],
+].filter(([, v]) => v);
+
+/** A new survey link starts clean: drop photos / answers of an earlier survey. */
+function resetSurveyDrafts() {
+    try {
+        ['damage_photos', 'walk_around_video_url'].forEach((k) => localStorage.removeItem(k));
+        ['ownerVehicleDetails', 'decl_customer', 'decl_inspector', 'sign_customer', 'sign_inspector', 'survey_docs_uploaded'].forEach((k) => sessionStorage.removeItem(k));
+    } catch {
+        /* ignore */
+    }
+}
+
 const ClaimStartPage = () => {
     usePageLoading();
     const navigate = useNavigate();
+    const [claim, setClaim] = useState(getCachedSurveyClaim);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        const before = getSurveyToken();
+        const token = captureSurveyToken();
+        if (!token) return;
+        if (before !== token) resetSurveyDrafts();
+        fetchSurveyClaim(token)
+            .then((c) => {
+                setClaim(c);
+                setError(c?.submittedAt ? 'This survey is already submitted. Thank you!' : c?.status === 'Closed' ? 'This claim is closed.' : '');
+            })
+            .catch((e) => setError(e.message || 'This survey link is not valid.'));
+    }, []);
 
     return (
         <div
@@ -68,7 +110,7 @@ const ClaimStartPage = () => {
                 >
                     Thank You For Reporting Motor Claim With{' '}
                     <span className="text-sm leading-snug underline" style={{ color: COLORS.primaryDark }}>
-                        New India Assurance Co. Ltd.
+                        {claim?.insurer?.name || 'New India Assurance Co. Ltd.'}
                     </span>
                 </h2>
             </div>
@@ -86,6 +128,24 @@ const ClaimStartPage = () => {
                         Before you click the "Start" button, please keep following documents handy; as essential to proceed further in survey
                     </p>
                 </div>
+
+                {/* Claim details entered at intimation (survey link) */}
+                {claim ? (
+                    <div className="mx-3 mb-2 rounded-md bg-white border border-[#C5C5C5] px-4 py-2 shrink-0">
+                        <p className="text-sm font-semibold mb-1" style={{ color: COLORS.primaryDark }}>Claim Details</p>
+                        <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5">
+                            {detailRows(claim).map(([label, value]) => (
+                                <React.Fragment key={label}>
+                                    <span className="text-xs" style={{ color: COLORS.textSecondary }}>{label}</span>
+                                    <span className="text-xs font-medium break-words" style={{ color: COLORS.textPrimary }}>{value}</span>
+                                </React.Fragment>
+                            ))}
+                        </div>
+                    </div>
+                ) : null}
+                {error ? (
+                    <p className="mx-3 mb-2 rounded-md px-3 py-2 text-sm text-center" style={{ background: '#FEE2E2', color: '#B91C1C' }}>{error}</p>
+                ) : null}
 
                 {/* Documents List — flex-1 so it shares remaining space */}
                 <div className="px-4 py-1 flex flex-col gap-5">
@@ -115,6 +175,7 @@ const ClaimStartPage = () => {
                 <div className="px-4 py-3 shrink-0">
                     <BottomButton
                         label="Start"
+                        disabled={!!error}
                         onClick={() => navigate(ROUTES.OWNER_VEHICLE_DETAILS)}
                     />
                 </div>

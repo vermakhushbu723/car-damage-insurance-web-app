@@ -24,6 +24,43 @@ import SignaturePad from '../../../../components/common/SignaturePad';
 import { COLORS } from '../../../../constants/theme';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
 import { ROUTES } from './routes';
+import { getCachedSurveyClaim, getSurveyToken, submitSurvey, uploadSurveyFile, urlToBlob } from '../../../../services/surveyLinkApi';
+
+const readJson = (store, key) => {
+    try {
+        return JSON.parse(store.getItem(key) || 'null');
+    } catch {
+        return null;
+    }
+};
+
+/** Survey link: the details entered at intimation + the owner form of this survey. */
+function surveyDetails() {
+    const c = getCachedSurveyClaim();
+    if (!c) return {};
+    const o = readJson(sessionStorage, 'ownerVehicleDetails') ?? {};
+    const v = c.vehicle ?? {};
+    const pick = (...vals) => vals.find((x) => x) || 'N/A';
+    return {
+        make: pick(o.make, v.make),
+        model: pick(o.model, v.model),
+        Variant: pick(o.variant, v.variant),
+        bodyType: pick(o.product, c.insurer?.product),
+        engineNumber: pick(v.engineNo),
+        odometer: pick(o.odometer),
+        MfgYear: pick(o.manufacturingYear, v.manufacturingYear),
+        State: pick(o.state, v.state),
+        registrationNumber: pick(o.registrationNumber, v.registrationNumber),
+        registrationDate: pick(o.registrationDate, v.registrationDate),
+        piRefNumber: pick(c.claimNo),
+        insuredName: pick(o.ownerName, c.insured?.name),
+        mobileNumber: pick(o.mobile, c.insured?.mobile),
+        emailAddress: pick(o.email, c.insured?.email),
+        insuranceCompany: pick(c.insurer?.name),
+    };
+}
+
+const extFor = (blob, fallback) => ({ 'image/png': '.png', 'image/webp': '.webp', 'video/mp4': '.mp4', 'video/quicktime': '.mov', 'video/webm': '.webm' })[(blob.type || '').split(';')[0]] || fallback;
 
 const VehicleInformationPage = () => {
     usePageLoading();
@@ -47,7 +84,10 @@ const VehicleInformationPage = () => {
         insuranceCompany: 'XYZ Insurance company ltd',
         customerSignature: sessionStorage.getItem('sign_customer') || null,
         inspectionAgentSignature: sessionStorage.getItem('sign_inspector') || null,
+        ...surveyDetails(),
     });
+    const [submitting, setSubmitting] = useState('');
+    const [submitError, setSubmitError] = useState('');
 
     // Declaration acceptance is set on the declaration pages (persisted in
     // sessionStorage) and read back here, so signing can be gated on it.
@@ -85,11 +125,53 @@ const VehicleInformationPage = () => {
         navigate(-1);
     };
 
-    const handleSubmitSurvey = () => {
+    /** Survey link: every photo, the walk-around video and both signatures go to the claim's DMS, then the survey is submitted. */
+    const uploadSurvey = async () => {
+        const photos = Object.entries(readJson(localStorage, 'damage_photos') ?? {}).filter(([, url]) => typeof url === 'string' && url);
+        const uploads = photos.map(([angle, url]) => ({ type: 'vehicle-photos', url, name: angle.replace(/[^A-Za-z0-9_-]+/g, '-'), ext: '.jpg' }));
+        const video = localStorage.getItem('walk_around_video_url');
+        if (video) uploads.push({ type: 'survey-video', url: video, name: 'walk-around-video', ext: '.webm', optional: true });
+        uploads.push({ type: 'other', url: formData.customerSignature, name: 'customer-signature', ext: '.png' });
+        uploads.push({ type: 'other', url: formData.inspectionAgentSignature, name: 'inspector-signature', ext: '.png' });
+        let done = 0;
+        for (const u of uploads) {
+            setSubmitting(`Uploading ${done + 1} of ${uploads.length}...`);
+            try {
+                const blob = await urlToBlob(u.url);
+                await uploadSurveyFile(u.type, blob, `${u.name}${extFor(blob, u.ext)}`);
+            } catch (e) {
+                if (!u.optional) throw e; // the video's blob link does not survive a page reload
+            }
+            done += 1;
+        }
+        setSubmitting('Submitting survey...');
+        await submitSurvey({
+            owner: readJson(sessionStorage, 'ownerVehicleDetails') ?? {},
+            recommendation: surveyRecommendation,
+        });
+    };
+
+    const handleSubmitSurvey = async () => {
         // Validate form and submit
         if (!formData.customerSignature || !formData.inspectionAgentSignature) {
             alert('Please capture both signatures');
             return;
+        }
+        if (submitting) return;
+        if (getSurveyToken()) {
+            setSubmitError('');
+            try {
+                await uploadSurvey();
+            } catch (e) {
+                setSubmitting('');
+                setSubmitError(e.message || 'Could not submit the survey. Please try again.');
+                return;
+            }
+            setSubmitting('');
+            try {
+                ['damage_photos', 'walk_around_video_url'].forEach((k) => localStorage.removeItem(k));
+                sessionStorage.removeItem('ownerVehicleDetails');
+            } catch { /* ignore */ }
         }
         try {
             ['decl_customer', 'decl_inspector', 'sign_customer', 'sign_inspector'].forEach((k) => sessionStorage.removeItem(k));
@@ -536,6 +618,11 @@ const VehicleInformationPage = () => {
                             <span style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary }}>No</span>
                         </div>
                     </div>
+                    {submitting || submitError ? (
+                        <p style={{ fontSize: 13, marginBottom: 8, textAlign: 'center', color: submitError ? '#B91C1C' : COLORS.textPrimary }}>
+                            {submitError || submitting}
+                        </p>
+                    ) : null}
                     <div style={{ display: 'flex', gap: 10 }}>
                         <button
                             onClick={handleRecentSurvey}
@@ -555,9 +642,11 @@ const VehicleInformationPage = () => {
                         </button>
                         <button
                             onClick={handleSubmitSurvey}
+                            disabled={!!submitting}
                             style={{
                                 flex: 1,
                                 padding: 14,
+                                opacity: submitting ? 0.7 : 1,
                                 background: COLORS.btnPrimary,
                                 color: '#fff',
                                 border: 'none',
@@ -567,7 +656,7 @@ const VehicleInformationPage = () => {
                                 cursor: 'pointer',
                             }}
                         >
-                            Submit Survey
+                            {submitting ? 'Submitting...' : 'Submit Survey'}
                         </button>
                     </div>
                 </div>

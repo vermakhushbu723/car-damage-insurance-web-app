@@ -9,6 +9,7 @@ import { COLORS } from '../../../../constants/theme';
 import { ROUTES } from './routes';
 import { setProduct } from '../../../../store/vehicleSlice';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
+import { getCachedSurveyClaim } from '../../../../services/surveyLinkApi';
 
 // Per-field input filters — strip disallowed characters as the user types,
 // and hint the correct on-screen keyboard via inputMode.
@@ -151,6 +152,7 @@ const SelectField = ({ label, placeholder, value, onChange, options = [], error 
     );
 };
 
+
 const STORAGE_KEY = 'ownerVehicleDetails';
 
 const INITIAL_FORM = {
@@ -168,11 +170,38 @@ const INITIAL_FORM = {
     manufacturingYear: '',
 };
 
+const PRODUCT_FROM_INTIMATION = { CV: 'Commercial Vehicle' };
+const toDdMmYyyy = (v) => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v || '');
+    return m ? `${m[3]}-${m[2]}-${m[1]}` : v || '';
+};
+
+/** Survey link: start from what the call center entered at intimation. */
+const formFromSurveyClaim = () => {
+    const c = getCachedSurveyClaim();
+    if (!c) return INITIAL_FORM;
+    const v = c.vehicle ?? {};
+    return {
+        ...INITIAL_FORM,
+        ownerName: c.insured?.name || '',
+        mobile: String(c.insured?.mobile || '').replace(/\D/g, '').slice(-10),
+        email: c.insured?.email || '',
+        registrationNumber: v.registrationNumber || '',
+        state: v.state || '',
+        registrationDate: toDdMmYyyy(v.registrationDate),
+        product: PRODUCT_FROM_INTIMATION[c.insurer?.product] || c.insurer?.product || '',
+        make: v.make || '',
+        model: v.model || '',
+        variant: v.variant || '',
+        manufacturingYear: v.manufacturingYear ? String(v.manufacturingYear).slice(0, 7) : '',
+    };
+};
+
 const readPersistedForm = () => {
     if (typeof window === 'undefined') return INITIAL_FORM;
     try {
         const raw = window.sessionStorage.getItem(STORAGE_KEY);
-        if (!raw) return INITIAL_FORM;
+        if (!raw) return formFromSurveyClaim();
         return { ...INITIAL_FORM, ...JSON.parse(raw) };
     } catch {
         return INITIAL_FORM;

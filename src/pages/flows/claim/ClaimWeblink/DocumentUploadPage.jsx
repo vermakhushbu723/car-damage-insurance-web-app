@@ -18,6 +18,7 @@ import registrationCertificateIcon from '../../../../assets/icons/registration-c
 import repairEstimateIcon from '../../../../assets/icons/repair-estimate.svg';
 import kycIcon from '../../../../assets/icons/kyc.svg';
 import phoneIcon from '../../../../assets/icons/phone.svg';
+import { getSurveyToken, uploadSurveyFile, SURVEY_DOC_TYPES } from '../../../../services/surveyLinkApi';
 
 const DOC_LIST = [
     { id: 'claim_form', icon: claimFormIcon, bgColor: '#8A64FF40', borderColor: '#8A64FF', label: 'Claim Form', desc: 'Insurance Claim Application Form', required: true },
@@ -35,6 +36,8 @@ const DOC_LIST = [
 //   otherwise → 'multiple'  (multiple images, fixed name)
 const docModeFor = (doc) => (doc?.isOther ? 'other' : doc?.frontBack ? 'frontBack' : 'multiple');
 
+const extOf = (file) => ({ 'image/png': '.png', 'image/webp': '.webp', 'application/pdf': '.pdf' })[file?.type] || '.jpg';
+
 const DocumentUploadPage = () => {
     usePageLoading();
     const navigate = useNavigate();
@@ -42,6 +45,20 @@ const DocumentUploadPage = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [activeDoc, setActiveDoc] = useState(null);
     const [pickerSource, setPickerSource] = useState('camera'); // 'camera' | 'gallery'
+    // Survey link: every captured document goes straight to the claim's DMS.
+    const [dmsSync, setDmsSync] = useState({ pending: 0, done: 0, error: '' });
+
+    const pushToDms = (doc, files) => {
+        if (!getSurveyToken()) return;
+        const list = files.filter((f) => f && f.name !== undefined && f.size);
+        if (!list.length) return;
+        setDmsSync((s) => ({ ...s, pending: s.pending + list.length, error: '' }));
+        list.forEach(({ file, name }) => {
+            uploadSurveyFile(SURVEY_DOC_TYPES[doc.id] || 'other', file, name)
+                .then(() => setDmsSync((s) => ({ ...s, pending: s.pending - 1, done: s.done + 1 })))
+                .catch((e) => setDmsSync((s) => ({ ...s, pending: s.pending - 1, error: `${name}: ${e.message}` })));
+        });
+    };
 
     const completedCount = Object.keys(uploaded).filter((k) => uploaded[k]).length;
     const totalCount = DOC_LIST.length;
@@ -56,6 +73,9 @@ const DocumentUploadPage = () => {
     };
 
     const handleCapture = (side, file) => {
+        if (activeDoc && file instanceof Blob) {
+            pushToDms(activeDoc, [{ file, name: `${activeDoc.label} - ${side}${extOf(file)}`, size: file.size }]);
+        }
         if (activeDoc) {
             setUploaded((p) => ({
                 ...p,
@@ -73,6 +93,8 @@ const DocumentUploadPage = () => {
         if (!activeDoc) return;
         const urls = files.map((f) => URL.createObjectURL(f));
         const label = name || activeDoc.label;
+        const stamp = Date.now().toString(36);
+        pushToDms(activeDoc, files.map((file, i) => ({ file, name: `${label} ${stamp}-${i + 1}${extOf(file)}`, size: file.size })));
         setUploaded((p) => {
             if (activeDoc.isOther) {
                 const prevDocs = p[activeDoc.id]?.documents || [];
@@ -179,7 +201,16 @@ const DocumentUploadPage = () => {
                         );
                     })}
 
-                    <BottomButton label="Next" onClick={handleNext} />
+                    {getSurveyToken() && (dmsSync.pending || dmsSync.done || dmsSync.error) ? (
+                        <p className="text-sm text-center" style={{ color: dmsSync.error ? '#B91C1C' : COLORS.textPrimary }}>
+                            {dmsSync.error
+                                ? `Upload failed — ${dmsSync.error}. Please capture it again.`
+                                : dmsSync.pending
+                                  ? `Uploading ${dmsSync.pending} file(s)...`
+                                  : `${dmsSync.done} file(s) uploaded to your claim`}
+                        </p>
+                    ) : null}
+                    <BottomButton label="Next" disabled={dmsSync.pending > 0} onClick={handleNext} />
                 </div>
 
                 {/* Document Camera Modal */}
