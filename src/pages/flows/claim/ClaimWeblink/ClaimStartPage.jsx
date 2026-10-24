@@ -132,7 +132,7 @@ const ClaimStartPage = () => {
                 {/* Claim details entered at intimation (survey link) */}
                 {claim ? (
                     <div className="mx-3 mb-2 rounded-md bg-white border border-[#C5C5C5] px-4 py-2 shrink-0">
-                        <p className="text-sm font-semibold mb-1" style={{ color: COLORS.primaryDark }}>Claim Details</p>
+                        <p className="text-sm font-semibold mb-1" style={{ color: COLORS.primary }}>Claim Details</p>
                         <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5">
                             {detailRows(claim).map(([label, value]) => (
                                 <React.Fragment key={label}>
