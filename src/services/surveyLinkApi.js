@@ -6,9 +6,10 @@
 // submitted.
 //
 // Override the base URL with VITE_SURVEY_API_URL in .env.
-const BASE_URL = import.meta.env.VITE_SURVEY_API_URL || 'https://callsenter.ibimaassist.online/api/v1';
+const BASE_URL = import.meta.env.VITE_SURVEY_API_URL || 'https://ibimaassist.com/apps/callcenter/api/v1';
 const TOKEN_KEY = 'survey_link_token';
 const CLAIM_KEY = 'survey_link_claim';
+const LOGIN_KEY = 'survey_link_login';
 
 async function parseOrThrow(response) {
     let body = null;
@@ -51,6 +52,31 @@ export const getCachedSurveyClaim = () => {
         return null;
     }
 };
+
+/** Signed in on this survey link (claim login) in this browser session? */
+export const isSurveyLoggedIn = (token = getSurveyToken()) => {
+    try {
+        return !!token && sessionStorage.getItem(LOGIN_KEY) === token;
+    } catch {
+        return false;
+    }
+};
+
+/** Claim login: User Name = Vehicle No / Claim No, Password = registered mobile number. */
+export async function surveyLogin(username, password, token = getSurveyToken()) {
+    const res = await fetch(`${BASE_URL}/survey/${encodeURIComponent(token)}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+    });
+    const body = await parseOrThrow(res);
+    try {
+        sessionStorage.setItem(LOGIN_KEY, token);
+    } catch {
+        /* ignore */
+    }
+    return body;
+}
 
 /** GET the intimation details the call center entered for this link. */
 export async function fetchSurveyClaim(token = getSurveyToken()) {
