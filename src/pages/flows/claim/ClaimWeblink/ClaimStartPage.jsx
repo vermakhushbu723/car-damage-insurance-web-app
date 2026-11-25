@@ -11,7 +11,7 @@ import registrationCertificateIcon from '../../../../assets/icons/registration-c
 import repairEstimateIcon from '../../../../assets/icons/repair-estimate.svg';
 import kycIcon from '../../../../assets/icons/kyc.svg';
 import phoneIcon from '../../../../assets/icons/phone.svg';
-import { captureSurveyToken, fetchSurveyClaim, getCachedSurveyClaim, getSurveyToken, isSurveyLoggedIn } from '../../../../services/surveyLinkApi';
+import { captureSurveyToken, fetchSurveyClaim, getCachedSurveyClaim, getSurveyToken } from '../../../../services/surveyLinkApi';
 
 const documents = [
     {
@@ -84,11 +84,6 @@ const ClaimStartPage = () => {
         const token = captureSurveyToken();
         if (!token) return;
         if (before !== token) resetSurveyDrafts();
-        // The survey link starts at the claim login.
-        if (!isSurveyLoggedIn(token)) {
-            navigate(`${ROUTES.LOGIN}?token=${encodeURIComponent(token)}`, { replace: true });
-            return;
-        }
         fetchSurveyClaim(token)
             .then((c) => {
                 setClaim(c);

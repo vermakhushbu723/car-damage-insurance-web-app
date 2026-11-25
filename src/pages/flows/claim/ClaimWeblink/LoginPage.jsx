@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserOutlined, EyeInvisibleOutlined, EyeOutlined } from '@ant-design/icons';
 import AppHeader from '../../../../components/common/AppHeader';
@@ -8,7 +8,6 @@ import captureRefresh from '../../../../assets/capturerefress.png';
 import { ROUTES } from './routes';
 import BottomButton from '../../../../components/common/BottomButton';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
-import { captureSurveyToken, isSurveyLoggedIn, surveyLogin } from '../../../../services/surveyLinkApi';
 
 const generateCaptcha = () => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
@@ -29,14 +28,6 @@ const LoginPage = () => {
     const [captchaText, setCaptchaText] = useState(generateCaptcha());
     const [captchaInput, setCaptchaInput] = useState('');
     const [errors, setErrors] = useState({});
-    // Opened from the claim survey link (?token=...): only the Claim login, then that claim.
-    const [token] = useState(() => captureSurveyToken());
-    const fromLink = !!token;
-    const [busy, setBusy] = useState(false);
-
-    useEffect(() => {
-        if (fromLink && isSurveyLoggedIn(token)) navigate(ROUTES.CLAIM_START, { replace: true });
-    }, [fromLink, token, navigate]);
 
     const refreshCaptcha = () => {
         setCaptchaText(generateCaptcha());
@@ -45,14 +36,14 @@ const LoginPage = () => {
 
     const validate = () => {
         const newErrors = {};
-        if (!username.trim()) newErrors.username = fromLink ? 'Enter your Vehicle No or Claim No' : 'Username is required';
-        if (!password.trim()) newErrors.password = fromLink ? 'Enter your registered mobile number' : 'Password is required';
+        if (!username.trim()) newErrors.username = 'Username is required';
+        if (!password.trim()) newErrors.password = 'Password is required';
         if (!captchaInput.trim()) newErrors.captcha = 'Captcha is required';
         else if (captchaInput !== captchaText) newErrors.captcha = 'Captcha does not match';
         return newErrors;
     };
 
-    const handleLogin = async () => {
+    const handleLogin = () => {
         const validationErrors = validate();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
@@ -60,20 +51,7 @@ const LoginPage = () => {
             return;
         }
         setErrors({});
-        if (!fromLink) {
-            navigate(ROUTES.DASHBOARD);
-            return;
-        }
-        setBusy(true);
-        try {
-            await surveyLogin(username.trim(), password.trim(), token);
-            navigate(ROUTES.CLAIM_START, { replace: true });
-        } catch (e) {
-            setErrors({ form: e.message || 'Login failed. Please try again.' });
-            refreshCaptcha();
-        } finally {
-            setBusy(false);
-        }
+        navigate(ROUTES.DASHBOARD);
     };
 
     return (
@@ -97,23 +75,21 @@ const LoginPage = () => {
                     >
                         Claim
                     </button>
-                    {fromLink ? null : (
-                        <button
-                            onClick={() => setActiveTab('pre-inspection')}
-                            className="font-bold text-white text-lg"
-                            style={{
-                                width: '193px',
-                                height: '52px',
-                                borderRadius: '7px',
-                                padding: '10px',
-                                background: '#4643F9',
-                                opacity: 1,
-                                boxShadow: activeTab === 'pre-inspection' ? '0 4px 14px rgba(79,70,229,0.4)' : 'none',
-                            }}
-                        >
-                            Pre-Inspection
-                        </button>
-                    )}
+                    <button
+                        onClick={() => setActiveTab('pre-inspection')}
+                        className="font-bold text-white text-lg"
+                        style={{
+                            width: '193px',
+                            height: '52px',
+                            borderRadius: '7px',
+                            padding: '10px',
+                            background: '#4643F9',
+                            opacity: 1,
+                            boxShadow: activeTab === 'pre-inspection' ? '0 4px 14px rgba(79,70,229,0.4)' : 'none',
+                        }}
+                    >
+                        Pre-Inspection
+                    </button>
                 </div>
 
                 <div className="flex-1 flex flex-col px-5 gap-3 pb-2">
@@ -121,7 +97,7 @@ const LoginPage = () => {
                         <UserOutlined style={{ color: COLORS.primary, fontSize: 22 }} />
                         <input
                             type="text"
-                            placeholder={fromLink ? 'Vehicle No / Claim No' : 'User Name'}
+                            placeholder="User Name"
                             value={username}
                             onChange={(e) => { setUsername(e.target.value); setErrors(p => ({ ...p, username: '' })); }}
                             className="flex-1 outline-none text-base bg-transparent"
@@ -133,7 +109,7 @@ const LoginPage = () => {
                     <div className="flex items-center gap-3 px-5" style={{ background: COLORS.bgCard, height: '53px', borderRadius: '7px', border: '1px solid #C5C5C5', opacity: 1 }}>
                         <input
                             type={showPassword ? 'text' : 'password'}
-                            placeholder={fromLink ? 'Registered Mobile No' : 'Password'}
+                            placeholder="Password"
                             value={password}
                             onChange={(e) => { setPassword(e.target.value); setErrors(p => ({ ...p, password: '' })); }}
                             className="flex-1 outline-none text-base bg-transparent"
@@ -173,13 +149,7 @@ const LoginPage = () => {
                     {errors.captcha && <p className="text-sm -mt-3" style={{ color: COLORS.textRed }}>{errors.captcha}</p>}
 
                     <div className="mt-3">
-                        {errors.form ? <p className="text-sm mb-2 text-center" style={{ color: COLORS.textRed }}>{errors.form}</p> : null}
-                        <BottomButton label={busy ? 'Please wait...' : 'Login'} onClick={busy ? undefined : handleLogin} />
-                        {fromLink ? (
-                            <p className="text-xs mt-2 text-center" style={{ color: COLORS.textSecondary }}>
-                                User Name: your Vehicle No or Claim No · Password: the mobile number given at claim intimation
-                            </p>
-                        ) : null}
+                        <BottomButton label="Login" onClick={handleLogin} />
                     </div>
                 </div>
 
