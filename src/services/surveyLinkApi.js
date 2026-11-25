@@ -6,7 +6,7 @@
 // submitted.
 //
 // Override the base URL with VITE_SURVEY_API_URL in .env.
-const BASE_URL = import.meta.env.VITE_SURVEY_API_URL || 'https://callsenter.ibimaassist.online/api/v1';
+const BASE_URL = import.meta.env.VITE_SURVEY_API_URL || 'https://ibimaassist.com/apps/callcenter/api/v1';
 const TOKEN_KEY = 'survey_link_token';
 const CLAIM_KEY = 'survey_link_claim';
 
