@@ -8,6 +8,7 @@ import LocationModal from '../../../../components/modals/LocationModal';
 import { COLORS } from '../../../../constants/theme';
 import { ROUTES } from './routes';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
+import { getCachedSurveyClaim } from '../../../../services/surveyLinkApi';
 import insuranceCompanyIcon from '../../../../assets/icons/InsuranceCompany.svg';
 import greenInsuredNameIcon from '../../../../assets/icons/GreenInsuredName.svg';
 import vehicleNumberIcon from '../../../../assets/icons/VehicleNumber.svg';
@@ -21,15 +22,26 @@ import photos360Icon from '../../../../assets/icons/photos360.svg';
 import documentClarityIcon from '../../../../assets/icons/documentclarity.svg';
 import finalReviewIcon from '../../../../assets/icons/finalreview.svg';
 
-const inspectionData = [
-    { icon: insuranceCompanyIcon, label: 'Insurance Company', value: 'ABC Insurance Pvt. Ltd.', iconBg: '#3B82F6' },
-    { icon: greenInsuredNameIcon, label: 'Insured Name', value: 'Rahul Sharma', iconBg: '#22C55E' },
-    { icon: vehicleNumberIcon, label: 'Vehicle Number', value: 'MH 01 BS 1234', iconBg: '#EF4444' },
-    { icon: purpleClaimNumberIcon, label: 'Claim Number', value: '1234567898765MAN', iconBg: '#7C3AED' },
-    { icon: policyNumberIcon, label: 'Policy Number', value: '1234 5678 9012', iconBg: '#16A34A' },
-    // { icon: emailAddressIcon, label: 'Email Address', value: 'rahul.sharma@email.com', iconBg: '#FA9D19' },
-    // { icon: phoneNumberIcon, label: 'Phone Number', value: '+91 1234567890', iconBg: '#EC4899' },
-];
+/** This claim's details (survey link); '-' when the call center did not enter them. */
+const readOwner = () => {
+    try {
+        return JSON.parse(sessionStorage.getItem('ownerVehicleDetails') || '{}');
+    } catch {
+        return {};
+    }
+};
+const claimData = () => {
+    const c = getCachedSurveyClaim() ?? {};
+    const o = readOwner();
+    return [
+        { icon: insuranceCompanyIcon, label: 'Insurance Company', value: c.insurer?.name || '-', iconBg: '#3B82F6' },
+        { icon: greenInsuredNameIcon, label: 'Insured Name', value: o.ownerName || c.insured?.name || '-', iconBg: '#22C55E' },
+        { icon: vehicleNumberIcon, label: 'Vehicle Number', value: o.registrationNumber || c.vehicle?.registrationNumber || '-', iconBg: '#EF4444' },
+        { icon: purpleClaimNumberIcon, label: 'Claim Number', value: c.insurer?.claimNumber || c.claimNo || '-', iconBg: '#7C3AED' },
+        { icon: policyNumberIcon, label: 'Policy Number', value: c.insurer?.policyNumber || '-', iconBg: '#16A34A' },
+    ];
+};
+
 
 const instructions = [
     {
@@ -105,7 +117,7 @@ const InspectionDetailsPage = () => {
                     className="bg-white rounded-2xl px-4 mb-4"
                     style={{ border: `1px solid ${COLORS.borderInput}`, boxShadow: '0px 1px 6px 0px #00000026' }}
                 >
-                    {inspectionData.map((row, i) => (
+                    {claimData().map((row, i) => (
                         <div
                             key={i}
                             className="flex items-center gap-3 py-2"

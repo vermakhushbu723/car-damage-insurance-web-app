@@ -147,6 +147,7 @@ const VehicleInformationPage = () => {
         setSubmitting('Submitting survey...');
         await submitSurvey({
             owner: readJson(sessionStorage, 'ownerVehicleDetails') ?? {},
+            declarations: { customer: customerDeclAccepted, inspector: inspectorDeclAccepted },
             recommendation: surveyRecommendation,
         });
     };
