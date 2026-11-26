@@ -92,6 +92,14 @@ const ClaimStartPage = () => {
             .catch((e) => setError(e.message || 'This survey link is not valid.'));
     }, []);
 
+    const submitted = !!claim?.submittedAt;
+    const submittedOn = (() => {
+        const d = claim?.submittedAt ? new Date(claim.submittedAt) : null;
+        return d && !Number.isNaN(d.getTime())
+            ? d.toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })
+            : '';
+    })();
+
     return (
         <div
             className="min-h-dvh flex flex-col"
@@ -117,7 +125,8 @@ const ClaimStartPage = () => {
 
             {/* Main content card — fills remaining height, no scroll */}
             <div className="flex-1 flex flex-col main-bg">
-                {/* Info Card */}
+                {/* Info Card (not after the form is submitted) */}
+                {submitted ? null : (
                 <div
                     className="mx-3 mt-3 mb-2 rounded-md px-4 py-2 text-center bg-white border border-[#C5C5C5] shrink-0"
                 >
@@ -128,10 +137,11 @@ const ClaimStartPage = () => {
                         Before you click the "Start" button, please keep following documents handy; as essential to proceed further in survey
                     </p>
                 </div>
+                )}
 
                 {/* Claim details entered at intimation (survey link) */}
                 {claim ? (
-                    <div className="mx-3 mb-2 rounded-md bg-white border border-[#C5C5C5] px-4 py-2 shrink-0">
+                    <div className={`mx-3 mb-2 rounded-md bg-white border border-[#C5C5C5] px-4 py-2 shrink-0${submitted ? " mt-3" : ""}`}>
                         <p className="text-sm font-semibold mb-1" style={{ color: COLORS.primary }}>Claim Details</p>
                         <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5">
                             {detailRows(claim).map(([label, value]) => (
@@ -143,11 +153,24 @@ const ClaimStartPage = () => {
                         </div>
                     </div>
                 ) : null}
-                {error ? (
+                {submitted ? (
+                    <div className="mx-3 mb-2 rounded-lg border border-[#86EFAC] bg-[#F0FDF4] px-4 py-5 text-center">
+                        <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-[#22C55E] text-2xl font-bold text-white">✓</div>
+                        <p className="text-base font-bold" style={{ color: '#15803D' }}>Form Already Submitted</p>
+                        <p className="mt-1 text-sm" style={{ color: COLORS.textPrimary }}>
+                            The survey for this claim{claim?.claimNo ? ` (${claim.claimNo})` : ''} was already submitted
+                            {submittedOn ? ` on ${submittedOn}` : ''}. You do not need to fill it again.
+                        </p>
+                        <p className="mt-2 text-xs" style={{ color: COLORS.textSecondary }}>
+                            Thank you! Our team will contact you if anything more is needed.
+                        </p>
+                    </div>
+                ) : error ? (
                     <p className="mx-3 mb-2 rounded-md px-3 py-2 text-sm text-center" style={{ background: '#FEE2E2', color: '#B91C1C' }}>{error}</p>
                 ) : null}
 
                 {/* Documents List — flex-1 so it shares remaining space */}
+                {submitted ? null : (
                 <div className="px-4 py-1 flex flex-col gap-5">
                     {documents.map((doc, i) => (
                         <div key={i} className="flex items-center gap-3">
@@ -170,8 +193,10 @@ const ClaimStartPage = () => {
                         </div>
                     ))}
                 </div>
+                )}
 
-                {/* Bottom Button */}
+                {/* Bottom Button (not when the form is already submitted) */}
+                {submitted ? null : (
                 <div className="px-4 py-3 shrink-0">
                     <BottomButton
                         label="Start"
@@ -179,6 +204,7 @@ const ClaimStartPage = () => {
                         onClick={() => navigate(ROUTES.OWNER_VEHICLE_DETAILS)}
                     />
                 </div>
+                )}
             </div>
         </div>
     );

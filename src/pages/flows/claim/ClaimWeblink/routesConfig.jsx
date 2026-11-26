@@ -1,6 +1,12 @@
 import React from 'react';
 import ProtectedCameraRoute from '../../../../routes/ProtectedCameraRoute';
 import { ROUTES } from './routes';
+import { Navigate } from 'react-router-dom';
+import { isSurveySubmitted } from '../../../../services/surveyLinkApi';
+
+/** Survey link already submitted: the form pages go back to the start page ("Form Already Submitted"). */
+const SurveyGuard = ({ element }) => (isSurveySubmitted() ? <Navigate to={ROUTES.CLAIM_START} replace /> : element);
+const OPEN = [ROUTES.LOGIN, ROUTES.DASHBOARD, ROUTES.CLAIM_START, ROUTES.SUBMITTED];
 import LoginPage from './LoginPage';
 import DashboardPage from './DashboardPage';
 import ClaimStartPage from './ClaimStartPage';
@@ -20,8 +26,7 @@ import VehicleInformationPage from './VehicleInformationPage';
 import CustomerDeclarationPage from './CustomerDeclarationPage';
 import InspectorDeclarationPage from './InspectorDeclarationPage';
 
-// Route list for this flow — spread into AppRoutes.
-export const flowRoutes = [
+const routes = [
     { path: ROUTES.LOGIN, element: <LoginPage /> },
     { path: ROUTES.DASHBOARD, element: <DashboardPage /> },
     { path: ROUTES.CLAIM_START, element: <ClaimStartPage /> },
@@ -41,5 +46,8 @@ export const flowRoutes = [
     { path: ROUTES.CUSTOMER_DECLARATION, element: <CustomerDeclarationPage /> },
     { path: ROUTES.INSPECTOR_DECLARATION, element: <InspectorDeclarationPage /> },
 ];
+
+// Route list for this flow — spread into AppRoutes.
+export const flowRoutes = routes.map((r) => (OPEN.includes(r.path) ? r : { ...r, element: <SurveyGuard element={r.element} /> }));
 
 export default flowRoutes;

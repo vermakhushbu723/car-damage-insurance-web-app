@@ -86,8 +86,19 @@ export async function submitSurvey(payload, token = getSurveyToken()) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload ?? {}),
     });
-    return parseOrThrow(res);
+    const body = await parseOrThrow(res);
+    // Remember it: opening the link again shows "already submitted".
+    try {
+        const c = getCachedSurveyClaim();
+        if (c) sessionStorage.setItem(CLAIM_KEY, JSON.stringify({ ...c, submittedAt: body?.submittedAt || new Date().toISOString() }));
+    } catch {
+        /* ignore */
+    }
+    return body;
 }
+
+/** This survey link's form is already submitted (from the last fetch / submit in this session). */
+export const isSurveySubmitted = () => !!(getSurveyToken() && getCachedSurveyClaim()?.submittedAt);
 
 /** Survey document id (DocumentUploadPage) -> DMS document type. */
 export const SURVEY_DOC_TYPES = {
