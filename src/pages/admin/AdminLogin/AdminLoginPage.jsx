@@ -85,7 +85,7 @@ const AdminLoginPage = () => {
                     <div className="flex items-center justify-center gap-3" style={{ marginBottom: 12 }}>
                         <img
                             src={leftLogo}
-                            alt="New India Assurance"
+                            alt="United India Insurance and IBima Assist"
                             style={{ height: 42, width: 'auto', objectFit: 'contain' }}
                         />
                         <img

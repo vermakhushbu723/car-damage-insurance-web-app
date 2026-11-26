@@ -4,7 +4,7 @@
 export const DEMO_CLAIMS = [
     {
         id: 1,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567890',
         registrationNumber: 'OD 02 AB 1234',
         insuredName: 'Rahul Sharma',
@@ -16,7 +16,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 2,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567891',
         registrationNumber: 'MH 12 CD 5678',
         insuredName: 'Priya Patel',
@@ -28,7 +28,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 3,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567892',
         registrationNumber: 'DL 03 EF 9012',
         insuredName: 'Amit Kumar',
@@ -40,7 +40,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 4,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567893',
         registrationNumber: 'KA 05 GH 3456',
         insuredName: 'Sneha Reddy',
@@ -52,7 +52,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 5,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567894',
         registrationNumber: 'TN 07 IJ 7890',
         insuredName: 'Vikram Iyer',
@@ -64,7 +64,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 6,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567895',
         registrationNumber: 'GJ 01 KL 2345',
         insuredName: 'Neha Joshi',
@@ -76,7 +76,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 7,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567896',
         registrationNumber: 'WB 04 MN 6789',
         insuredName: 'Arjun Das',
@@ -88,7 +88,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 8,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567897',
         registrationNumber: 'AP 09 OP 0123',
         insuredName: 'Lakshmi Rao',
@@ -100,7 +100,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 9,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567898',
         registrationNumber: 'RJ 14 QR 4567',
         insuredName: 'Rohit Singh',
@@ -112,7 +112,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 10,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567899',
         registrationNumber: 'UP 32 ST 8901',
         insuredName: 'Anjali Verma',
@@ -124,7 +124,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 11,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567900',
         registrationNumber: 'PB 10 UV 2345',
         insuredName: 'Gurpreet Kaur',
@@ -136,7 +136,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 12,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567901',
         registrationNumber: 'HR 26 WX 6789',
         insuredName: 'Suresh Yadav',
@@ -148,7 +148,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 13,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567902',
         registrationNumber: 'KL 11 YZ 0123',
         insuredName: 'Maria Thomas',
@@ -160,7 +160,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 14,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567903',
         registrationNumber: 'MP 09 AB 4567',
         insuredName: 'Deepak Tiwari',
@@ -172,7 +172,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 15,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567904',
         registrationNumber: 'BR 06 CD 8901',
         insuredName: 'Pooja Mishra',
@@ -184,7 +184,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 16,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567905',
         registrationNumber: 'CG 04 EF 2345',
         insuredName: 'Rakesh Chauhan',
@@ -196,7 +196,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 17,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567906',
         registrationNumber: 'JH 05 GH 6789',
         insuredName: 'Sanjay Mahato',
@@ -208,7 +208,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 18,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567907',
         registrationNumber: 'AS 01 IJ 0123',
         insuredName: 'Ankita Das',
@@ -220,7 +220,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 19,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567908',
         registrationNumber: 'UK 08 KL 4567',
         insuredName: 'Manoj Bisht',
@@ -232,7 +232,7 @@ export const DEMO_CLAIMS = [
     },
     {
         id: 20,
-        insurerName: 'New India Assurance',
+        insurerName: 'United India Insurance',
         claimNumber: 'CLM1234567909',
         registrationNumber: 'HP 03 MN 8901',
         insuredName: 'Rakhi Thakur',

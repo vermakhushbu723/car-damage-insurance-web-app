@@ -14,6 +14,8 @@ import {
 import AppHeader from '../../../../components/common/AppHeader';
 import { COLORS } from '../../../../constants/theme';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
+import { getCachedSurveyClaim, getSurveyToken } from '../../../../services/surveyLinkApi';
+import { ROUTES } from './routes';
 import carRearLeft from '../../../../assets/png/car/RearLeft.png';
 import carLeft from '../../../../assets/png/car/Left.png';
 import carRight from '../../../../assets/png/car/Right.png';
@@ -57,6 +59,33 @@ const INSURED_DETAILS = [
     { icon: policyNumberIcon, label: 'Policy Number', value: '123456789CAR20', color: '#22C55E', muted: true },
     { icon: insuranceCompanyIcon, label: 'Insurance Co', value: 'XYZ insurance comapny ltd', color: '#3B82F6' },
 ];
+
+/** Survey link: this claim's details (owner form of this survey, else the intimation). */
+const readOwner = () => {
+    try {
+        return JSON.parse(sessionStorage.getItem('ownerVehicleDetails') || '{}');
+    } catch {
+        return {};
+    }
+};
+function claimDetails() {
+    const c = getCachedSurveyClaim();
+    if (!c) return { vehicle: VEHICLE_DETAILS, insured: INSURED_DETAILS };
+    const o = readOwner();
+    const v = c.vehicle ?? {};
+    const val = (...xs) => xs.find((x) => x) || '-';
+    const pick = (rows, values) => rows.map((r, i) => ({ ...r, value: values[i], muted: false }));
+    return {
+        vehicle: pick(VEHICLE_DETAILS, [
+            val(o.make, v.make), val(o.model, v.model), val(o.variant, v.variant), val(o.product, c.insurer?.product), val(o.manufacturingYear, v.manufacturingYear),
+            val(o.registrationNumber, v.registrationNumber), o.odometer ? `${o.odometer} KMS` : '-', val(o.state, v.state), val(o.registrationDate, v.registrationDate),
+        ]),
+        insured: pick(INSURED_DETAILS, [
+            val(o.ownerName, c.insured?.name), val(o.mobile && `+91 ${o.mobile}`, c.insured?.mobile && `+91 ${c.insured.mobile}`), val(o.email, c.insured?.email),
+            val(c.insurer?.claimNumber, c.claimNo), val(c.insurer?.policyNumber), val(c.insurer?.name),
+        ]),
+    };
+}
 
 // ── Row component ─────────────────────────────────────────────────────────
 const DetailRow = ({ icon, label, value, muted, last, isImg, color }) => (
@@ -109,8 +138,12 @@ const DamageReviewPage = () => {
         el.scrollBy({ left: dir * 110, behavior: 'smooth' });
     };
 
+    const details = claimDetails();
+
+    // Survey link: next are the declarations + signatures; that page uploads
+    // every photo / the video to the claim's DMS and submits the survey.
     const handleSubmit = () => {
-        navigate('/claim-weblink/submitted');
+        navigate(getSurveyToken() ? ROUTES.VEHICLE_INFORMATION : '/claim-weblink/submitted');
     };
 
     const handleRestart = () => {
@@ -135,7 +168,7 @@ const DamageReviewPage = () => {
                     <span style={{ color: '#fff', fontWeight: 800, fontSize: 16 }}>Vehicle Information</span>
                 </div>
                 <p style={{ color: '#fff', fontSize: 11, fontWeight: 500, paddingBottom: 6, marginLeft: 22 }}>
-                    Upload All Reqired Documents
+                    Upload All Required Documents
                 </p>
             </div>
 
@@ -175,8 +208,8 @@ const DamageReviewPage = () => {
                 {/* ── Vehicle Details Card ─── */}
                 <div style={{ margin: '8px 10px 0', background: '#DAF0FE', borderRadius: 10, padding: '2px 10px 4px' }}>
                     <p style={{ fontWeight: 700, fontSize: 14, color: COLORS.textPrimary, padding: '6px 0 2px' }}>Vehicle Details</p>
-                    {VEHICLE_DETAILS.map((row, i) => (
-                        <DetailRow key={i} {...row} last={i === VEHICLE_DETAILS.length - 1} isImg={false} />
+                    {details.vehicle.map((row, i) => (
+                        <DetailRow key={i} {...row} last={i === details.vehicle.length - 1} isImg={false} />
                     ))}
                 </div>
 
@@ -188,8 +221,8 @@ const DamageReviewPage = () => {
                         <span style={{ width: 6, height: 6, borderRadius: '50%', background: COLORS.textSecondary, marginTop: 2 }} />
                         <span style={{ width: 6, height: 6, borderRadius: '50%', background: COLORS.textSecondary, marginTop: 2 }} />
                     </div>
-                    {INSURED_DETAILS.map((row, i) => (
-                        <DetailRow key={i} {...row} last={i === INSURED_DETAILS.length - 1} isImg={true} />
+                    {details.insured.map((row, i) => (
+                        <DetailRow key={i} {...row} last={i === details.insured.length - 1} isImg={true} />
                     ))}
                 </div>
             </div>

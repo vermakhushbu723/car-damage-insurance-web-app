@@ -118,7 +118,7 @@ const ClaimStartPage = () => {
                 >
                     Thank You For Reporting Motor Claim With{' '}
                     <span className="text-sm leading-snug underline" style={{ color: COLORS.primaryDark }}>
-                        {claim?.insurer?.name || 'New India Assurance Co. Ltd.'}
+                        {claim?.insurer?.name || 'United India Insurance Co. Ltd.'}
                     </span>
                 </h2>
             </div>

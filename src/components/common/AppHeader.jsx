@@ -19,10 +19,10 @@ const AppHeader = () => {
             className="w-full flex items-center justify-center px-4 py-6"
             style={{ background: COLORS.bgApp }}
         >
-            {/* Left Logo - New India Assurance */}
+            {/* Logos: United India Insurance + IBima Assist */}
             <img
                 src={Logo}
-                alt="New India Assurance"
+                alt="United India Insurance and IBima Assist"
                 className="h-18 w-auto object-contain mt-4"
             />
         </div>

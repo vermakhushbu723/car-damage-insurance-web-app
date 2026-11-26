@@ -121,7 +121,7 @@ const InspectionDetailsPage = () => {
                         <div
                             key={i}
                             className="flex items-center gap-3 py-2"
-                            style={{ borderBottom: i < inspectionData.length - 1 ? `1px solid ${COLORS.borderInput}` : 'none' }}
+                            style={{ borderBottom: i < 4 ? `1px solid ${COLORS.borderInput}` : 'none' }}
                         >
                             <div
                                 className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
