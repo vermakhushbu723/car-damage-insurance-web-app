@@ -53,9 +53,13 @@ export const getCachedSurveyClaim = () => {
 };
 
 /** GET the intimation details the call center entered for this link. */
+/** The insurer this survey web app is branded for (header logo); shown as "Insurer" on every page. */
+export const INSURER_BRAND = import.meta.env.VITE_INSURER_NAME || 'United India Insurance Co. Ltd.';
+
 export async function fetchSurveyClaim(token = getSurveyToken()) {
     if (!token) return null;
-    const claim = await parseOrThrow(await fetch(`${BASE_URL}/survey/${encodeURIComponent(token)}`));
+    const raw = await parseOrThrow(await fetch(`${BASE_URL}/survey/${encodeURIComponent(token)}`));
+    const claim = { ...raw, insurer: { ...(raw?.insurer ?? {}), name: INSURER_BRAND } };
     try {
         sessionStorage.setItem(CLAIM_KEY, JSON.stringify(claim));
     } catch {
