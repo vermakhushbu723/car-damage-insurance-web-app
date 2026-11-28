@@ -12,7 +12,18 @@ import {
 } from '../../../../store/workflowSlice';
 import { getCenterImage, isAngleSupported } from '../../../../constants/vehicleAssets';
 import { usePageLoading } from '../../../../hooks/usePageLoading';
-import { FaMobileAlt, FaSyncAlt, FaVideo, FaCamera, FaCheck } from 'react-icons/fa';
+import { FaMobileAlt, FaSyncAlt } from 'react-icons/fa';
+
+// Material icons (camera_alt / videocam / check), the ones the IBima Assist app (Flutter) shows.
+const MaterialIcon = ({ d, size, color }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} aria-hidden="true" style={{ display: 'block' }}>
+        {d.map((path) => <path key={path} d={path} />)}
+    </svg>
+);
+const ICON_CAMERA = ['M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z', 'M9 2 7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z'];
+const ICON_VIDEO = ['M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z'];
+const ICON_CHECK = ['M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'];
+const ROBOTO = "Roboto, 'Segoe UI', system-ui, -apple-system, Arial, sans-serif";
 
 const PhotoCaptureSelectionPage = () => {
     usePageLoading();
@@ -179,7 +190,7 @@ const PhotoCaptureSelectionPage = () => {
                     };
 
                     return (
-                        <div className="w-screen h-screen overflow-hidden" style={{ background: '#FFFFFF', padding: PAD, position: 'relative' }}>
+                        <div className="w-screen h-screen overflow-hidden" style={{ background: '#FFFFFF', padding: PAD, position: 'relative', fontFamily: ROBOTO }}>
                             <div style={{ position: 'absolute', left: PAD + marginX, top: PAD + marginY, width: iw, height: ih }}>
                                 {/* Vehicle silhouette (car / bike / truck from the owner details) */}
                                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -208,7 +219,7 @@ const PhotoCaptureSelectionPage = () => {
                                                     cursor: 'pointer',
                                                 }}
                                             >
-                                                <span style={{ fontSize: circleSize * 0.35, color, display: 'flex' }}>{isVideo ? <FaVideo /> : <FaCamera />}</span>
+                                                <MaterialIcon d={isVideo ? ICON_VIDEO : ICON_CAMERA} size={circleSize * 0.35} color={color} />
                                             </button>
                                             {done ? (
                                                 <span
@@ -218,7 +229,7 @@ const PhotoCaptureSelectionPage = () => {
                                                         display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none',
                                                     }}
                                                 >
-                                                    <FaCheck />
+                                                    <MaterialIcon d={ICON_CHECK} size={11} color="#fff" />
                                                 </span>
                                             ) : null}
                                             <div style={labelStyle(point.labelPosition, color)}>{point.label}</div>
@@ -233,9 +244,11 @@ const PhotoCaptureSelectionPage = () => {
                                 onClick={handleNext}
                                 disabled={!allDone}
                                 style={{
-                                    position: 'absolute', bottom: PAD, right: PAD, padding: '12px 16px',
-                                    background: allDone ? '#01A0FE' : '#9CA3AF', color: '#fff', border: 'none', borderRadius: 10,
-                                    fontWeight: 700, fontSize: 16, cursor: allDone ? 'pointer' : 'not-allowed', zIndex: 50,
+                                    // Flutter ElevatedButton (#01A0FE; disabled #9CA3AF with faded text)
+                                    position: 'absolute', bottom: PAD, right: PAD, height: 32, padding: '0 16px',
+                                    background: allDone ? '#01A0FE' : '#9CA3AF', color: allDone ? '#fff' : 'rgba(29, 27, 32, 0.38)',
+                                    border: 'none', borderRadius: 10, fontFamily: ROBOTO, fontWeight: 700, fontSize: 16, lineHeight: '32px',
+                                    boxShadow: allDone ? '0 1px 3px rgba(0,0,0,0.3)' : 'none', cursor: allDone ? 'pointer' : 'not-allowed', zIndex: 50,
                                 }}
                             >
                                 Next →
